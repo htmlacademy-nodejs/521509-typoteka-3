@@ -1,7 +1,7 @@
 # Личный проект «Типотека» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александр Кригер](https://up.htmlacademy.ru/nodejs/3/user/521509).
-* Наставник: [Вадим Осюков](https://htmlacademy.ru/profile/id1411353).
+* Наставник: [Никита Куцелай](https://htmlacademy.ru/profile/id32750).
 
 ---
 
