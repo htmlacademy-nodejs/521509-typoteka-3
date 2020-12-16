@@ -5,7 +5,7 @@
  * @module src/utils
  */
 
-const fs = require(`fs`);
+const fs = require(`fs`).promises;
 
 /**
  * getRandomNumber генерирует случайное число в пределах переданных функции.
@@ -74,22 +74,21 @@ const getRandomDateInPast = (max) => {
  * @async
  * @param {string} filePath - путь до файла включая название файла
  * @param {object} data - объект, который должен быть записан в файл.
- * @param {function} callback - функция, которая вызывается по завершению записи в файл
+ * @return {Promise}
  *
  * @example
  * const {writeFile} = require('./utils);
- * writeFile('test.txt', 'This is test string', e => {
- *   if (err) {
- *     console.log(err);
- *     return;
- *   }
- *   console.log('success');
- * };
+ * try {
+ *    await writeFile('test.txt', 'This is test string');
+ *    console.log('success');
+ * } catch (err) {
+ *   console.log(err);
+ * }
  */
 
-const writeFileInJSON = (filePath, data, callback) => {
+const writeFileInJSON = async (filePath, data) => {
   const content = JSON.stringify(data, null, 2);
-  fs.writeFile(filePath, content, callback);
+  await fs.writeFile(filePath, content);
 };
 
 module.exports = {

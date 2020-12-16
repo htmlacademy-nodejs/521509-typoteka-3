@@ -2,7 +2,7 @@
 
 /**
  * Этот модуль генерирует данные для моков.
- * Если не было указано количество объявлений - то количество статей генерируется по умолчанию.
+ * Если не было указано количество статей - то количество статей генерируется по умолчанию.
  *
  * Моки сохраняются в указанный файл в корневой директории  в указанной константе FILE_NAME.
  *
@@ -13,6 +13,8 @@
 
 const path = require(`path`);
 
+const chalk = require(`chalk`);
+
 const {
   getRandomItemInArray,
   getRandomItemsInArray,
@@ -21,7 +23,7 @@ const {
 const {ExitCodes} = require(`../../consts`);
 
 /**
- * Число объявлений по умолчанию
+ * Число статей по умолчанию
  * @const
  * @type {number}
  * @default 1
@@ -29,7 +31,7 @@ const {ExitCodes} = require(`../../consts`);
 const DEFAULT_COUNT = 1;
 
 /**
- * Максимальное число генерируемых объявлений
+ * Максимальное число генерируемых статей
  * @const
  * @type {number}
  * @default 1000
@@ -156,23 +158,23 @@ module.exports = {
   /**
    * Метод run запускает генерацию статей и записывает их в указанный файл
    *
-   * @param {Array} args - массив оставшихся аргументов, которые пользователь указал при запуске программы
+   * @async
+   * @param {String} count - число статей полученных от пользователя.
    */
 
-  run(args) {
+  async run(count) {
     /**
      * Проверяем введенное число статей.
      */
-    const [count] = args;
     let countNumber = Number.parseInt(count, 10);
     if ((countNumber !== 0) && !countNumber) {
       countNumber = DEFAULT_COUNT;
-      console.log(`Число статей не указано. Будет создано ${countNumber} статей.`);
+      console.log(chalk.red(`Число статей не указано. Будет создано ${countNumber} статей.`));
     } else if (countNumber <= 0) {
-      console.error(`Указано не положительное число статей.`);
+      console.error(chalk.red(`Указано не положительное число статей.`));
       process.exit(ExitCodes.FAIL);
     } else if (countNumber > MAX_COUNT) {
-      console.error(`Указано число статей больше ${MAX_COUNT}. \nУкажи не больше ${MAX_COUNT} статей.`);
+      console.error(chalk.red(`Указано число статей больше ${MAX_COUNT}. \nУкажи не больше ${MAX_COUNT} статей.`));
       process.exit(ExitCodes.FAIL);
     }
 
@@ -180,17 +182,17 @@ module.exports = {
      * Запускаем генерацию статей.
      */
     const articles = generateArticles(countNumber, TITLES, SENTENCES, CATEGORIES);
-    console.log(`Сгенерировано ${articles.length} статей.`);
+    console.log(chalk.green(`Сгенерировано ${articles.length} статей.`));
 
     /**
      * Записываем результат в файл.
      */
-    writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles, (err) => {
-      if (err) {
-        console.error(`Ошибка записи в файл ${FILE_NAME}: ${err.message}`);
-        process.exit(ExitCodes.FAIL);
-      }
-      console.log(`Файл ${FILE_NAME} успешно записан.`);
-    });
+    try {
+      await writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles);
+      console.log(chalk.green(`Файл ${FILE_NAME} успешно записан.`));
+    } catch (err) {
+      console.error(chalk.red(`Ошибка записи в файл ${FILE_NAME}: ${err.message}`));
+      process.exit(ExitCodes.FAIL);
+    }
   }
 };
