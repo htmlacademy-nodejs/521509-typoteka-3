@@ -7,12 +7,23 @@ const {
   ExitCodes
 } = require(`../consts`);
 
-const userArguments = process.argv.slice(USER_ARGV_INDEX);
-const [userCommand] = userArguments;
+/**
+ * Считываем аргументы от пользователя. Первые 2 аргумента - зарезервированы системой.
+ * Начинаем с USER_ARGV_INDEX - по дифолту 3-го аргумента.
+ */
+const [command, ...args] = process.argv.slice(USER_ARGV_INDEX);
 
-if (userArguments.length === 0 || !Cli[userCommand]) {
+/**
+ * Проверяем была ли введена команда и есть ли она в CLI.
+ * Если пусто или нет в CLI показываем команду по дифолту - справку --help.
+ */
+if (!Cli[command]) {
+  console.log(command ? `Команда ${command} не существует, смотри справку:` : `Команда не введена, смотри справку:`);
   Cli[DEFAULT_COMMAND].run();
   process.exit(ExitCodes.SUCCESS);
 }
 
-Cli[userCommand].run(userArguments.slice(1));
+/**
+ * Запускаем соответствующий модуль и передаем ему аргументы
+ */
+Cli[command].run(...args);
