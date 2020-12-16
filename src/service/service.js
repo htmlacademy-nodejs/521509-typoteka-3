@@ -1,5 +1,7 @@
 'use strict';
 
+const chalk = require(`chalk`);
+
 const {Cli} = require(`./cli`);
 const {
   DEFAULT_COMMAND,
@@ -18,7 +20,7 @@ const [command, ...args] = process.argv.slice(USER_ARGV_INDEX);
  * Если пусто или нет в CLI показываем команду по дифолту - справку --help.
  */
 if (!Cli[command]) {
-  console.log(command ? `Команда ${command} не существует, смотри справку:` : `Команда не введена, смотри справку:`);
+  console.log(chalk.red(command ? `Команда ${command} не существует, смотри справку:` : `Команда не введена, смотри справку:`));
   Cli[DEFAULT_COMMAND].run();
   process.exit(ExitCodes.SUCCESS);
 }

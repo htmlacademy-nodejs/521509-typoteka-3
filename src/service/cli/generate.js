@@ -13,6 +13,8 @@
 
 const path = require(`path`);
 
+const chalk = require(`chalk`);
+
 const {
   getRandomItemInArray,
   getRandomItemsInArray,
@@ -166,12 +168,12 @@ module.exports = {
     let countNumber = Number.parseInt(count, 10);
     if ((countNumber !== 0) && !countNumber) {
       countNumber = DEFAULT_COUNT;
-      console.log(`Число статей не указано. Будет создано ${countNumber} статей.`);
+      console.log(chalk.red(`Число статей не указано. Будет создано ${countNumber} статей.`));
     } else if (countNumber <= 0) {
-      console.error(`Указано не положительное число статей.`);
+      console.error(chalk.red(`Указано не положительное число статей.`));
       process.exit(ExitCodes.FAIL);
     } else if (countNumber > MAX_COUNT) {
-      console.error(`Указано число статей больше ${MAX_COUNT}. \nУкажи не больше ${MAX_COUNT} статей.`);
+      console.error(chalk.red(`Указано число статей больше ${MAX_COUNT}. \nУкажи не больше ${MAX_COUNT} статей.`));
       process.exit(ExitCodes.FAIL);
     }
 
@@ -179,17 +181,17 @@ module.exports = {
      * Запускаем генерацию статей.
      */
     const articles = generateArticles(countNumber, TITLES, SENTENCES, CATEGORIES);
-    console.log(`Сгенерировано ${articles.length} статей.`);
+    console.log(chalk.green(`Сгенерировано ${articles.length} статей.`));
 
     /**
      * Записываем результат в файл.
      */
     writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles, (err) => {
       if (err) {
-        console.error(`Ошибка записи в файл ${FILE_NAME}: ${err.message}`);
+        console.error(chalk.red(`Ошибка записи в файл ${FILE_NAME}: ${err.message}`));
         process.exit(ExitCodes.FAIL);
       }
-      console.log(`Файл ${FILE_NAME} успешно записан.`);
+      console.log(chalk.green(`Файл ${FILE_NAME} успешно записан.`));
     });
   }
 };
