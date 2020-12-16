@@ -158,10 +158,11 @@ module.exports = {
   /**
    * Метод run запускает генерацию статей и записывает их в указанный файл
    *
+   * @async
    * @param {String} count - число статей полученных от пользователя.
    */
 
-  run(count) {
+  async run(count) {
     /**
      * Проверяем введенное число статей.
      */
@@ -186,12 +187,12 @@ module.exports = {
     /**
      * Записываем результат в файл.
      */
-    writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles, (err) => {
-      if (err) {
-        console.error(chalk.red(`Ошибка записи в файл ${FILE_NAME}: ${err.message}`));
-        process.exit(ExitCodes.FAIL);
-      }
+    try {
+      await writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles);
       console.log(chalk.green(`Файл ${FILE_NAME} успешно записан.`));
-    });
+    } catch (err) {
+      console.error(chalk.red(`Ошибка записи в файл ${FILE_NAME}: ${err.message}`));
+      process.exit(ExitCodes.FAIL);
+    }
   }
 };
