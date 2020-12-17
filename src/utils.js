@@ -91,10 +91,23 @@ const writeFileInJSON = async (filePath, data) => {
   await fs.writeFile(filePath, content);
 };
 
+/**
+ * Читает файл и отдает отфильтрованный массив без пустых элементов и лишних пробелов.
+ *
+ * @param {string} filePath - абсолютный путь до файла
+ * @param {string} encoding - кодировка, по умолчанию utf8
+ * @return {Promise.<Array>} - возвращает Promise со информацией.
+ */
+const readFileToArray = async (filePath, encoding = `utf8`) => {
+  const data = await fs.readFile(filePath, encoding);
+  return data.split(`\n`).map((it) => it.trim()).filter((it) => it.length !== 0);
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
   getRandomItemsInArray,
   getRandomDateInPast,
-  writeFileInJSON
+  writeFileInJSON,
+  readFileToArray
 };
