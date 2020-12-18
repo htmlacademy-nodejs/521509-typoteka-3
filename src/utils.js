@@ -103,11 +103,24 @@ const readFileToArray = async (filePath, encoding = `utf8`) => {
   return data.split(`\n`).map((it) => it.trim()).filter((it) => it.length !== 0);
 };
 
+/**
+ * Читает файл, c JSON информацией и возвращает прочитанный объект.
+ *
+ * @param {string} filePath - абсолютный путь до файла
+ * @param {string} encoding - кодировка, по умолчанию utf8
+ * @return {Promise.<Object>} - объект со информацией.
+ */
+const readFileInJSON = async (filePath, encoding = `utf8`) => {
+  const data = await fs.readFile(filePath, encoding);
+  return JSON.parse(data);
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
   getRandomItemsInArray,
   getRandomDateInPast,
   writeFileInJSON,
-  readFileToArray
+  readFileToArray,
+  readFileInJSON
 };

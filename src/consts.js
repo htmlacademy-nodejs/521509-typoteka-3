@@ -18,6 +18,21 @@ const ExitCodes = {
 };
 
 /**
+ * Коды для ответов сервера
+ *
+ * @const
+ * @type {Object}
+ */
+const HttpCode = {
+  OK: 200,
+  NOT_FOUND: 404,
+  INTERNAL_SERVER_ERROR: 500,
+  FORBIDDEN: 403,
+  UNAUTHORIZED: 401,
+};
+
+
+/**
  * Команда по умолчанию при запуске программы
  * @const
  * @type {string}
@@ -36,6 +51,7 @@ const USER_ARGV_INDEX = 2;
 
 module.exports = {
   DEFAULT_COMMAND,
+  HttpCode,
   ExitCodes,
   USER_ARGV_INDEX,
 };
