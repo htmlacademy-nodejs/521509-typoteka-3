@@ -124,7 +124,7 @@ const generateArticle = (titles, sentences, categories) => {
  * @return {Object[]} - массив статей
  */
 const generateArticles = (count, titles, sentences, categories) => {
-  return Array(count).fill(generateArticle(titles, sentences, categories));
+  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categories));
 };
 
 
