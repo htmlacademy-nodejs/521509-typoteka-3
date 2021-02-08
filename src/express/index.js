@@ -30,7 +30,7 @@ const app = express();
  */
 app.use(`/`, rootRouter);
 app.use(`/my`, myRouter);
-app.use(`/offers`, articlesRouter);
+app.use(`/articles`, articlesRouter);
 
 /**
  * Запускаем сервер
