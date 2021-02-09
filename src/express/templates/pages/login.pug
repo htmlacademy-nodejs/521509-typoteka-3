@@ -1,0 +1,28 @@
+extends ../layouts/default.pug
+
+block content
+  main
+    h1.visually-hidden Регистрация пользователя
+    section.modal
+      .popup.popup--registration
+        a.popup__button.button.button--popup-close(href='/' aria-label='Закрыть окно')
+          | Закрыть
+          | окно
+        h2.visually-hidden Форма регистрации
+        ul.popup__tabs
+          li.popup__tab.popup__tab--register
+            a.popup__tab-switcher.button(href='/register') Регистрация
+          li.popup__tab.popup__tab--log-in.popup__tab--active
+            a.popup__tab-switcher.button Войти
+        .popup__form.popup__form--active.form.form--register
+          form(action='#' method='get')
+            .form__field
+              label
+                input(type='email' placeholder='Электронная почта' required='')
+            .form__field
+              label
+                input(type='password' placeholder='Пароль' required='')
+            button.form__submit-btn.form__submit-btn--log-in.button.button--colored(type='submit') Войти
+      .modal__overlay
+
+  script(src='js/main.js')
