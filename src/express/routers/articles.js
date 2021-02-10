@@ -8,13 +8,28 @@ const {Router} = require(`express`);
 
 const offersRoutes = new Router();
 
-offersRoutes.get(`/add`, (req, res) => res.send(`/articles/add`));
+/**
+ * Обработка маршрута для добавления статьи - открывается пустая форма для редактирования
+ */
+offersRoutes.get(`/add`, (req, res) => res.render(`pages/articles/edit-article`));
 
-offersRoutes.get(`/:id`, (req, res) => res.send(`/articles/${req.params.id}`));
 
-offersRoutes.get(`/edit/:id`, (req, res) => res.send(`/articles/edit/${req.params.id}`));
+/**
+ * Обработка маршрута для статьи
+ */
+offersRoutes.get(`/:id`, (req, res) => res.render(`pages/articles/article`));
 
-offersRoutes.get(`/category/:id`, (req, res) => res.send(`/articles/category/${req.params.id}`));
+
+/**
+ * Обработка маршрута для редактирования статьи
+ */
+offersRoutes.get(`/edit/:id`, (req, res) => res.send(`pages/articles/edit-article`));
+
+
+/**
+ * Обработка маршрута для категории
+ */
+offersRoutes.get(`/category/:id`, (req, res) => res.render(`pages/articles/articles-by-category`));
 
 
 module.exports = offersRoutes;
