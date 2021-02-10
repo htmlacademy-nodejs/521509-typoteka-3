@@ -29,7 +29,7 @@ offersRoutes.get(`/edit/:id`, (req, res) => res.send(`pages/articles/edit-articl
 /**
  * Обработка маршрута для категории
  */
-offersRoutes.get(`/category/:id`, (req, res) => res.render(`pages/articles/articles-by-category.pug`));
+offersRoutes.get(`/category/:id`, (req, res) => res.render(`pages/articles/articles-by-category`));
 
 
 module.exports = offersRoutes;
