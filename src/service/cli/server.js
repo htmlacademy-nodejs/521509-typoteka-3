@@ -11,6 +11,9 @@ const chalk = require(`chalk`);
 
 const getIndexRouter = require(`../routers`);
 
+const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
+const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
+
 /**
  * Порт по умолчанию
  * @const
@@ -50,7 +53,16 @@ module.exports = {
     const app = express();
     app.use(express.json());
 
+    /**
+     * Подключаем роутеры
+     */
     app.use(API_PREFIX, await getIndexRouter());
+
+    /**
+     * Подключаем middleware для обработки ошибок
+     */
+    app.use(resourceNotFoundMiddleWare);
+    app.use(internalServerErrorMiddleWare);
 
     app.listen(portNumber, (err) => {
       if (err) {
