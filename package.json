@@ -4,10 +4,10 @@
   "description": "Типотека",
   "main": "./src/service/service.js",
   "scripts": {
-    "start": "node ./src/service/service.js",
+    "start": "node ./src/service/service.js --server",
+    "start::debug": "nodemon src/service/service.js --server",
     "start-front": "node ./src/express/index.js",
     "start-front::debug": "nodemon ./src/express/index.js",
-    "server": "nodemon src/service/service.js --server",
     "test": "npm run eslint",
     "eslint": "eslint --ext .js src/"
   },
