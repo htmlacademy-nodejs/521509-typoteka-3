@@ -14,14 +14,16 @@
 const path = require(`path`);
 
 const chalk = require(`chalk`);
+const {nanoid} = require(`nanoid`);
 
 const {
+  getRandomNumber,
   getRandomItemInArray,
   getRandomItemsInArray,
   getRandomDateInPast,
   writeFileInJSON,
   readFileToArray} = require(`../../utils`);
-const {ExitCodes} = require(`../../consts`);
+const {ExitCodes, ID_LENGTH} = require(`../../consts`);
 
 /**
  * Число статей по умолчанию
@@ -81,12 +83,36 @@ const PATH_TO_TITLES = `data/titles.txt`;
 const PATH_TO_SENTENCES = `data/sentences.txt`;
 
 /**
+ * Путь к файлу с комментариями относительно корневого каталога.
+ * @const
+ * @type {string}
+ * @default `data/comments.txt
+ */
+const PATH_TO_COMMENTS = `data/comments.txt`;
+
+/**
  * Максимальное число предложений в анонсе.
  * @const
  * @type {Number}
  * @default 5
  */
 const MAX_ANNOUNCE_COUNT = 5;
+
+/**
+ * Максимальное число предложений в комментарии.
+ * @const
+ * @type {Number}
+ * @default 5
+ */
+const MAX_COMMENT_LENGTH = 5;
+
+/**
+ * Максимальное количество комментариев в объявлении
+ * @const
+ * @type {Number}
+ * @default 5
+ */
+const MAX_COMMENTS_COUNT = 5;
 
 /**
  * Максимальный интервал в прошлом в миллисекундах
@@ -99,18 +125,34 @@ const MAX_PAST = 3 * 30 * 24 * 60 * 60 * 1000;
 /**
  * Генерирует статью по переданным параметрам.
  *
+ * @param {String[]} commentSentences - массив предложений для комментариев
+ * @return {{id: String, text: String}} - объект комментария
+ */
+const generateComment = (commentSentences) => {
+  return {
+    id: nanoid(ID_LENGTH),
+    text: getRandomItemsInArray(commentSentences, MAX_COMMENT_LENGTH).join(` `)
+  };
+};
+
+/**
+ * Генерирует статью по переданным параметрам.
+ *
  * @param {String[]} titles - массив заголовков
  * @param {String[]} sentences - массив предложений
  * @param {String[]} categories - массив категорий
- * @return {{title: String, createdDate: Date, fullText: String, category: String[], announce: String}} - объект статьи
+ * @param {String[]} commentSentences - массив предложений для комментариев
+ * @return {{id: String, title: String, createdAt: String, text: String, category: String[], announce: String, comments: Object[]}} - объект статьи
  */
-const generateArticle = (titles, sentences, categories) => {
+const generateArticle = (titles, sentences, categories, commentSentences) => {
   return {
+    id: nanoid(ID_LENGTH),
     title: getRandomItemInArray(titles),
-    createdDate: getRandomDateInPast(MAX_PAST),
-    announce: getRandomItemsInArray(sentences, MAX_ANNOUNCE_COUNT).join(``),
-    fullText: getRandomItemsInArray(sentences).join(``),
-    category: getRandomItemsInArray(categories)
+    createdAt: getRandomDateInPast(MAX_PAST).toISOString(),
+    announce: getRandomItemsInArray(sentences, MAX_ANNOUNCE_COUNT).join(` `),
+    text: getRandomItemsInArray(sentences).join(` `),
+    categories: getRandomItemsInArray(categories),
+    comments: Array(getRandomNumber(0, MAX_COMMENTS_COUNT)).fill({}).map(() => generateComment(commentSentences))
   };
 };
 
@@ -121,10 +163,11 @@ const generateArticle = (titles, sentences, categories) => {
  * @param {String[]} titles - массив заголовков
  * @param {String[]} sentences - массив предложений
  * @param {String[]} categories - массив категорий
+ * @param {String[]} commentSentences - массив предложений для комментариев
  * @return {Object[]} - массив статей
  */
-const generateArticles = (count, titles, sentences, categories) => {
-  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categories));
+const generateArticles = (count, titles, sentences, categories, commentSentences) => {
+  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categories, commentSentences));
 };
 
 
@@ -136,8 +179,7 @@ const generateArticles = (count, titles, sentences, categories) => {
  */
 const readDataForGeneration = async (filePath) => {
   const absolutePath = path.join(__dirname, PATH_TO_ROOT_FOLDER, filePath);
-  const contentArray = await readFileToArray(absolutePath);
-  return contentArray;
+  return await readFileToArray(absolutePath);
 };
 
 
@@ -170,21 +212,23 @@ module.exports = {
     let titles;
     let sentences;
     let categories;
+    let commentsSentences;
 
     try {
       /**
        * Читаем файлы с данными параллельно
        */
-      [titles, sentences, categories] = await Promise.all([
+      [titles, sentences, categories, commentsSentences] = await Promise.all([
         readDataForGeneration(PATH_TO_TITLES),
         readDataForGeneration(PATH_TO_SENTENCES),
-        readDataForGeneration(PATH_TO_CATEGORIES)
+        readDataForGeneration(PATH_TO_CATEGORIES),
+        readDataForGeneration(PATH_TO_COMMENTS)
       ]);
 
       /**
        * Запускаем генерацию статей.
        */
-      const articles = generateArticles(countNumber, titles, sentences, categories);
+      const articles = generateArticles(countNumber, titles, sentences, categories, commentsSentences);
       console.log(chalk.green(`Сгенерировано ${articles.length} статей.`));
 
       /**

@@ -10,7 +10,6 @@
  * Коды завершения программы
  * @const
  * @type {{SUCCESS: number, FAIL: number}}
- * @default
  */
 const ExitCodes = {
   SUCCESS: 0,
@@ -29,14 +28,24 @@ const HttpCode = {
   INTERNAL_SERVER_ERROR: 500,
   FORBIDDEN: 403,
   UNAUTHORIZED: 401,
+  CREATED: 201,
+  DELETED: 204,
+  BAD_REQUEST: 400
 };
 
+/**
+ * Длина id
+ *
+ * @const
+ * @type {Number}
+ */
+const ID_LENGTH = 4;
 
 /**
  * Команда по умолчанию при запуске программы
  * @const
  * @type {string}
- * @default
+ * @default `--help`
  */
 const DEFAULT_COMMAND = `--help`;
 
@@ -45,13 +54,14 @@ const DEFAULT_COMMAND = `--help`;
  *
  * @type {number}
  * @const
- * @default
+ * @default 2
  */
 const USER_ARGV_INDEX = 2;
 
 module.exports = {
   DEFAULT_COMMAND,
   HttpCode,
+  ID_LENGTH,
   ExitCodes,
   USER_ARGV_INDEX,
 };
