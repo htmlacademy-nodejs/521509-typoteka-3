@@ -7,12 +7,16 @@
  */
 
 const express = require(`express`);
-const chalk = require(`chalk`);
 
 const getIndexRouter = require(`../routers`);
 
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
+const requestLoggerMiddleWare = require(`../middlewares/request-logger`);
+
+const {getDefaultLoggerChild} = require(`../lib/logger`);
+
+const {ExitCodes} = require(`../../consts`);
 
 /**
  * Порт по умолчанию
@@ -46,12 +50,16 @@ module.exports = {
      */
     const portNumber = Number.parseInt(port, 10) || DEFAULT_PORT;
 
+    const logger = getDefaultLoggerChild({name: `api`});
+
     /**
      * Создаем экземпляр Express. И подключаем middleware для JSON
      * @type {Express}
      */
     const app = express();
     app.use(express.json());
+
+    app.use(requestLoggerMiddleWare);
 
     /**
      * Подключаем роутеры
@@ -66,11 +74,12 @@ module.exports = {
 
     app.listen(portNumber, (err) => {
       if (err) {
-        console.log(chalk.red(`Ошибка при создании сервера: ${portNumber} \n ${err}`));
+        logger.error(`Error on server starting on port: ${portNumber} \n ${err}`);
+        process.exit(ExitCodes.FAIL);
         return;
       }
 
-      console.log(chalk.green(`Сервер поднят успешно на порту: ${portNumber}`));
+      logger.info(`Server is started on port: ${portNumber}`);
     });
   }
 };
