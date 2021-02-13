@@ -58,10 +58,24 @@ const DEFAULT_COMMAND = `--help`;
  */
 const USER_ARGV_INDEX = 2;
 
+/**
+ * Возможные варианты окружений
+ *
+ * @const
+ * @type {Object}
+ */
+const Env = {
+  DEVELOPMENT: `development`,
+  PRODUCTION: `production`,
+  TESTING: `testing`
+};
+
+
 module.exports = {
   DEFAULT_COMMAND,
   HttpCode,
   ID_LENGTH,
   ExitCodes,
   USER_ARGV_INDEX,
+  Env
 };
