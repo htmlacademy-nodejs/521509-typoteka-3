@@ -57,4 +57,4 @@ class Logger {
  * Экспортируем Logger
  * @type {Logger}
  */
-module.exports = Logger;
+module.exports = {Logger, getDefaultLoggerChild: Logger.getDefaultLoggerChild};

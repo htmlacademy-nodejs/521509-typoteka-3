@@ -12,8 +12,11 @@ const getIndexRouter = require(`../routers`);
 
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
+const requestLoggerMiddleWare = require(`../middlewares/request-logger`);
 
-const Logger = require(`../lib/logger`);
+const {getDefaultLoggerChild} = require(`../lib/logger`);
+
+const {ExitCodes} = require(`../../consts`);
 
 /**
  * Порт по умолчанию
@@ -47,7 +50,7 @@ module.exports = {
      */
     const portNumber = Number.parseInt(port, 10) || DEFAULT_PORT;
 
-    const logger = Logger.getDefaultLoggerChild({name: `api`});
+    const logger = getDefaultLoggerChild({name: `api`});
 
     /**
      * Создаем экземпляр Express. И подключаем middleware для JSON
@@ -55,6 +58,8 @@ module.exports = {
      */
     const app = express();
     app.use(express.json());
+
+    app.use(requestLoggerMiddleWare);
 
     /**
      * Подключаем роутеры
@@ -69,11 +74,12 @@ module.exports = {
 
     app.listen(portNumber, (err) => {
       if (err) {
-        logger.error(`Ошибка при создании сервера: ${portNumber} \n ${err}`);
+        logger.error(`Error on server starting on port: ${portNumber} \n ${err}`);
+        process.exit(ExitCodes.FAIL);
         return;
       }
 
-      logger.info(`Сервер поднят успешно на порту: ${portNumber}`);
+      logger.info(`Server is started on port: ${portNumber}`);
     });
   }
 };
