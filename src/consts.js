@@ -70,6 +70,18 @@ const Env = {
   TESTING: `testing`
 };
 
+/**
+ * HTTP методы
+ * @type {{PATH: string, DELETE: string, POST: string, GET: string, PUT: string}}
+ */
+const Methods = {
+  GET: `GET`,
+  POST: `POST`,
+  PUT: `PUT`,
+  PATH: `PATH`,
+  DELETE: `DELETE`
+};
+
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -77,5 +89,6 @@ module.exports = {
   ID_LENGTH,
   ExitCodes,
   USER_ARGV_INDEX,
-  Env
+  Env,
+  Methods
 };
