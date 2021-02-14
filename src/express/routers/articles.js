@@ -32,10 +32,6 @@ articlesRoutes.post(`/add`, uploaderMiddleware.single(`file`), async (req, res) 
     text: body.text,
     categories: body.categories
   };
-  console.log(body);
-  console.log(articleData);
-  console.log(file.filename);
-  // console.log(articleData);
   try {
     await api.createArticle(articleData);
     res.redirect(`/my`);
