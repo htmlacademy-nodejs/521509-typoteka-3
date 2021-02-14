@@ -31,6 +31,15 @@ const PORT_NUMBER = 8080;
 const PATH_TO_PUBLIC_DIR = `public`;
 
 /**
+ * Путь до папки для приема файлов от пользователей. Она будет будет полностью доступна с помощью express.static.
+ *
+ * @const
+ * @type {string}
+ * @default
+ */
+const PATH_TO_UPLOAD_DIR = `../../upload`;
+
+/**
  * Путь до папки с шаблономи.
  *
  * @const
@@ -53,10 +62,16 @@ const logger = new Logger(`front-server`).getLogger();
 app.set(`views`, path.resolve(__dirname, PATH_TO_TEMPLATES_DIR));
 app.set(`view engine`, `pug`);
 
+app.use(express.urlencoded({
+  extended: true
+}));
+
+
 /**
  * Добавляем отдачу статичных файлов.
  */
 app.use(express.static(path.resolve(__dirname, PATH_TO_PUBLIC_DIR)));
+app.use(express.static(path.resolve(__dirname, PATH_TO_UPLOAD_DIR)));
 
 /**
  * Используем express-pino-logger для более подробного логирования запросов.

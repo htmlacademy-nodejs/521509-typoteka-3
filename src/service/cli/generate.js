@@ -91,6 +91,14 @@ const PATH_TO_SENTENCES = `data/sentences.txt`;
 const PATH_TO_COMMENTS = `data/comments.txt`;
 
 /**
+ * Путь к файлу с комментариями относительно корневого каталога.
+ * @const
+ * @type {string}
+ * @default `data/comments.txt
+ */
+const PATH_TO_IMAGES = `data/images.txt`;
+
+/**
  * Максимальное число предложений в анонсе.
  * @const
  * @type {Number}
@@ -141,16 +149,19 @@ const generateComment = (commentSentences) => {
  * @param {String[]} titles - массив заголовков
  * @param {String[]} sentences - массив предложений
  * @param {String[]} categories - массив категорий
+ * @param {String[]} images - массив с названиями картинок
  * @param {String[]} commentSentences - массив предложений для комментариев
- * @return {{id: String, title: String, createdAt: String, text: String, category: String[], announce: String, comments: Object[]}} - объект статьи
+ * @return {{id: String, title: String, publishedAt: String, text: String, category: String[], image: String, announce: String, comments: Object[]}} - объект статьи
  */
-const generateArticle = (titles, sentences, categories, commentSentences) => {
+const generateArticle = (titles, sentences, categories, images, commentSentences) => {
+  const isWithImage = !!getRandomNumber(0, 2);
   return {
     id: nanoid(ID_LENGTH),
     title: getRandomItemInArray(titles),
-    createdAt: getRandomDateInPast(MAX_PAST).toISOString(),
+    publishedAt: getRandomDateInPast(MAX_PAST).toISOString(),
     announce: getRandomItemsInArray(sentences, MAX_ANNOUNCE_COUNT).join(` `),
     text: getRandomItemsInArray(sentences).join(` `),
+    image: isWithImage ? getRandomItemInArray(images) : null,
     categories: getRandomItemsInArray(categories),
     comments: Array(getRandomNumber(0, MAX_COMMENTS_COUNT)).fill({}).map(() => generateComment(commentSentences))
   };
@@ -163,11 +174,12 @@ const generateArticle = (titles, sentences, categories, commentSentences) => {
  * @param {String[]} titles - массив заголовков
  * @param {String[]} sentences - массив предложений
  * @param {String[]} categories - массив категорий
+ * @param {String[]} images - массив с названиями картинок
  * @param {String[]} commentSentences - массив предложений для комментариев
  * @return {Object[]} - массив статей
  */
-const generateArticles = (count, titles, sentences, categories, commentSentences) => {
-  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categories, commentSentences));
+const generateArticles = (count, titles, sentences, categories, images, commentSentences) => {
+  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categories, images, commentSentences));
 };
 
 
@@ -212,23 +224,25 @@ module.exports = {
     let titles;
     let sentences;
     let categories;
+    let images;
     let commentsSentences;
 
     try {
       /**
        * Читаем файлы с данными параллельно
        */
-      [titles, sentences, categories, commentsSentences] = await Promise.all([
+      [titles, sentences, categories, images, commentsSentences] = await Promise.all([
         readDataForGeneration(PATH_TO_TITLES),
         readDataForGeneration(PATH_TO_SENTENCES),
         readDataForGeneration(PATH_TO_CATEGORIES),
+        readDataForGeneration(PATH_TO_IMAGES),
         readDataForGeneration(PATH_TO_COMMENTS)
       ]);
 
       /**
        * Запускаем генерацию статей.
        */
-      const articles = generateArticles(countNumber, titles, sentences, categories, commentsSentences);
+      const articles = generateArticles(countNumber, titles, sentences, categories, images, commentsSentences);
       console.log(chalk.green(`Сгенерировано ${articles.length} статей.`));
 
       /**
@@ -237,7 +251,7 @@ module.exports = {
       await writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles);
       console.log(chalk.green(`Файл ${FILE_NAME} успешно записан.`));
     } catch (err) {
-      console.error(chalk.red(`Ошибка: ${err.message}`));
+      console.error(chalk.red(`Ошибка: ${err.stack}`));
       process.exit(ExitCodes.FAIL);
     }
   }
