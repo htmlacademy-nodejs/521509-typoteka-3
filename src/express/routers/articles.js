@@ -3,14 +3,7 @@
 /**
  * Роутер для статей. ('/articles')
  */
-const {Router} = require(`express`);
-
-const api = require(`../api`).getDefaultAPI();
-
-const Uploader = require(`../lib/uploader`);
-
-const articlesRoutes = new Router();
-const uploaderMiddleware = new Uploader(`img`).getMiddleware();
+const {api, articlesRoutes, uploaderMiddleware} = require(`../utils/init-articles-router`)();
 
 /**
  * Обработка маршрута для добавления статьи - открывается пустая форма для редактирования
