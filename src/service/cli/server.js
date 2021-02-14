@@ -12,9 +12,8 @@ const getIndexRouter = require(`../routers`);
 
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
-const requestLoggerMiddleWare = require(`../middlewares/request-logger`);
 
-const {getDefaultLoggerChild} = require(`../lib/logger`);
+const Logger = require(`../../lib/logger`);
 
 const {ExitCodes} = require(`../../consts`);
 
@@ -50,7 +49,7 @@ module.exports = {
      */
     const portNumber = Number.parseInt(port, 10) || DEFAULT_PORT;
 
-    const logger = getDefaultLoggerChild({name: `api`});
+    const logger = new Logger(`api-server`).getLogger();
 
     /**
      * Создаем экземпляр Express. И подключаем middleware для JSON
@@ -59,7 +58,11 @@ module.exports = {
     const app = express();
     app.use(express.json());
 
-    app.use(requestLoggerMiddleWare);
+    /**
+     * Используем express-pino-logger для более подробного логирования запросов.
+     * К каждому сообщению будет добавлена информация о запросе, в том числе id, чтобы проследить полный путь.
+     */
+    app.use(new Logger(`api-server`).getLoggerMiddleware());
 
     /**
      * Подключаем роутеры
