@@ -5,7 +5,7 @@ block content
     section.modal.modal--flex
       .popup.popup--new-publication.popup--flex
         .new-publication
-          form(action='#' method='POST')
+          form(action='/articles/add' method='POST' enctype='multipart/form-data')
             .new-publication__header
               h1 Новая публикация
               .new-publication__date-form
@@ -22,29 +22,31 @@ block content
               .form__wrapper.form__wrapper--intro
                 .form__field
                   label
-                    input(type='text' placeholder='Заголовок' value='Как правильно заводить машину' required='')
+                    input(type='text' placeholder='Заголовок' value=article.title name='title' required='')
                 .form__field.form__field--post-image
                   label
-                    input#image-name-field(type='text' value='moya_mashinka.jpg' placeholder='Фотография' readonly='')
+                    input#image-name-field(type='text' value=article.image placeholder='Фотография' name='image' readonly='')
                   .form__image-loader.form__image-loader--publication
                     label
-                      input.visually-hidden(type='file')
+                      input.visually-hidden(type='file' name='file')
                       | Обзор
                   button.button.button--transparent Удалить
-                .new-publication__checkbox.new-publication__checkbox--auto
-                  input#checkbox-auto(type='checkbox' name='checkbox-auto')
-                  label(for='checkbox-auto') Автомобили
+
+                each category in categories
+                  .new-publication__checkbox.new-publication__checkbox--auto
+                    input(id=`category-${category}` type='checkbox' name='categories[]' value=category checked=(article.categories && article.categories.includes(category)))
+                    label(for=`category-${category}`) #{category}
+
                 a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
               .form__wrapper.form__wrapper--text
                 .form__field.form__field--publication-text
                   label
-                    textarea(rows='2' placeholder='Анонс публикации')
-                      | Материнский холдинг возглавит гендиректор Google Сундар Пичаи. При этом больше половины голосов в компании останется у Пейджа и Брина.
+                    textarea(rows='2' placeholder='Анонс публикации' name='announce')
+                      | #{article.announce}
                 .form__field.form__field--publication-text
                   label
-                    textarea(rows='5' placeholder='Полный текст публикации')
-                      | Основатели Google Ларри Пейдж и Сергей Брин отойдут от руководства материнским холдингом Alphabet, сказано в сообщении компании. Пейдж занимал пост гендиректора, а Брин — президента Alphabet.
-                      | Alphabet возглавит гендиректор Google Сундар Пичаи, он также продолжит руководить Google. Должность президента холдинга будет упразднена.
+                    textarea(rows='5' placeholder='Полный текст публикации' name='text')
+                      | #{article.text}
       .modal__overlay
 
   script(src='/js/vendor.js')

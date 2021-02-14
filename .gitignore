@@ -16,3 +16,7 @@ build/
 
 # Файл с моками
 mocks.json
+
+upload
+
+*.env*

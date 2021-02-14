@@ -1,26 +1,21 @@
 'use strict';
 
+const path = require(`path`);
+
 const pino = require(`pino`);
+const expressPinoLogger = require(`express-pino-logger`);
 
-const {Env} = require(`../../consts`);
-
-const LOG_FILE = `./logs/api.log`;
+const {Env} = require(`../consts`);
 
 const DEFAULT_LOG_NAME = `base-logger`;
-
-/**
- * Создаем экземпляр дефолтного логгера, чтобы каждый модуль не создавал свой базовый, а создавал только дочерние.
- * @type {Logger}
- */
-let defaultLogger;
 
 class Logger {
   constructor(name = DEFAULT_LOG_NAME) {
     switch (process.env.NODE_ENV) {
       case Env.PRODUCTION:
-        this._level = process.env.LOG_LEVEL || `error`;
+        this._level = process.env.LOG_LEVEL || `info`;
         this._isPrettyPrintEnabled = false;
-        this._logsDestination = pino.destination(LOG_FILE);
+        this._logsDestination = pino.destination(path.join(process.env.LOG_FOLDER, `${name}.log`));
         break;
       case Env.TESTING:
         this._level = process.env.LOG_LEVEL || `silent`;
@@ -38,23 +33,22 @@ class Logger {
       level: this._level,
       prettyPrint: this._isPrettyPrintEnabled
     }, this._logsDestination);
+    this._loggerMiddleware = null;
   }
 
   getLogger() {
     return this._logger;
   }
 
-  static getDefaultLoggerChild(options = {}) {
-    if (!defaultLogger) {
-      defaultLogger = new Logger().getLogger();
+  getLoggerMiddleware(name = `express-middleware`) {
+    if (!this._loggerMiddleware) {
+      this._loggerMiddleware = expressPinoLogger({
+        logger: this._logger.child({name})
+      });
     }
-    return defaultLogger.child(options);
+    return this._loggerMiddleware;
   }
 }
 
 
-/**
- * Экспортируем Logger
- * @type {Logger}
- */
-module.exports = {Logger, getDefaultLoggerChild: Logger.getDefaultLoggerChild};
+module.exports = Logger;

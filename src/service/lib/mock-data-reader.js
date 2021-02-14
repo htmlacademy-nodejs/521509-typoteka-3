@@ -2,9 +2,9 @@
 
 const {readFileInJSON} = require(`../../utils`);
 
-const {getDefaultLoggerChild} = require(`../lib/logger`);
+const Logger = require(`../../lib/logger`);
 
-const logger = getDefaultLoggerChild({name: `api`});
+const logger = new Logger(`mock-reader`).getLogger();
 
 /**
  * Класс для чтения файла с моками. Файл считывается при первом запросе, и записывается в локальную переменную.

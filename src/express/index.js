@@ -5,20 +5,13 @@
 const path = require(`path`);
 
 const express = require(`express`);
-const chalk = require(`chalk`);
+require(`dotenv`).config();
 
 const rootRouter = require(`./routers/root`);
 const myRouter = require(`./routers/my`);
 const articlesRouter = require(`./routers/articles`);
 
-/**
- * Номер порта для запуска по умолчанию
- *
- * @type {number}
- * @const
- * @default 8080
- */
-const PORT_NUMBER = 8080;
+const Logger = require(`../lib/logger`);
 
 /**
  * Путь до папки со статикой public. Она будет будет полностью доступна с помощью express.static.
@@ -28,6 +21,15 @@ const PORT_NUMBER = 8080;
  * @default public
  */
 const PATH_TO_PUBLIC_DIR = `public`;
+
+/**
+ * Путь до папки корневой папки
+ *
+ * @const
+ * @type {string}
+ * @default
+ */
+const PATH_TO_ROOT_DIR = `../../`;
 
 /**
  * Путь до папки с шаблономи.
@@ -44,11 +46,31 @@ const PATH_TO_TEMPLATES_DIR = `templates`;
  */
 const app = express();
 
+const logger = new Logger(`front-server`).getLogger();
+
 /**
  * Устанавливаем pug, как шаблонизатор по умолчанию и указываем путь до шаблонов.
  */
 app.set(`views`, path.resolve(__dirname, PATH_TO_TEMPLATES_DIR));
 app.set(`view engine`, `pug`);
+
+app.use(express.urlencoded({
+  extended: true
+}));
+
+
+/**
+ * Добавляем отдачу статичных файлов.
+ */
+app.use(express.static(path.resolve(__dirname, PATH_TO_PUBLIC_DIR)));
+app.use(express.static(path.resolve(__dirname, PATH_TO_ROOT_DIR, process.env.UPLOAD_FOLDER)));
+
+/**
+ * Используем express-pino-logger для более подробного логирования запросов.
+ * К каждому сообщению будет добавлена информация о запросе, в том числе id, чтобы проследить полный путь.
+ * Добавлен после подключения статичных файлов, чтобы не гадить в логи.
+ */
+app.use(new Logger(`front-server`).getLoggerMiddleware());
 
 
 /**
@@ -58,11 +80,6 @@ app.use(`/`, rootRouter);
 app.use(`/my`, myRouter);
 app.use(`/articles`, articlesRouter);
 
-/**
- * Добавляем отдачу статичных файлов.
- */
-app.use(express.static(path.resolve(__dirname, PATH_TO_PUBLIC_DIR)));
-
 
 /**
  * Добавляем обработчики ошибок.
@@ -70,7 +87,7 @@ app.use(express.static(path.resolve(__dirname, PATH_TO_PUBLIC_DIR)));
 app.use((req, res) => res.status(404).render(`errors/404`));
 
 app.use((err, req, res, _next) => {
-  console.log(chalk.red(err.stack));
+  req.log.error(err.stack);
   res.status(500).render(`errors/500`);
 });
 
@@ -78,9 +95,9 @@ app.use((err, req, res, _next) => {
 /**
  * Запускаем сервер
  */
-app.listen(PORT_NUMBER, (err) => {
+app.listen(+process.env.FRONT_PORT_NUMBER, (err) => {
   if (err) {
-    console.log(chalk.red(err.message));
+    logger.error(err.message);
   }
-  console.log(chalk.green(`Front server is started on port: ${PORT_NUMBER}`));
+  logger.info(`Front server is started on port: ${process.env.FRONT_PORT_NUMBER}`);
 });
