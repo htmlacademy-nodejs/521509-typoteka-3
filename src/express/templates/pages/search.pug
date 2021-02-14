@@ -12,7 +12,7 @@ block content
             button.search__button.button.button--transparent(type='submit') Найти
           .search__result
             each result in results
-              time.search__date(datetime=result.createdAt) #{result.createdAt}
+              time.search__date(datetime=result.publishedAt) #{result.publishedAt}
               a.search__link(href=`/articles/${result.id}`)
                 | #{result.title}
             else
