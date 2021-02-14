@@ -1,13 +1,7 @@
 'use strict';
-
 const axios = require(`axios`);
 
 const {Methods} = require(`../consts`);
-
-const TIMEOUT = 1000;
-
-const DEFAULT_PORT = 3000;
-const DEFAULT_BASE_URL = `http://localhost:${DEFAULT_PORT}/api`;
 
 class API {
   constructor(baseURL, timeout) {
@@ -46,8 +40,7 @@ class API {
   }
 
   static getDefaultAPI() {
-    const baseURL = process.env.API_URL || DEFAULT_BASE_URL;
-    return new this(baseURL, TIMEOUT);
+    return new this(process.env.API_URL, +process.env.TIMEOUT);
   }
 }
 

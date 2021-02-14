@@ -5,21 +5,13 @@
 const path = require(`path`);
 
 const express = require(`express`);
+require(`dotenv`).config();
 
 const rootRouter = require(`./routers/root`);
 const myRouter = require(`./routers/my`);
 const articlesRouter = require(`./routers/articles`);
 
 const Logger = require(`../lib/logger`);
-
-/**
- * Номер порта для запуска по умолчанию
- *
- * @type {number}
- * @const
- * @default 8080
- */
-const PORT_NUMBER = 8080;
 
 /**
  * Путь до папки со статикой public. Она будет будет полностью доступна с помощью express.static.
@@ -31,13 +23,13 @@ const PORT_NUMBER = 8080;
 const PATH_TO_PUBLIC_DIR = `public`;
 
 /**
- * Путь до папки для приема файлов от пользователей. Она будет будет полностью доступна с помощью express.static.
+ * Путь до папки корневой папки
  *
  * @const
  * @type {string}
  * @default
  */
-const PATH_TO_UPLOAD_DIR = `../../upload`;
+const PATH_TO_ROOT_DIR = `../../`;
 
 /**
  * Путь до папки с шаблономи.
@@ -71,7 +63,7 @@ app.use(express.urlencoded({
  * Добавляем отдачу статичных файлов.
  */
 app.use(express.static(path.resolve(__dirname, PATH_TO_PUBLIC_DIR)));
-app.use(express.static(path.resolve(__dirname, PATH_TO_UPLOAD_DIR)));
+app.use(express.static(path.resolve(__dirname, PATH_TO_ROOT_DIR, process.env.UPLOAD_FOLDER)));
 
 /**
  * Используем express-pino-logger для более подробного логирования запросов.
@@ -103,9 +95,9 @@ app.use((err, req, res, _next) => {
 /**
  * Запускаем сервер
  */
-app.listen(PORT_NUMBER, (err) => {
+app.listen(+process.env.FRONT_PORT_NUMBER, (err) => {
   if (err) {
     logger.error(err.message);
   }
-  logger.info(`Front server is started on port: ${PORT_NUMBER}`);
+  logger.info(`Front server is started on port: ${process.env.FRONT_PORT_NUMBER}`);
 });

@@ -7,6 +7,7 @@
  */
 
 const express = require(`express`);
+require(`dotenv`).config();
 
 const getIndexRouter = require(`../routers`);
 
@@ -16,22 +17,6 @@ const internalServerErrorMiddleWare = require(`../middlewares/internal-server-er
 const Logger = require(`../../lib/logger`);
 
 const {ExitCodes} = require(`../../consts`);
-
-/**
- * Порт по умолчанию
- * @const
- * @type {number}
- * @default 3000
- */
-const DEFAULT_PORT = 3000;
-
-/**
- * API_PREFIX
- * @const
- * @type {string}
- * @default '/api'
- */
-const API_PREFIX = `/api`;
 
 module.exports = {
   name: `--server`,
@@ -47,7 +32,7 @@ module.exports = {
      * Считываем порт для запуска
      * @type {number|number}
      */
-    const portNumber = Number.parseInt(port, 10) || DEFAULT_PORT;
+    const portNumber = Number.parseInt(port, 10) || +process.env.DEFAULT_API_PORT;
 
     const logger = new Logger(`api-server`).getLogger();
 
@@ -62,12 +47,12 @@ module.exports = {
      * Используем express-pino-logger для более подробного логирования запросов.
      * К каждому сообщению будет добавлена информация о запросе, в том числе id, чтобы проследить полный путь.
      */
-    app.use(new Logger(`api-server`).getLoggerMiddleware());
+    app.use(new Logger(`api-server`).getLoggerMiddleware(`api`));
 
     /**
      * Подключаем роутеры
      */
-    app.use(API_PREFIX, await getIndexRouter());
+    app.use(process.env.API_PREFIX, await getIndexRouter());
 
     /**
      * Подключаем middleware для обработки ошибок
