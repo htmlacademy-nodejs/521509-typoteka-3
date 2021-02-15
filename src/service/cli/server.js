@@ -32,7 +32,7 @@ module.exports = {
      * Считываем порт для запуска
      * @type {number|number}
      */
-    const portNumber = Number.parseInt(port, 10) || +process.env.DEFAULT_API_PORT;
+    const portNumber = Number.parseInt(port, 10) || +process.env.API_SERVICE_PORT;
 
     const logger = new Logger(`api-server`).getLogger();
 

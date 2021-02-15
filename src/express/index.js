@@ -95,9 +95,9 @@ app.use((err, req, res, _next) => {
 /**
  * Запускаем сервер
  */
-app.listen(+process.env.FRONT_PORT_NUMBER, (err) => {
+app.listen(+process.env.FRONT_SERVICE_PORT, (err) => {
   if (err) {
     logger.error(err.message);
   }
-  logger.info(`Front server is started on port: ${process.env.FRONT_PORT_NUMBER}`);
+  logger.info(`Front server is started on port: ${process.env.FRONT_SERVICE_PORT}`);
 });

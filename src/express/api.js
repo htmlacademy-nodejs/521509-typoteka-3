@@ -40,7 +40,8 @@ class API {
   }
 
   static getDefaultAPI() {
-    return new this(process.env.API_URL, +process.env.TIMEOUT);
+    const url = `${process.env.API_DOMAIN_URL}:${process.env.API_SERVICE_PORT}${process.env.API_PREFIX}`;
+    return new this(url, +process.env.TIMEOUT);
   }
 }
 
