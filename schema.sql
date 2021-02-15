@@ -11,24 +11,25 @@ CREATE TABLE categories
   title VARCHAR(30) NOT NULL UNIQUE,
 
 -- timestamps от sequelize
-  created_at TIMESTAMPTZ NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE TABLE users
 (
   id SERIAL PRIMARY KEY,
-  avatar_url VARCHAR(255),
+  avatar VARCHAR(255),
 -- кол-во адекватных символов из google
   first_name VARCHAR(35) NOT NULL,
   last_name VARCHAR(35) NOT NULL,
   email VARCHAR(254) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
+  is_author BOOLEAN NOT NULL,
 
 -- timestamps от sequelize
-  created_at TIMESTAMPTZ NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
@@ -50,8 +51,8 @@ CREATE TABLE articles
     ON DELETE CASCADE,
 
 -- timestamps от sequelize
-  created_at TIMESTAMPTZ NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
@@ -73,8 +74,8 @@ CREATE TABLE comments
     ON DELETE SET NULL,
 
 -- timestamps от sequelize
-  created_at TIMESTAMPTZ NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
@@ -93,7 +94,7 @@ CREATE TABLE articles_categories
     ON DELETE CASCADE,
 
 -- timestamps от sequelize
-  created_at TIMESTAMPTZ NOT NULL,
-  updated_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMPTZ DEFAULT NULL
 );
