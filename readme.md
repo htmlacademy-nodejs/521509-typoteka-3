@@ -43,6 +43,11 @@ GRANT ALL PRIVILEGES ON DATABASE "typoteka" TO "typoteka_user";
 psql -U typoteka_user -W -h localhost -d typoteka  -a -f schema.sql
 ```
 
+Наполняем тестовыми данными. <b>Это операция сотрет данные, если он были добавлены</b>
+```
+psql -U typoteka_user -W -h localhost -d typoteka  -a -f fill-db.sql
+```
+
 ### Запуск приложения
 1. Создаем файл `.env` в корне по аналогии с `.env.example`
 
