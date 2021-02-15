@@ -1,52 +1,65 @@
 # Личный проект «Типотека» [![Build status][travis-image]][travis-url]
 
+Личный проект по курсу [HTML академии](https://htmlacademy.ru/) 
+<b>Node.js. Разработка серверов приложений и API.</b>
+
+###О проекте
+«Типотека» — приложение для быстрого создания персональных блогов. Несколько простых шагов и вы автор современной площадки для публикации заметок. «Типотека» — это не только создание контента. Любой желающий читатель может зарегистрироваться и оставить комментарии. Создавайте заметки, общайтесь с читателями, модерируйте контент вместе с «Типотека».
+
 * Студент: [Александр Кригер](https://up.htmlacademy.ru/nodejs/3/user/521509).
 * Наставник: [Никита Куцелай](https://htmlacademy.ru/profile/id32750).
 
----
+## Запуск проекта
+Требования по окружению
+* node.js 14.15.4 LTS
+* PostgreSQL 12
 
-_Не удаляйте и не изменяйте папки и файлы:_
-_`.editorconfig`, `.gitattributes`, `.gitignore`, `.travis.yml`, `package.json`._
+### Настройка БД
+<b>Тут появится настройка БД после подключения sequelize</b>
 
----
-
-### Памятка
-
-#### 1. Зарегистрируйтесь на Гитхабе
-
-Если у вас ещё нет аккаунта на [github.com](https://github.com/join), скорее зарегистрируйтесь.
-
-#### 2. Создайте форк
-
-Откройте репозиторий и нажмите кнопку «Fork» в правом верхнем углу. Репозиторий из Академии будет скопирован в ваш аккаунт.
-
-<img width="769" alt="Press 'Fork'" src="https://cloud.githubusercontent.com/assets/259739/20264045/a1ddbf40-aa7a-11e6-9a1a-724a1c0123c8.png">
-
-Получится вот так:
-
-<img width="769" alt="Forked" src="https://cloud.githubusercontent.com/assets/259739/20264122/f63219a6-aa7a-11e6-945a-89818fc7c014.png">
-
-#### 3. Клонируйте репозиторий на свой компьютер
-
-Будьте внимательны: нужно клонировать свой репозиторий (форк), а не репозиторий Академии. Также обратите внимание, что клонировать репозиторий нужно через SSH, а не через HTTPS. Нажмите зелёную кнопку в правой части экрана, чтобы скопировать SSH-адрес вашего репозитория:
-
-<img width="769" alt="SSH" src="https://cloud.githubusercontent.com/assets/259739/20264180/42704126-aa7b-11e6-9ab4-73372b812a53.png">
-
-Клонировать репозиторий можно так:
-
+Создание базы
 ```
-git clone SSH-адрес_вашего_форка
+psql -U postgres -W -h localhost -a -f create-db.sql
 ```
 
-Команда клонирует репозиторий на ваш компьютер и подготовит всё необходимое для старта работы.
+Коннектимся к серверу
+```
+psql -U postgres -W -h localhost
+```
 
-#### 4. Начинайте обучение!
+Создание пользователя. <b>!не используй пароль по умолчанию!</b> 
+```
+CREATE USER "typoteka_user" WITH ENCRYPTED PASSWORD 'password';
+```
 
----
+Выдаем доступ к базе для созданного пользователя
+```
+GRANT ALL PRIVILEGES ON DATABASE "typoteka" TO "typoteka_user"; 
+```
 
-<a href="https://htmlacademy.ru/intensive/ecmascript"><img align="left" width="50" height="50" title="HTML Academy" src="https://up.htmlacademy.ru/static/img/intensive/ecmascript/logo-for-github.svg"></a>
+Отключаемся от базы и коннектимся новым пользователем и втягиваем схему
+```
+\q
+psql -U typoteka_user -W -h localhost -d typoteka  -a -f schema.sql
+```
 
-Репозиторий создан для обучения на интенсивном онлайн‑курсе «[Node.js, уровень 1](https://htmlacademy.ru/intensive/nodejs)» от [HTML Academy](https://htmlacademy.ru).
+### Запуск приложения
+1. Создаем файл `.env` в корне по аналогии с `.env.example`
 
-[travis-image]: https://travis-ci.com/htmlacademy-nodejs/521509-typoteka-3.svg?branch=master
-[travis-url]: https://travis-ci.com/htmlacademy-nodejs/521509-typoteka-3
+2. Устанавливаем зависимости
+```
+npm install
+```
+3. Запускаем API сервис
+```
+npm run start
+```
+4. В соседнем терминале запускаем фронт сервис
+```
+npm run start-front-server
+```
+
+##Схема БД
+Подробная схема sql лежит в `/schema.sql`
+
+![Схема БД](data/shema.jpg?raw=true "Схема БД")
