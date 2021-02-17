@@ -11,6 +11,7 @@ require(`dotenv`).config();
 
 const getIndexRouter = require(`../routers`);
 
+const {getSequelize} = require(`../lib/sequelize`);
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
 
@@ -35,6 +36,20 @@ module.exports = {
     const portNumber = Number.parseInt(port, 10) || +process.env.API_SERVICE_PORT;
 
     const logger = new Logger(`api-server`).getLogger();
+
+    /**
+     * Пробуем подключиться к базе данных.
+     */
+
+    const sequelize = getSequelize();
+    try {
+      logger.info(`Подключаемся к базе данных...`);
+      await sequelize.authenticate();
+      logger.info(`Соединение с базой данных успешно установлено.`);
+    } catch (error) {
+      logger.error(`Не удалось подключиться к базе данных: ${error}`);
+      process.exit(ExitCodes.FAIL);
+    }
 
     /**
      * Создаем экземпляр Express. И подключаем middleware для JSON
