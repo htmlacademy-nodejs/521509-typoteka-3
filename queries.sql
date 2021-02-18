@@ -19,7 +19,7 @@ SELECT
   title,
   COUNT(id) as articles_count
 FROM categories
-INNER JOIN articles_categories ON categories.id = articles_categories.category_id
+LEFT JOIN articles_categories ON categories.id = articles_categories.category_id
 GROUP BY categories.id
 ORDER BY articles_count DESC;
 
