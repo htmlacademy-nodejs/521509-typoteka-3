@@ -43,11 +43,11 @@ module.exports = {
 
     const sequelize = getSequelize();
     try {
-      logger.info(`Подключаемся к базе данных...`);
+      logger.info(`Connecting to DB...`);
       await sequelize.authenticate();
-      logger.info(`Соединение с базой данных успешно установлено.`);
+      logger.info(`Connection with DB is established.`);
     } catch (error) {
-      logger.error(`Не удалось подключиться к базе данных: ${error}`);
+      logger.error(`Couldn't connect to DB: ${error}`);
       process.exit(ExitCodes.FAIL);
     }
 
