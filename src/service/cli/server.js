@@ -11,7 +11,7 @@ require(`dotenv`).config();
 
 const getIndexRouter = require(`../routers`);
 
-const {getDB} = require(`../lib/db`);
+const DB = require(`../lib/db`);
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
 
@@ -41,7 +41,7 @@ module.exports = {
      * Пробуем подключиться к базе данных.
      */
 
-    const db = getDB();
+    const db = new DB().getDB();
     try {
       logger.info(`Connecting to DB...`);
       await db.authenticate();
@@ -67,7 +67,7 @@ module.exports = {
     /**
      * Подключаем роутеры
      */
-    app.use(process.env.API_PREFIX, await getIndexRouter());
+    app.use(process.env.API_PREFIX, await getIndexRouter(db));
 
     /**
      * Подключаем middleware для обработки ошибок
