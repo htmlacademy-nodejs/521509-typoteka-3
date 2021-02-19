@@ -14,9 +14,14 @@ module.exports = (articleService, commentService) => {
   const router = new Router();
 
 
-  router.get(`/`, (req, res) => {
-    const articles = articleService.getAll();
-    res.status(HttpCode.OK).json(articles);
+  router.get(`/`, async (req, res, next) => {
+    try {
+      const {isWithComments} = req.query;
+      const articles = await articleService.getAll(isWithComments);
+      res.status(HttpCode.OK).json(articles);
+    } catch (e) {
+      next(e);
+    }
   });
 
 
@@ -27,50 +32,73 @@ module.exports = (articleService, commentService) => {
   });
 
 
-  router.post(`/`, articleValidatorMiddleware, (req, res) => {
-    let newArticle = req.body;
-    newArticle = articleService.add(newArticle);
+  router.post(`/`, articleValidatorMiddleware, async (req, res, next) => {
+    try {
+      let newArticle = req.body;
+      newArticle = await articleService.add(newArticle);
 
-    res.status(HttpCode.CREATED).json(newArticle);
+      res.status(HttpCode.CREATED).json(newArticle);
+    } catch (e) {
+      next(e);
+    }
+
   });
 
 
-  router.put(`/:articleId`, [getArticleExistsMiddleware(articleService), articleValidatorMiddleware], (req, res) => {
-    let updatedArticle = req.body;
-    updatedArticle = articleService.update(req.params[`articleId`], updatedArticle);
+  router.put(`/:articleId`, [getArticleExistsMiddleware(articleService), articleValidatorMiddleware], async (req, res, next) => {
+    try {
+      let updatedArticle = req.body;
+      updatedArticle = await articleService.update(req.params[`articleId`], updatedArticle);
 
-    res.status(HttpCode.OK).json(updatedArticle);
+      res.status(HttpCode.OK).json(updatedArticle);
+    } catch (e) {
+      next(e);
+    }
   });
 
 
-  router.delete(`/:articleId`, getArticleExistsMiddleware(articleService), (req, res) => {
-    articleService.delete(req.params[`articleId`]);
+  router.delete(`/:articleId`, getArticleExistsMiddleware(articleService), async (req, res, next) => {
+    try {
+      await articleService.delete(req.params[`articleId`]);
 
-    res.status(HttpCode.DELETED).send();
+      res.status(HttpCode.DELETED).send();
+    } catch (e) {
+      next(e);
+    }
   });
 
 
-  router.get(`/:articleId/comments`, getArticleExistsMiddleware(articleService), (req, res) => {
-    const article = articleService.getOne(req.params[`articleId`]);
+  router.get(`/:articleId/comments`, getArticleExistsMiddleware(articleService), async (req, res, next) => {
+    try {
+      const comments = await commentService.getAll(req.params[`articleId`]);
 
-    res.status(HttpCode.OK).json(commentService.getAll(article));
+      res.status(HttpCode.OK).json(comments);
+    } catch (e) {
+      next(e);
+    }
   });
 
 
-  router.post(`/:articleId/comments`, [getArticleExistsMiddleware(articleService), commentValidatorMiddleWare], (req, res) => {
-    let newComment = req.body;
-    const {article} = res.locals;
-    newComment = commentService.add(article, newComment);
+  router.post(`/:articleId/comments`, [getArticleExistsMiddleware(articleService), commentValidatorMiddleWare], async (req, res, next) => {
+    try {
+      let newComment = req.body;
+      newComment = await commentService.add(req.params[`articleId`], newComment);
 
-    res.status(HttpCode.CREATED).json(newComment);
+      res.status(HttpCode.CREATED).json(newComment);
+    } catch (e) {
+      next(e);
+    }
   });
 
 
-  router.delete(`/:articleId/comments/:commentId`, [getArticleExistsMiddleware(articleService), getCommentExistsMiddleWare(commentService)], (req, res) => {
-    const {article} = res.locals;
-    commentService.delete(article, req.params[`commentId`]);
+  router.delete(`/:articleId/comments/:commentId`, [getArticleExistsMiddleware(articleService), getCommentExistsMiddleWare(commentService)], async (req, res, next) => {
+    try {
+      await commentService.delete(req.params[`commentId`]);
 
-    res.status(HttpCode.DELETED).send();
+      res.status(HttpCode.DELETED).send();
+    } catch (e) {
+      next(e);
+    }
   });
 
   return router;

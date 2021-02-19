@@ -6,15 +6,14 @@
  */
 const {HttpCode} = require(`../../consts`);
 
-module.exports = (commentService) => (req, res, next) => {
+module.exports = (commentService) => async (req, res, next) => {
   req.log.debug(`Checking that comment exists...`);
 
-  const {article} = res.locals;
   const commentId = req.params[`commentId`];
 
   try {
-    req.log.debug(`Comment exists...`);
-    res.locals.comment = commentService.getOne(article, commentId);
+    res.locals.comment = await commentService.getOne(commentId);
+    req.log.debug(`Comment exists.`);
     next();
   } catch (err) {
     req.log.debug(`Comment doesn't exist...`);

@@ -3,10 +3,10 @@
 const {Model} = require(`sequelize`);
 
 module.exports = (db) => {
-  class OfferCategory extends Model {}
-  OfferCategory.init({},
+  class ArticleCategory extends Model {}
+  ArticleCategory.init({},
       {
-        db,
+        sequelize: db,
         modelName: `ArticleCategory`,
         tableName: `articles_categories`,
         timestamps: true,
@@ -16,4 +16,5 @@ module.exports = (db) => {
         deletedAt: `deleted_at`
       }
   );
+  return ArticleCategory;
 };
