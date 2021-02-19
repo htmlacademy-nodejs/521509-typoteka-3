@@ -1,4 +1,4 @@
-# Личный проект «Типотека» [![Build status][travis-image]][travis-url]
+# Личный проект «Типотека»
 
 Личный проект по курсу [HTML академии](https://htmlacademy.ru/) 
 <b>Node.js. Разработка серверов приложений и API.</b>
