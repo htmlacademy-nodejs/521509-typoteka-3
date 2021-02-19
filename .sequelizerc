@@ -1,0 +1,12 @@
+'use strict';
+
+const path = require('path');
+
+const BASE_SERVICE_URL = `./src/service/db`
+
+module.exports = {
+  'config': path.resolve(BASE_SERVICE_URL, 'config', 'sequelize.js'),
+  'models-path': path.resolve(BASE_SERVICE_URL, 'models'),
+  'seeders-path': path.resolve(BASE_SERVICE_URL, 'seeders'),
+  'migrations-path': path.resolve(BASE_SERVICE_URL, 'migrations')
+};
