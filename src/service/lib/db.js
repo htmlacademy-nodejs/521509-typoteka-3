@@ -26,7 +26,7 @@ const {
  * Функция отдает экземпляр Sequelize
  * @return {sequelize.Sequelize}
  */
-const getSequelize = () => {
+const getDB = () => {
   /**
    * Проверяем, что нам всего хватает для подключения, если нет, кидаем ошибку.
    * @type {Boolean}
@@ -60,4 +60,4 @@ const getSequelize = () => {
   );
 };
 
-module.exports = {getSequelize};
+module.exports = {getDB};

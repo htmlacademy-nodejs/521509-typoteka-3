@@ -11,7 +11,7 @@ require(`dotenv`).config();
 
 const getIndexRouter = require(`../routers`);
 
-const {getSequelize} = require(`../lib/sequelize`);
+const {getDB} = require(`../lib/db`);
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
 
@@ -41,10 +41,10 @@ module.exports = {
      * Пробуем подключиться к базе данных.
      */
 
-    const sequelize = getSequelize();
+    const db = getDB();
     try {
       logger.info(`Connecting to DB...`);
-      await sequelize.authenticate();
+      await db.authenticate();
       logger.info(`Connection with DB is established.`);
     } catch (error) {
       logger.error(`Couldn't connect to DB: ${error}`);
