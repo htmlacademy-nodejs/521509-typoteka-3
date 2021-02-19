@@ -1,24 +1,36 @@
 'use strict';
 
+const {Op} = require(`sequelize`);
+const Aliases = require(`../db/models/aliase`);
+
 /**
  * Сервис для работы с поиском
  */
 
 class SearchService {
   /**
-   * @param {Object[]} articles - массив статей
+   * @param {Sequelize} db - экземпляр sequelize подключенный к базе данных
    */
-  constructor(articles) {
-    this._articles = articles;
+  constructor(db) {
+    this._articleModel = db.models.Article;
   }
 
   /**
    * Поиск по заголовкам статей.
+   * @async
    * @param {String} searchText - поисковый запрос
    * @return {Object[]} - найденные статьи
    */
-  searchByTitle(searchText) {
-    return this._articles.filter((it) => it.title.toLowerCase().includes(searchText.toLowerCase()));
+  async searchByTitle(searchText) {
+    const articles = await this._articleModel.findAll({
+      where: {
+        title: {
+          [Op.iLike]: `%${searchText}%`
+        }
+      },
+      include: [Aliases.CATEGORIES]
+    });
+    return articles.map((offer) => offer.get());
   }
 }
 

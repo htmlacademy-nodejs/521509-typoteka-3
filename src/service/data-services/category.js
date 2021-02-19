@@ -1,25 +1,53 @@
 'use strict';
 
+const Sequelize = require(`sequelize`);
+const Aliases = require(`../db/models/aliase`);
+
+
 /**
  * Сервис для работы с категориями
  */
 
 class CategoryService {
   /**
-   * @param {Object[]} articles - массив статей
+   * @param {Sequelize} db - экземпляр sequelize подключенный к базе данных
    */
-  constructor(articles) {
-    this._articles = articles;
+  constructor(db) {
+    this._categoryModel = db.models.Category;
+    this._articleCategoryModel = db.models.ArticleCategory;
   }
 
   /**
-   * Ищет категории, который встречаются в статьях.
-   * @return {String[]}
+   * Отдает все категории.
+   * @async
+   * @param {Boolean} isWithCount - требуется ли посчитать, сколько объявлений в каждой категории
+   * @return {Object[]} - массив категорий
    */
-  getAll() {
-    const categories = [];
-    this._articles.forEach((it) => categories.push(...it.categories));
-    return [...new Set(categories)];
+  async getAll(isWithCount) {
+    console.log(isWithCount);
+    if (isWithCount) {
+      const result = await this._categoryModel.findAll({
+        attributes: [
+          `id`,
+          `title`,
+          [
+            Sequelize.fn(
+                `COUNT`,
+                `*`
+            ),
+            `count`
+          ]
+        ],
+        group: [Sequelize.col(`Category.id`)],
+        include: [{
+          model: this._articleCategoryModel,
+          as: Aliases.ARTICLES_CATEGORIES,
+          attributes: []
+        }]
+      });
+      return result.map((it)=> it.get());
+    }
+    return await this._categoryModel.findAll({raw: true});
   }
 
 }
