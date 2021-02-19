@@ -6,6 +6,8 @@
 const Sequelize = require(`sequelize`);
 const Logger = require(`../../lib/logger`);
 
+const defineModels = require(`../db/models`);
+
 /**
  * Забираем все необходимые переменные
  */
@@ -22,42 +24,60 @@ const {
   DB_DIALECT
 } = process.env;
 
-/**
- * Функция отдает экземпляр Sequelize
- * @return {sequelize.Sequelize}
- */
-const getDB = () => {
-  /**
-   * Проверяем, что нам всего хватает для подключения, если нет, кидаем ошибку.
-   * @type {Boolean}
-   */
-  const someThingNotDefined = [DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_POOL_MAX_CONNECTIONS, DB_POOL_MIN_CONNECTIONS, DB_POOL_ACQUIRE, DB_POOL_IDLE, DB_DIALECT].some((it) => it === undefined);
 
-  if (someThingNotDefined) {
-    throw new Error(`Not all environment's variables are found. See .env.example.`);
+class DataBase {
+  constructor() {
+    this._db = null;
   }
 
-  const logger = new Logger(`db`).getLogger();
+  /**
+   * Проверяем, что нам всего хватает для подключения, если нет, кидаем ошибку.
+   * @return {Boolean}
+   */
+  _checkEnv() {
+    const someThingNotDefined = [DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_POOL_MAX_CONNECTIONS, DB_POOL_MIN_CONNECTIONS, DB_POOL_ACQUIRE, DB_POOL_IDLE, DB_DIALECT].some((it) => it === undefined);
+
+    if (someThingNotDefined) {
+      throw new Error(`Not all environment's variables are found. See .env.example.`);
+    }
+
+    return someThingNotDefined;
+  }
+
+  _defineModels() {
+    defineModels(this._db);
+  }
+
 
   /**
-   * Экспортируем экземпляр sequelize, передаем ему параметры для подключения и указываем настройки для пуля соединений.
+   * Функция отдает экземпляр Sequelize
+   * @return {sequelize.Sequelize}
    */
-  return new Sequelize(
-      DB_NAME,
-      DB_USER,
-      DB_PASSWORD, {
-        host: DB_HOST,
-        port: DB_PORT,
-        dialect: DB_DIALECT,
-        pool: {
-          max: +DB_POOL_MAX_CONNECTIONS,
-          min: +DB_POOL_MIN_CONNECTIONS,
-          acquire: +DB_POOL_ACQUIRE,
-          idle: +DB_POOL_IDLE
-        },
-        logging: logger.debug.bind(logger)
-      }
-  );
-};
+  getDB() {
+    if (!this._db) {
+      const logger = new Logger(`db`).getLogger();
 
-module.exports = {getDB};
+      this._db = new Sequelize(
+          DB_NAME,
+          DB_USER,
+          DB_PASSWORD, {
+            host: DB_HOST,
+            port: DB_PORT,
+            dialect: DB_DIALECT,
+            pool: {
+              max: +DB_POOL_MAX_CONNECTIONS,
+              min: +DB_POOL_MIN_CONNECTIONS,
+              acquire: +DB_POOL_ACQUIRE,
+              idle: +DB_POOL_IDLE
+            },
+            logging: logger.debug.bind(logger)
+          }
+      );
+
+      this._defineModels();
+    }
+    return this._db;
+  }
+}
+
+module.exports = DataBase;
