@@ -11,7 +11,7 @@ require(`dotenv`).config();
 
 const getIndexRouter = require(`../routers`);
 
-const DB = require(`../lib/db`);
+const DB = require(`../db`);
 const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
 

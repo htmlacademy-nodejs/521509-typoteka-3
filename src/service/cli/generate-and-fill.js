@@ -13,17 +13,17 @@
 
 const path = require(`path`);
 
-const chalk = require(`chalk`);
-const {nanoid} = require(`nanoid`);
+const Logger = require(`../../lib/logger`);
+const DB = require(`../db`);
+const refillDB = require(`../db/refill-db`);
 
 const {
   getRandomNumber,
   getRandomItemInArray,
   getRandomItemsInArray,
   getRandomDateInPast,
-  writeFileInJSON,
   readFileToArray} = require(`../../utils`);
-const {ExitCodes, ID_LENGTH} = require(`../../consts`);
+const {ExitCodes} = require(`../../consts`);
 
 /**
  * Число статей по умолчанию
@@ -40,14 +40,6 @@ const DEFAULT_COUNT = 1;
  * @default 1000
  */
 const MAX_COUNT = 1000;
-
-/**
- * Название файла для записи результата
- * @const
- * @type {string}
- * @default `mocks.json`
- */
-const FILE_NAME = `mocks.json`;
 
 /**
  * Относительный путь к корневому каталогу
@@ -102,9 +94,17 @@ const PATH_TO_IMAGES = `data/images.txt`;
  * Максимальное число предложений в анонсе.
  * @const
  * @type {Number}
- * @default 5
+ * @default 2
  */
-const MAX_ANNOUNCE_COUNT = 5;
+const MAX_ANNOUNCE_COUNT = 2;
+
+/**
+ * Максимальное число предложений в анонсе.
+ * @const
+ * @type {Number}
+ * @default 3
+ */
+const MAX_TEXT_COUNT = 3;
 
 /**
  * Максимальное число предложений в комментарии.
@@ -138,7 +138,6 @@ const MAX_PAST = 3 * 30 * 24 * 60 * 60 * 1000;
  */
 const generateComment = (commentSentences) => {
   return {
-    id: nanoid(ID_LENGTH),
     text: getRandomItemsInArray(commentSentences, MAX_COMMENT_LENGTH).join(` `)
   };
 };
@@ -148,21 +147,20 @@ const generateComment = (commentSentences) => {
  *
  * @param {String[]} titles - массив заголовков
  * @param {String[]} sentences - массив предложений
- * @param {String[]} categories - массив категорий
+ * @param {Object[]} categoriesObjects - массив объектов категорий
  * @param {String[]} images - массив с названиями картинок
  * @param {String[]} commentSentences - массив предложений для комментариев
  * @return {{id: String, title: String, publishedAt: String, text: String, category: String[], image: String, announce: String, comments: Object[]}} - объект статьи
  */
-const generateArticle = (titles, sentences, categories, images, commentSentences) => {
+const generateArticle = (titles, sentences, categoriesObjects, images, commentSentences) => {
   const isWithImage = !!getRandomNumber(0, 2);
   return {
-    id: nanoid(ID_LENGTH),
     title: getRandomItemInArray(titles),
     publishedAt: getRandomDateInPast(MAX_PAST).toISOString(),
     announce: getRandomItemsInArray(sentences, MAX_ANNOUNCE_COUNT).join(` `),
-    text: getRandomItemsInArray(sentences).join(` `),
+    text: getRandomItemsInArray(sentences, MAX_TEXT_COUNT).join(` `),
     image: isWithImage ? getRandomItemInArray(images) : null,
-    categories: getRandomItemsInArray(categories),
+    categories: getRandomItemsInArray(categoriesObjects).map((it) => it.id),
     comments: Array(getRandomNumber(0, MAX_COMMENTS_COUNT)).fill({}).map(() => generateComment(commentSentences))
   };
 };
@@ -173,13 +171,13 @@ const generateArticle = (titles, sentences, categories, images, commentSentences
  * @param {Number} count - количество статьей
  * @param {String[]} titles - массив заголовков
  * @param {String[]} sentences - массив предложений
- * @param {String[]} categories - массив категорий
+ * @param {Object[]} categoriesObjects - массив объектов категорий
  * @param {String[]} images - массив с названиями картинок
  * @param {String[]} commentSentences - массив предложений для комментариев
  * @return {Object[]} - массив статей
  */
-const generateArticles = (count, titles, sentences, categories, images, commentSentences) => {
-  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categories, images, commentSentences));
+const generateArticles = (count, titles, sentences, categoriesObjects, images, commentSentences) => {
+  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categoriesObjects, images, commentSentences));
 };
 
 
@@ -206,18 +204,34 @@ module.exports = {
    */
 
   async run(count) {
+    const logger = new Logger(`fill-db`).getLogger();
+
     /**
      * Проверяем введенное число статей.
      */
     let countNumber = Number.parseInt(count, 10);
     if ((countNumber !== 0) && !countNumber) {
       countNumber = DEFAULT_COUNT;
-      console.log(chalk.red(`Число статей не указано. Будет создано ${countNumber} статей.`));
+      logger.error(`Count number is undefined. Default count will be generated ${countNumber}.`);
     } else if (countNumber <= 0) {
-      console.error(chalk.red(`Указано не положительное число статей.`));
+      logger.error(`Count number is null or negative number.`);
       process.exit(ExitCodes.FAIL);
     } else if (countNumber > MAX_COUNT) {
-      console.error(chalk.red(`Указано число статей больше ${MAX_COUNT}. \nУкажи не больше ${MAX_COUNT} статей.`));
+      logger.error(`Too big count for generating. Maximum count is ${MAX_COUNT}.`);
+      process.exit(ExitCodes.FAIL);
+    }
+
+    /**
+     * Пробуем подключиться к базе данных.
+     */
+
+    const db = new DB().getDB();
+    try {
+      logger.info(`Connecting to DB...`);
+      await db.authenticate();
+      logger.info(`Connection with DB is established.`);
+    } catch (error) {
+      logger.error(`Couldn't connect to DB: ${error}`);
       process.exit(ExitCodes.FAIL);
     }
 
@@ -242,16 +256,21 @@ module.exports = {
       /**
        * Запускаем генерацию статей.
        */
-      const articles = generateArticles(countNumber, titles, sentences, categories, images, commentsSentences);
-      console.log(chalk.green(`Сгенерировано ${articles.length} статей.`));
+      const categoriesObjects = categories.map((it, index) => ({id: index + 1, title: it}));
+      const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences);
+      logger.info(`Generated ${articles.length} articles.`);
 
-      /**
-       * Записываем результат в файл.
-       */
-      await writeFileInJSON(path.join(__dirname, PATH_TO_ROOT_FOLDER, FILE_NAME), articles);
-      console.log(chalk.green(`Файл ${FILE_NAME} успешно записан.`));
+      logger.info(`Refill data...`);
+
+      await refillDB(db, {articles, categories});
+
+      logger.info(`Refilled ${articles.length} articles.`);
+
+      await db.close();
+
+
     } catch (err) {
-      console.error(chalk.red(`Ошибка: ${err.stack}`));
+      logger.error(`Error: ${err.stack}`);
       process.exit(ExitCodes.FAIL);
     }
   }

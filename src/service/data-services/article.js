@@ -55,6 +55,7 @@ class ArticleService {
       include.push(Aliases.COMMENTS);
       order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
     }
+    // добавить количество
     const articles = await this._articleModel.findAll({
       include,
       order

@@ -6,7 +6,9 @@
 const Sequelize = require(`sequelize`);
 const Logger = require(`../../lib/logger`);
 
-const defineModels = require(`../db/models`);
+const defineModels = require(`./models`);
+
+require(`dotenv`).config();
 
 /**
  * Забираем все необходимые переменные
