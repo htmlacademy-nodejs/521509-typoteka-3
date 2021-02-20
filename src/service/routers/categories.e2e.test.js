@@ -6,16 +6,23 @@ const request = require(`supertest`);
 const categoriesRouter = require(`./categories`);
 const CategoryService = require(`../data-services/category`);
 
+const DB = require(`../db`);
+const refillDB = require(`../db/refill-db`);
+
 const {HttpCode} = require(`../../consts`);
 
-const mockArticles = require(`../../../data/mock-test-data`).articles;
+const mockData = require(`../../../data/mock-test-data`);
 
 let app;
+let db;
 
-beforeAll(() => {
+beforeAll(async () => {
+  db = new DB().getDB();
+  await refillDB(db, mockData);
+
   app = express();
   app.use(express.json());
-  app.use(`/categories`, categoriesRouter(new CategoryService(mockArticles)));
+  app.use(`/categories`, categoriesRouter(new CategoryService(db)));
 });
 
 describe(`API returns category list`, () => {
@@ -27,12 +34,16 @@ describe(`API returns category list`, () => {
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns list of 7 categories`, () => expect(response.body.length).toBe(7));
+  test(`Returns list of 5 categories`, () => expect(response.body.length).toBe(5));
 
-  test(`Categories names are IT, Деревья, Железо, Музыка, Без рамки, Кино, Разное`,
-      () => expect(response.body).toEqual(
-          expect.arrayContaining([`IT`, `Деревья`, `Железо`, `Музыка`, `Без рамки`, `Кино`, `Разное`])
+  test(`Categories names are IT, Деревья, За жизнь, Без рамки, Разное, IT`,
+      () => expect(response.body.map((it) => it.title)).toEqual(
+          expect.arrayContaining([`Деревья`, `За жизнь`, `Без рамки`, `Разное`, `IT`])
       )
   );
+
+  afterAll(async ()=>{
+    await db.close();
+  });
 
 });

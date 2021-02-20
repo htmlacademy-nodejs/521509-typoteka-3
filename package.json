@@ -6,8 +6,14 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node ./src/service/service.js --server",
     "start::debug": "cross-env NODE_ENV=development nodemon src/service/service.js --server",
+
     "start-front": "node ./src/express/index.js",
     "start-front::debug": "nodemon ./src/express/index.js",
+
+    "migrate:all": "npm run migrate:dev && npm run migrate:test",
+    "migrate:dev": "cross-env NODE_ENV=development sequelize-cli db:migrate",
+    "migrate:test": "cross-env NODE_ENV=testing sequelize-cli db:migrate",
+
     "test": "npm run eslint && npm run test::rest",
     "test::rest": "cross-env NODE_ENV=testing jest --testPathPattern=./*.e2e.test.js",
     "eslint": "eslint --ext .js src/"

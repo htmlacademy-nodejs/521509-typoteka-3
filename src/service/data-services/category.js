@@ -24,7 +24,6 @@ class CategoryService {
    * @return {Object[]} - массив категорий
    */
   async getAll(isWithCount) {
-    console.log(isWithCount);
     if (isWithCount) {
       const result = await this._categoryModel.findAll({
         attributes: [
