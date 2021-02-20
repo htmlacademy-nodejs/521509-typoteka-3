@@ -22,7 +22,7 @@ class SearchService {
    * @return {Object[]} - найденные статьи
    */
   async searchByTitle(searchText) {
-    const articles = await this._articleModel.findAll({
+    const {count, rows} = await this._articleModel.findAndCountAll({
       where: {
         title: {
           [Op.iLike]: `%${searchText}%`
@@ -30,7 +30,7 @@ class SearchService {
       },
       include: [Aliases.CATEGORIES]
     });
-    return articles.map((offer) => offer.get());
+    return {count, articles: rows};
   }
 }
 
