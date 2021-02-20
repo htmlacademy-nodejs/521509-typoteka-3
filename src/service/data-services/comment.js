@@ -58,9 +58,8 @@ class CommentService {
    * @return {Object} - комментарий
    */
   async getOne(commentId) {
-    return await this._commentModel.findByPk(commentId, {
-      raw: true
-    });
+    const comment = await this._commentModel.findByPk(commentId);
+    return comment.get();
   }
 }
 

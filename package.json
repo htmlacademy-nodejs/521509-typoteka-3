@@ -15,7 +15,7 @@
     "migrate:test": "cross-env NODE_ENV=testing sequelize-cli db:migrate",
 
     "test": "npm run eslint && npm run test::rest",
-    "test::rest": "cross-env NODE_ENV=testing jest --testPathPattern=./*.e2e.test.js",
+    "test::rest": "cross-env NODE_ENV=testing jest --testPathPattern=./*.e2e.test.js  --runInBand",
     "eslint": "eslint --ext .js src/"
   },
   "repository": {

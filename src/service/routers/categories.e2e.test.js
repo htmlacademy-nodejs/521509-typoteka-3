@@ -6,6 +6,8 @@ const request = require(`supertest`);
 const categoriesRouter = require(`./categories`);
 const CategoryService = require(`../data-services/category`);
 
+const mockLogger = require(`../middlewares/mock-logger`);
+
 const DB = require(`../db`);
 const refillDB = require(`../db/refill-db`);
 
@@ -22,6 +24,7 @@ beforeAll(async () => {
 
   app = express();
   app.use(express.json());
+  app.use(mockLogger);
   app.use(`/categories`, categoriesRouter(new CategoryService(db)));
 });
 

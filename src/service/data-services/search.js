@@ -28,7 +28,8 @@ class SearchService {
           [Op.iLike]: `%${searchText}%`
         }
       },
-      include: [Aliases.CATEGORIES]
+      include: [Aliases.CATEGORIES],
+      distinct: true
     });
     return {count, articles: rows};
   }
