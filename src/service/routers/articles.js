@@ -17,8 +17,8 @@ module.exports = (articleService, commentService) => {
   router.get(`/`, async (req, res, next) => {
     try {
       const {isWithComments} = req.query;
-      const articles = await articleService.getAll(isWithComments);
-      res.status(HttpCode.OK).json(articles);
+      const result = await articleService.getAll(isWithComments);
+      res.status(HttpCode.OK).json(result);
     } catch (e) {
       next(e);
     }

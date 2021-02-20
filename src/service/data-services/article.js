@@ -56,11 +56,12 @@ class ArticleService {
       order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
     }
     // добавить количество
-    const articles = await this._articleModel.findAll({
+    const {count, rows} = await this._articleModel.findAndCountAll({
       include,
-      order
+      order,
+      distinct: true
     });
-    return articles.map((item) => item.get());
+    return {count, articles: rows};
   }
 
   /**
