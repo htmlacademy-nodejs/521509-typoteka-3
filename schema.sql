@@ -1,3 +1,5 @@
+-- Создавать схему лучше через миграции sequelize, на данный момент users не реализована
+
 DROP TABLE IF EXISTS articles_categories;
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS articles;

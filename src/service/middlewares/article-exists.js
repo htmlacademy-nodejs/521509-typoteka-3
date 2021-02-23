@@ -6,13 +6,13 @@
  */
 const {HttpCode} = require(`../../consts`);
 
-module.exports = (articleService) => (req, res, next) => {
+module.exports = (articleService) => async (req, res, next) => {
   req.log.debug(`Checking that article exists...`);
 
   const articleId = req.params[`articleId`];
 
   try {
-    res.locals.article = articleService.getOne(articleId);
+    res.locals.article = await articleService.getOne(articleId);
     req.log.debug(`Article exists.`);
     next();
 

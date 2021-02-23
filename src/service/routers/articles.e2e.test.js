@@ -2,87 +2,118 @@
 
 const express = require(`express`);
 const request = require(`supertest`);
-const lodash = require(`lodash`);
 
 const articleRouter = require(`./articles`);
 const ArticleService = require(`../data-services/article`);
 const CommentService = require(`../data-services/comment`);
 
+const mockLogger = require(`../middlewares/mock-logger`);
+
+const DB = require(`../db`);
+const refillDB = require(`../db/refill-db`);
+
 const {HttpCode} = require(`../../consts`);
 
-const mockArticles = require(`../../../data/mock-test-data`).articles;
+const mockData = require(`../../../data/mock-test-data`);
+
 
 const NEW_ARTICLE = {
   title: `Article form JEST`,
   announce: `JEST can create articles`,
-  text: `Достичь успеха помогут ежедневные повторения. Собрать камни бесконечности легко, если вы прирожденный герой. Программировать не настолько сложно, как об этом говорят.`,
-  categories: [
-    `IT`,
-    `Деревья`
-  ]
+  publishedAt: `2021-02-18T06:21:06.102Z`,
+  categories: [1]
 };
 
 const NEW_COMMENT = {
   text: `Comment from JEST`,
 };
 
-const createAPI = () => {
+const createAPI = async () => {
+  const db = new DB().getDB();
+  await refillDB(db, mockData);
+
   const app = express();
   app.use(express.json());
+  app.use(mockLogger);
 
-  const clonedMockData = lodash.cloneDeep(mockArticles);
-  app.use(`/articles`, articleRouter(new ArticleService(clonedMockData), new CommentService()));
-  return app;
+  app.use(`/articles`, articleRouter(new ArticleService(db), new CommentService(db)));
+  return {app, db};
 };
 
 
 describe(`API returns all articles`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
+    ({app, db} = await createAPI());
     response = await request(app).get(`/articles`);
   });
 
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
-  test(`Return array with 5 items`, () => expect(response.body.length).toBe(5));
-  test(`First item id is 2H0r`, () => expect(response.body[0].id).toBe(`2H0r`));
+  test(`Return array with 5 items`, () => {
+    expect(response.body.articles.length).toBe(5);
+    expect(response.body.count).toBe(5);
+  });
+  test(`Items are ordered by publishedAt`, () => {
+    expect(response.body.articles[0].id).toBe(5);
+    expect(response.body.articles[3].id).toBe(2);
+  });
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API returns right article Id`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).get(`/articles/hQq0`);
+    ({app, db} = await createAPI());
+    response = await request(app).get(`/articles/3`);
   });
 
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
-  test(`Item id is hQq0`, () => expect(response.body.id).toBe(`hQq0`));
+  test(`Item id is 3`, () => expect(response.body.id).toBe(3));
   test(`Item title is Как собрать камни бесконечности`, () => expect(response.body.title).toBe(`Как собрать камни бесконечности`));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API creates an article if data is valid`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
+    ({app, db} = await createAPI());
     response = await request(app).post(`/articles`).send(NEW_ARTICLE);
   });
 
   test(`Status Code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
-  test(`Return article that created`, () => expect(response.body).toEqual(expect.objectContaining(NEW_ARTICLE)));
-  test(`Articles count is changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.length).toBe(6)));
+  test(`Return article that created`, () => {
+    expect(response.body.title).toBe(NEW_ARTICLE.title);
+    expect(response.body.announce).toBe(NEW_ARTICLE.announce);
+    expect(response.body.publishedAt).toBe(NEW_ARTICLE.publishedAt);
+  });
+  test(`Articles count is changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.articles.length).toBe(6)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API returns 400 if posting article is invalid`, () => {
   let app;
+  let db;
 
   beforeAll(async () => {
-    app = createAPI();
+    ({app, db} = await createAPI());
   });
 
   test(`Status Code 400`, async () => {
@@ -95,43 +126,62 @@ describe(`API returns 400 if posting article is invalid`, () => {
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
   });
-  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.length).toBe(5)));
+  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API changes article after PUT request`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).put(`/articles/hQq0`).send(NEW_ARTICLE);
+    ({app, db} = await createAPI());
+    response = await request(app).put(`/articles/1`).send(NEW_ARTICLE);
   });
 
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
-  test(`Return article that updated`, () => expect(response.body).toEqual(expect.objectContaining(NEW_ARTICLE)));
-  test(`Article is really changed`, () => request(app).get(`/articles/hQq0`).expect((res) => expect(res.body).toEqual(expect.objectContaining(NEW_ARTICLE))));
-  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.length).toBe(5)));
+  test(`Return article that updated`, () => expect(response.body.title).toEqual(NEW_ARTICLE.title));
+  test(`Article is really changed`, () => request(app).get(`/articles/1`).expect((res) => {
+    expect(res.body.title).toBe(NEW_ARTICLE.title);
+    expect(res.body.announce).toBe(NEW_ARTICLE.announce);
+    expect(res.body.publishedAt).toBe(NEW_ARTICLE.publishedAt);
+  }));
+  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API returns 404 on not existing article`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
+    ({app, db} = await createAPI());
     response = await request(app).put(`/articles/21221`).send(NEW_ARTICLE);
   });
 
   test(`Status Code 404`, () => expect(response.statusCode).toBe(HttpCode.NOT_FOUND));
   test(`Returns error with message`, () => expect(response.body.error.message).toBe(`Article doesn't exist`));
-  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.length).toBe(5)));
+  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API returns 400 on updating on invalid article`, () => {
   let app;
+  let db;
 
   beforeAll(async () => {
-    app = createAPI();
+    ({app, db} = await createAPI());
   });
 
   test(`Status Code 400`, async () => {
@@ -139,89 +189,114 @@ describe(`API returns 400 on updating on invalid article`, () => {
       const badArticle = {...NEW_ARTICLE};
       delete badArticle[key];
       await request(app)
-        .put(`/articles/hQq0`)
+        .put(`/articles/1`)
         .send(badArticle)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
   });
-  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.length).toBe(5)));
+  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API delete article after request`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).delete(`/articles/hQq0`);
+    ({app, db} = await createAPI());
+    response = await request(app).delete(`/articles/3`);
   });
 
   test(`Status Code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));
-  test(`Article is really deleted`, () => request(app).get(`/articles/hQq0`).expect((res) => expect(res.statusCode).toBe(HttpCode.NOT_FOUND)));
-  test(`Articles count is changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.length).toBe(4)));
+  test(`Article is really deleted`, () => request(app).get(`/articles/3`).expect((res) => expect(res.statusCode).toBe(HttpCode.NOT_FOUND)));
+  test(`Articles count is changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(4)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API get article's comments`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).get(`/articles/hQq0/comments`);
+    ({app, db} = await createAPI());
+    response = await request(app).get(`/articles/2/comments`);
   });
 
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`There is 1 comment`, () => expect(response.body.length).toBe(1));
-  test(`Comment id is o1O2`, () => expect(response.body[0].id).toBe(`o1O2`));
+  test(`Comment text is right`, () => expect(response.body[0].text).toBe(`Это где ж такие красоты? Мне кажется или я уже читал это где-то? Планируете записать видосик на эту тему?`));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API delete comment`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).delete(`/articles/hQq0/comments/o1O2`);
+    ({app, db} = await createAPI());
+    response = await request(app).delete(`/articles/2/comments/3`);
   });
 
   test(`Status Code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));
-  test(`Comments count is changed`, () => request(app).get(`/articles/hQq0/comments`).expect((res) => expect(res.body.length).toBe(0)));
-  test(`Comments is really deleted`, () => request(app).get(`/articles/hQq0/comments`).expect((res) => {
+  test(`Comments count is changed`, () => request(app).get(`/articles/2/comments`).expect((res) => expect(res.body.length).toBe(0)));
+  test(`Comments is really deleted`, () => request(app).get(`/articles/2/comments`).expect((res) => {
     let isCommentIdExist = false;
     for (const comment of res.body) {
-      if (comment[`id`] === `o1O2`) {
+      if (comment[`id`] === 3) {
         isCommentIdExist = true;
       }
     }
     expect(isCommentIdExist).toBeFalsy();
   }));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API delete comment doesn't exist`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).delete(`/articles/hQq0/comments/R4CPA212`);
+    ({app, db} = await createAPI());
+    response = await request(app).delete(`/articles/2/comments/113`);
   });
 
   test(`Status Code 404`, () => expect(response.statusCode).toBe(HttpCode.NOT_FOUND));
-  test(`Comments count isn't changed`, () => request(app).get(`/articles/hQq0/comments`).expect((res) => expect(res.body.length).toBe(1)));
+  test(`Comments count isn't changed`, () => request(app).get(`/articles/2/comments`).expect((res) => expect(res.body.length).toBe(1)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API add comments to article`, () => {
   let app;
+  let db;
   let response;
 
   beforeAll(async () => {
-    app = createAPI();
-    response = await request(app).post(`/articles/hQq0/comments/`).send(NEW_COMMENT);
+    ({app, db} = await createAPI());
+    response = await request(app).post(`/articles/2/comments/`).send(NEW_COMMENT);
   });
 
   test(`Status Code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
   test(`Return comment that created`, () => expect(response.body).toEqual(expect.objectContaining(NEW_COMMENT)));
-  test(`Comments is really added`, () => request(app).get(`/articles/hQq0/comments/`).expect((res) => {
+  test(`Comments is really added`, () => request(app).get(`/articles/2/comments/`).expect((res) => {
     let addedComment = {};
     for (const comment of res.body) {
       if (comment.text === NEW_COMMENT.text) {
@@ -230,14 +305,19 @@ describe(`API add comments to article`, () => {
     }
     expect(addedComment).toEqual(expect.objectContaining(addedComment));
   }));
-  test(`Comments count is changed`, () => request(app).get(`/articles/hQq0/comments/`).expect((res) => expect(res.body.length).toBe(2)));
+  test(`Comments count is changed`, () => request(app).get(`/articles/2/comments/`).expect((res) => expect(res.body.length).toBe(2)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });
 
 describe(`API returns 400 if posting comment article is without any key`, () => {
   let app;
+  let db;
 
   beforeAll(async () => {
-    app = createAPI();
+    ({app, db} = await createAPI());
   });
 
   test(`Status Code 400`, async () => {
@@ -245,10 +325,14 @@ describe(`API returns 400 if posting comment article is without any key`, () => 
       const badComment = {...NEW_COMMENT};
       delete badComment[key];
       await request(app)
-        .post(`/articles/hQq0/comments/`)
+        .post(`/articles/2/comments/`)
         .send(badComment)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
   });
-  test(`article's comments count isn't changed`, () => request(app).get(`/articles/hQq0/comments/`).expect((res) => expect(res.body.length).toBe(1)));
+  test(`article's comments count isn't changed`, () => request(app).get(`/articles/2/comments/`).expect((res) => expect(res.body.length).toBe(1)));
+
+  afterAll(async () => {
+    await db.close();
+  });
 });

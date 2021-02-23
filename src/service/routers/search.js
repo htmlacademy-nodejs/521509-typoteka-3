@@ -7,18 +7,22 @@ const {HttpCode} = require(`../../consts`);
 module.exports = (searchService) => {
   const router = new Router();
 
-  router.get(`/`, (req, res) => {
-    const {query = ``} = req.query;
+  router.get(`/`, async (req, res, next) => {
+    try {
+      const {query = ``} = req.query;
 
-    if (!query) {
-      req.log.debug(`Search query string is empty.`);
-      res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `Query string is empty.`, details: `Query string is empty. Check it.`}});
-      return;
+      if (!query) {
+        req.log.debug(`Search query string is empty.`);
+        res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `Query string is empty.`, details: `Query string is empty. Check it.`}});
+        return;
+      }
+
+      const searchResults = await searchService.searchByTitle(query);
+
+      res.status(HttpCode.OK).json(searchResults);
+    } catch (e) {
+      next(e);
     }
-
-    const searchResults = searchService.searchByTitle(query);
-
-    res.status(HttpCode.OK).json(searchResults);
   });
 
   return router;

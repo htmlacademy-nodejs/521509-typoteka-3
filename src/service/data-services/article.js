@@ -1,86 +1,100 @@
 'use strict';
 
-const {nanoid} = require(`nanoid`);
-
-const {MAX_ID_LENGTH} = require(`../../consts`);
+const Aliases = require(`../db/models/aliase`);
 
 /**
  * Сервис для работы cо статьями
  */
 class ArticleService {
   /**
-   * @param {Object[]} articles - массив статей
+   * @param {Sequelize} db - экземпляр sequelize подключенный к базе данных
    */
-  constructor(articles) {
-    this._articles = articles;
+  constructor(db) {
+    this._articleModel = db.models.Article;
   }
 
   /**
-   * Приватный метод поиска индекса по статьям. Вызывает ошибку, если индекс не найден.
-   *
-   * @param {String} id - id искомой статьи
-   * @return {number} - возвращает индекс найденной статьи.
-   * @private
-   */
-  _findIndexById(id) {
-    const index = this._articles.findIndex((it) => it.id === id);
-
-    if (index < 0) {
-      throw new Error(`Not Found article with ID ${id}`);
-    }
-
-    return index;
-  }
-
-  /**
-   * Добавление новой статьи с добавлением к нему id и пустого массива с комментариями.
-   *
+   * Добавление новой статьи
+   * @async
    * @param {Object} articleData - статья
-   * @return {Object} - возвращает созданную статью
+   * @return {Object|undefined} - возвращает созданную статью
    */
-  add(articleData) {
-    const newArticle = {...articleData, id: nanoid(MAX_ID_LENGTH), comments: []};
+  async add(articleData) {
+    const article = await this._articleModel.create(articleData);
+    await article.addCategories(articleData.categories);
 
-    this._articles.push(newArticle);
-
-    return newArticle;
+    return article.get();
   }
 
   /**
    * Удаление статьи по id
+   * @async
    * @param {String} id - id статьи
+   * @return {Boolean} - возвращает true - если что-то удалил
    */
-  delete(id) {
-    this._articles.splice(this._findIndexById(id), 1);
+  async delete(id) {
+    const deletedRows = await this._articleModel.destroy({
+      where: {
+        id
+      }
+    });
+
+    return !!deletedRows;
   }
 
   /**
    * Отдача всех статей.
+   * @async
+   * @param {Boolean} isWithComments - нужны ли комментарии
    * @return {Object[]}
    */
-  getAll() {
-    return this._articles;
+  async getAll(isWithComments) {
+    const include = [Aliases.CATEGORIES];
+    const order = [[`published_at`, `DESC`]];
+    if (isWithComments) {
+      include.push(Aliases.COMMENTS);
+      order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
+    }
+    // добавить количество
+    const {count, rows} = await this._articleModel.findAndCountAll({
+      include,
+      order,
+      distinct: true
+    });
+    return {count, articles: rows};
   }
 
   /**
    * Отдает статью по Id
+   * @async
    * @param {String} id - id статьи
    * @return {Object} - найденная статья
    */
-  getOne(id) {
-    return this._articles[this._findIndexById(id)];
+  async getOne(id) {
+    const article = await this._articleModel.findByPk(id, {
+      order: [[Aliases.COMMENTS, `created_at`, `DESC`]],
+      include: [Aliases.CATEGORIES, Aliases.COMMENTS]
+    });
+
+    return article.get();
   }
 
   /**
    * Обновление статьи по id
+   * @async
    * @param {String} id - id статьи
-   * @param {Object} article - новая статья
+   * @param {Object} articleData - новая статья
    * @return {Object} - обновленная статья
    */
-  update(id, article) {
-    const index = this._findIndexById(id);
-    this._articles[index] = {...this._articles[index], ...article};
-    return this._articles[index];
+  async update(id, articleData) {
+    const updatedOffer = await this._articleModel.update(articleData, {
+      where: {id},
+      returning: true,
+      plain: true
+    });
+
+    // Это только в постгресе работает.
+    return updatedOffer[1].get();
   }
 }
 
