@@ -16,7 +16,7 @@ const myRoutes = new Router();
  * Обработка маршрута для админской страницы с статьями
  */
 myRoutes.get(`/`, async (req, res) => {
-  const articles = await api.getArticles();
+  const {articles} = await api.getArticles();
   res.render(`pages/my/articles`, {articles});
 });
 
@@ -25,7 +25,7 @@ myRoutes.get(`/`, async (req, res) => {
  * Обработка маршрута для админской страницы с комментариями
  */
 myRoutes.get(`/comments`, async (req, res) => {
-  const articles = await api.getArticles();
+  const {articles} = await api.getArticles();
 
   // TEMPORARY отдаются не комментарии по объявлению пользователя, а просто комментарии трех последних статей.
   const comments = [];

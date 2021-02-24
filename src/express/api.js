@@ -16,8 +16,8 @@ class API {
     return response.data;
   }
 
-  getArticles() {
-    return this._request(`/articles`);
+  getArticles({page = 1, isWithComments = false} = {}) {
+    return this._request(`/articles`, {params: {page, isWithComments}});
   }
 
   getArticle(id) {
@@ -28,8 +28,8 @@ class API {
     return this._request(`/search`, {params: {query}});
   }
 
-  getCategories() {
-    return this._request(`/categories`);
+  getCategories({isWithCount = false} = {}) {
+    return this._request(`/categories`, {params: {isWithCount}});
   }
 
   createArticle(data) {
