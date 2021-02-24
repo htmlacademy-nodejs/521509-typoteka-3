@@ -46,22 +46,25 @@ class ArticleService {
    * Отдача всех статей.
    * @async
    * @param {Boolean} isWithComments - нужны ли комментарии
+   * @param {Number} currentPage - запрашиваемая страница
    * @return {Object[]}
    */
-  async getAll(isWithComments) {
+  async getAll({isWithComments, currentPage}) {
     const include = [Aliases.CATEGORIES];
     const order = [[`published_at`, `DESC`]];
     if (isWithComments) {
       include.push(Aliases.COMMENTS);
       order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
     }
-    // добавить количество
     const {count, rows} = await this._articleModel.findAndCountAll({
       include,
       order,
-      distinct: true
+      distinct: true,
+      limit: +process.env.ARTICLES_COUNT_PER_PAGE,
+      offset: (currentPage - 1) * (+process.env.ARTICLES_COUNT_PER_PAGE)
     });
-    return {count, articles: rows};
+    const pagesCount = Math.ceil(count / (+process.env.ARTICLES_COUNT_PER_PAGE));
+    return {count, pagesCount, articles: rows};
   }
 
   /**
