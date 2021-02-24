@@ -63,8 +63,8 @@ class ArticleService {
       limit: +process.env.ARTICLES_COUNT_PER_PAGE,
       offset: (currentPage - 1) * (+process.env.ARTICLES_COUNT_PER_PAGE)
     });
-    const pagesCount = Math.ceil(count / (+process.env.ARTICLES_COUNT_PER_PAGE));
-    return {count, pagesCount, articles: rows};
+    const totalPages = Math.ceil(count / (+process.env.ARTICLES_COUNT_PER_PAGE));
+    return {count, totalPages, articles: rows};
   }
 
   /**
