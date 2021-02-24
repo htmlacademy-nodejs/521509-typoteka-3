@@ -73,7 +73,7 @@ class ArticleService {
   }
 
   /**
-   * Отдача постранично всех объявлений для указанной категории.
+   * Отдача статей для указанной категории.
    * @async
    * @param {Boolean} isWithComments - нужны ли комментарии
    * @param {Number} currentPage - номер страницы
