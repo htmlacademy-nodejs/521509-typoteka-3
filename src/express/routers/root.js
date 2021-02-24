@@ -18,7 +18,6 @@ mainRoutes.get(`/`, async (req, res) => {
   let {page} = req.query;
   page = +page ? +page : 1;
   const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({page, isWithComments: true}), api.getCategories({isWithCount: true})]);
-  console.log(categories);
   res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories});
 });
 

@@ -16,15 +16,19 @@ module.exports = (articleService, commentService) => {
 
   router.get(`/`, async (req, res, next) => {
     try {
-      const {isWithComments, page} = req.query;
+      const {isWithComments, page, categoryId} = req.query;
 
       // проверка страницы
-      let currentPage = +page;
-      if (!currentPage || currentPage < 0) {
-        currentPage = 1;
+      const currentPage = (+page || +page > 0) ? +page : 1;
+
+      let result;
+
+      if (+categoryId || +categoryId < 0) {
+        result = await articleService.getByCategory({isWithComments, currentPage, categoryId});
+      } else {
+        result = await articleService.getAll({isWithComments, currentPage});
       }
 
-      const result = await articleService.getAll({isWithComments, currentPage});
       res.status(HttpCode.OK).json(result);
     } catch (e) {
       next(e);

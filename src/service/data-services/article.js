@@ -11,6 +11,12 @@ class ArticleService {
    */
   constructor(db) {
     this._articleModel = db.models.Article;
+    this._categoryModel = db.models.Category;
+    this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE;
+  }
+
+  _getTotalPages(count) {
+    return Math.ceil(count / (this._articlesPerPage));
   }
 
   /**
@@ -60,12 +66,60 @@ class ArticleService {
       include,
       order,
       distinct: true,
-      limit: +process.env.ARTICLES_COUNT_PER_PAGE,
-      offset: (currentPage - 1) * (+process.env.ARTICLES_COUNT_PER_PAGE)
+      limit: this._articlesPerPage,
+      offset: (currentPage - 1) * (this._articlesPerPage)
     });
-    const totalPages = Math.ceil(count / (+process.env.ARTICLES_COUNT_PER_PAGE));
-    return {count, totalPages, articles: rows};
+    return {count, totalPages: this._getTotalPages(count), articles: rows};
   }
+
+  /**
+   * Отдача постранично всех объявлений для указанной категории.
+   * @async
+   * @param {Boolean} isWithComments - нужны ли комментарии
+   * @param {Number} currentPage - номер страницы
+   * @param {Number} categoryId - id категории
+   * @return {Object[]}
+   */
+  async getByCategory({isWithComments, currentPage, categoryId}) {
+    const order = [[`published_at`, `DESC`]];
+    // получаем id статей на 1 странице.
+    const {count, rows} = await this._articleModel.findAndCountAll({
+      attributes: [`id`, `published_at`],
+      order,
+      limit: this._articlesPerPage,
+      offset: (this._articlesPerPage * (currentPage - 1)),
+      distinct: true,
+      include: [{
+        attributes: [],
+        model: this._categoryModel,
+        as: Aliases.CATEGORIES,
+        through: {
+          where: {
+            'category_id': categoryId
+          },
+          required: true
+        },
+        required: true
+      }]
+    });
+
+    // получаем полные статьи по найденным id.
+    const include = [Aliases.CATEGORIES];
+    if (isWithComments) {
+      include.push(Aliases.COMMENTS);
+      order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
+    }
+    const articles = await this._articleModel.findAll({
+      where: {
+        id: rows.map((it) => it.id)
+      },
+      include,
+      order
+    });
+
+    return {count, totalPages: this._getTotalPages(count), articles: articles.map((item) => item.get())};
+  }
+
 
   /**
    * Отдает статью по Id

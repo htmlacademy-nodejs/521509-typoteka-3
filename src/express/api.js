@@ -16,8 +16,8 @@ class API {
     return response.data;
   }
 
-  getArticles({page = 1, isWithComments = false} = {}) {
-    return this._request(`/articles`, {params: {page, isWithComments}});
+  getArticles({page = 1, isWithComments = false, categoryId = null} = {}) {
+    return this._request(`/articles`, {params: {page, isWithComments, categoryId}});
   }
 
   getArticle(id) {
