@@ -22,7 +22,7 @@ module.exports = (...idFields) => async (req, res, next) => {
       error: {
         code: HttpCode.BAD_REQUEST,
         message: `Id is invalid`,
-        details: e.details
+        details: e.details.map((it) => it.message)
       }
     });
     req.log.debug(`Id(s) are invalid.`);

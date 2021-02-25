@@ -128,6 +128,21 @@ const checkAndReturnPositiveNumber = (x, negativeAnswer = null) => {
   return (result && result > 0) ? result : negativeAnswer;
 };
 
+
+/**
+ * Парсит дату в формате ДД.ММ.ГГГГ в формат ISO, если переданный параметр пустой вернет текущую дату
+ * @param {String} date - передаваемая дата
+ * @return {String} - итоговая дата
+ */
+const parseDate = (date) => {
+  let parsedDate = new Date();
+  if (date) {
+    const arr = date.split(`.`);
+    parsedDate.setFullYear(arr[2], (arr[1] - 1), arr[0]);
+  }
+  return parsedDate.toISOString();
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
@@ -136,5 +151,6 @@ module.exports = {
   writeFileInJSON,
   readFileToArray,
   readFileInJSON,
-  checkAndReturnPositiveNumber
+  checkAndReturnPositiveNumber,
+  parseDate
 };

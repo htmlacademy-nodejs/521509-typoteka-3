@@ -5,15 +5,21 @@ block content
     section.modal.modal--flex
       .popup.popup--new-publication.popup--flex
         .new-publication
-          form(action='/articles/add' method='POST' enctype='multipart/form-data')
+
+          form(action=(isNew ? `/articles/add` : `/articles/edit/${article.id}`) method='POST' enctype='multipart/form-data')
             .new-publication__header
-              h1 Новая публикация
+              h1 #{isNew ? `Новая публикация` : `Редактирование публикации`}
+
               .new-publication__date-form
                 h3 Дата публикации
                 .new-publication__date-form-division
                   .new-publication__date-block
                     label(for='new-publication-date' aria-label='Календарь')
-                    input#new-publication-date(type='text' name='login' placeholder='21.03.2019')
+                    input#new-publication-date(
+                      type='text'
+                      name='published_at'
+                      value=(article.publishedAt ? new Date(article.publishedAt).toLocaleDateString(`ru-RU`) : new Date().toLocaleDateString(`ru-RU`))
+                    )
               button.new-publication__button.button.button--colored(type='submit') Опубликовать
             button.popup__button.button.button--popup-close(type='button' aria-label='Закрыть окно')
               | Закрыть
@@ -34,8 +40,13 @@ block content
 
                 each category in categories
                   .new-publication__checkbox.new-publication__checkbox--auto
-                    input(id=`category-${category}` type='checkbox' name='categories[]' value=category checked=(article.categories && article.categories.includes(category)))
-                    label(for=`category-${category}`) #{category}
+                    input(
+                      id=`category-${category.id}`
+                      type='checkbox'
+                      name='categories[]'
+                      value=category.id
+                      checked=(article.categories && article.categories.some(it => it.id === category.id)))
+                    label(for=`category-${category.id}`) #{category.title}
 
                 a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
               .form__wrapper.form__wrapper--text
@@ -47,7 +58,8 @@ block content
                   label
                     textarea(rows='5' placeholder='Полный текст публикации' name='text')
                       | #{article.text}
-      .modal__overlay
+          p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
+            | #{errors}
 
   script(src='/js/vendor.js')
   script(src='/js/main.js')

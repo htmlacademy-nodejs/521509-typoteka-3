@@ -51,6 +51,7 @@ module.exports = Joi.object({
   image: Joi.string()
     .regex(new RegExp(/\.(jpe?g|png)$/i))
     .optional()
+    .allow(null)
     .messages({
       'string.base': `Название файла картинки должен быть типом "String"`,
       'any.regex': `Файл картинки должен быть в формате jpg или png.`
@@ -65,6 +66,7 @@ module.exports = Joi.object({
   text: Joi.string()
     .max(MAX_ARTICLE_TEXT_SYMBOLS_COUNT)
     .optional()
+    .allow(null)
     .messages({
       'string.base': `Название статьи должен быть типом "String"`,
       'string.max': `Название статьи не может быть больше ${MAX_ARTICLE_TEXT_SYMBOLS_COUNT} символов.`,
