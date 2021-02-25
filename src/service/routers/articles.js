@@ -2,13 +2,13 @@
 
 const {Router} = require(`express`);
 
-const {HttpCode} = require(`../../consts`);
-
 const getArticleExistsMiddleware = require(`../middlewares/article-exists`);
 const articleValidatorMiddleware = require(`../middlewares/article-validator`);
 const getCommentExistsMiddleWare = require(`../middlewares/comment-exists`);
 const commentValidatorMiddleWare = require(`../middlewares/comment-validator`);
 
+const {HttpCode} = require(`../../consts`);
+const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
 module.exports = (articleService, commentService) => {
   const router = new Router();
@@ -18,8 +18,10 @@ module.exports = (articleService, commentService) => {
     try {
       const {isWithComments, page, categoryId} = req.query;
 
-      // проверка страницы
-      const currentPage = (+page || +page > 0) ? +page : 1;
+      /**
+       * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+       */
+      const currentPage = checkAndReturnPositiveNumber(page, 1);
 
       let result;
 

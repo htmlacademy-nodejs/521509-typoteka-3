@@ -10,13 +10,18 @@ const api = require(`../api`).getDefaultAPI();
 
 const mainRoutes = new Router();
 
+const {checkAndReturnPositiveNumber} = require(`../../utils`);
+
 
 /**
  * Обработка маршрута для главной страницы
  */
 mainRoutes.get(`/`, async (req, res) => {
-  let {page} = req.query;
-  page = +page ? +page : 1;
+  /**
+   * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+   */
+  const page = checkAndReturnPositiveNumber(req.query.page, 1);
+
   const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({page, isWithComments: true}), api.getCategories({isWithCount: true})]);
   res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories});
 });

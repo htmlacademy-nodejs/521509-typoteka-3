@@ -115,6 +115,19 @@ const readFileInJSON = async (filePath, encoding = `utf8`) => {
   return JSON.parse(data);
 };
 
+/**
+ * Проверяет переданный аргумент, и проверяет можно ли привести его к положительному числу (ноль не входит):
+ * если число то возвращает
+ * если не число, то возвращает второй аргумент, по умолчанию null.
+ * @param {any} x - передаваемое число
+ * @param {any} negativeAnswer - ответ, если к числу привести нельзя
+ * @return {Number|any} - объект со информацией.
+ */
+const checkAndReturnPositiveNumber = (x, negativeAnswer = null) => {
+  const result = Number(parseInt(x, 10));
+  return (result && result > 0) ? result : negativeAnswer;
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
@@ -122,5 +135,6 @@ module.exports = {
   getRandomDateInPast,
   writeFileInJSON,
   readFileToArray,
-  readFileInJSON
+  readFileInJSON,
+  checkAndReturnPositiveNumber
 };
