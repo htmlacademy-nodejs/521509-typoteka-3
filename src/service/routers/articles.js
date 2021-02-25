@@ -2,13 +2,13 @@
 
 const {Router} = require(`express`);
 
-const {HttpCode} = require(`../../consts`);
-
 const getArticleExistsMiddleware = require(`../middlewares/article-exists`);
 const articleValidatorMiddleware = require(`../middlewares/article-validator`);
 const getCommentExistsMiddleWare = require(`../middlewares/comment-exists`);
 const commentValidatorMiddleWare = require(`../middlewares/comment-validator`);
 
+const {HttpCode} = require(`../../consts`);
+const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
 module.exports = (articleService, commentService) => {
   const router = new Router();
@@ -16,8 +16,21 @@ module.exports = (articleService, commentService) => {
 
   router.get(`/`, async (req, res, next) => {
     try {
-      const {isWithComments} = req.query;
-      const result = await articleService.getAll(isWithComments);
+      const {isWithComments, page, categoryId} = req.query;
+
+      /**
+       * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+       */
+      const currentPage = checkAndReturnPositiveNumber(page, 1);
+
+      let result;
+
+      if (+categoryId || +categoryId < 0) {
+        result = await articleService.getByCategory({isWithComments, currentPage, categoryId});
+      } else {
+        result = await articleService.getAll({isWithComments, currentPage});
+      }
+
       res.status(HttpCode.OK).json(result);
     } catch (e) {
       next(e);

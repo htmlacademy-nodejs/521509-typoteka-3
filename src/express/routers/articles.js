@@ -4,6 +4,7 @@
  * Роутер для статей. ('/articles')
  */
 const {api, articlesRoutes, uploaderMiddleware} = require(`../utils/init-articles-router`)();
+const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
 /**
  * Обработка маршрута для добавления статьи - открывается пустая форма для редактирования
@@ -59,7 +60,24 @@ articlesRoutes.get(`/edit/:id`, async (req, res) => {
 /**
  * Обработка маршрута для категории
  */
-articlesRoutes.get(`/category/:id`, (req, res) => res.render(`pages/articles/articles-by-category`));
+articlesRoutes.get(`/category/:id`, async (req, res, next) => {
+  try {
+    const currentCategoryId = +req.params[`id`];
+
+    /**
+     * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+     */
+    const page = checkAndReturnPositiveNumber(req.query.page, 1);
+
+    const [{totalPages, articles}, categories] = await Promise.all([
+      api.getArticles({page, isWithComments: true, categoryId: currentCategoryId}),
+      api.getCategories({isWithCount: true})
+    ]);
+    res.render(`pages/articles/articles-by-category`, {articles, page, totalPages, prefix: req.originalUrl.split(`?`)[0], categories, currentCategoryId});
+  } catch (e) {
+    next(e);
+  }
+});
 
 
 module.exports = articlesRoutes;
