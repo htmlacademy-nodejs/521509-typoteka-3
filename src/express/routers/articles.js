@@ -74,7 +74,6 @@ articlesRoutes.post(`/edit/:id`, uploaderMiddleware.single(`file`), async (req, 
     const categories = await api.getCategories();
     // из формы категории были массивом id, а не массивом объектов с id, приводим к нужному типу.
     articleData.categories = articleData.categories.map((it) => ({id: it}));
-    console.log(e.response.data.error);
     const errors = e.response.data.error.details.join(`\n`);
     res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: false});
   }
