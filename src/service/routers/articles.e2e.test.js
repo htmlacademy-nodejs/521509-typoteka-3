@@ -18,14 +18,25 @@ const mockData = require(`../../../data/mock-test-data`);
 
 
 const NEW_ARTICLE = {
-  title: `Article form JEST`,
-  announce: `JEST can create articles`,
+  title: `Article form JEST, it can be fantastic`,
+  announce: `JEST can create articles. This is article announce.`,
   publishedAt: `2021-02-18T06:21:06.102Z`,
   categories: [1]
 };
 
+const NEW_INVALID_ARTICLE = {
+  title: `Too short`,
+  announce: `Too short`,
+  publishedAt: `2021/12/12`,
+  categories: `a`
+};
+
 const NEW_COMMENT = {
-  text: `Comment from JEST`,
+  text: `Comment from JEST. Here is at least 20 symbols`,
+};
+
+const NEW_INVALID_COMMENT = {
+  text: `Too short`,
 };
 
 const createAPI = async () => {
@@ -116,7 +127,7 @@ describe(`API returns 400 if posting article is invalid`, () => {
     ({app, db} = await createAPI());
   });
 
-  test(`Status Code 400`, async () => {
+  test(`Status Code 400 if fields are missing`, async () => {
     for (const key of Object.keys(NEW_ARTICLE)) {
       const badArticle = {...NEW_ARTICLE};
       delete badArticle[key];
@@ -125,6 +136,12 @@ describe(`API returns 400 if posting article is invalid`, () => {
         .send(badArticle)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
+  });
+  test(`There are 4 errors if article is invalid`, async () => {
+    await request(app)
+        .post(`/articles`)
+        .send(NEW_INVALID_ARTICLE)
+        .expect((res) => expect(res.body.error.details.length).toBe(4));
   });
   test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
 
@@ -193,6 +210,12 @@ describe(`API returns 400 on updating on invalid article`, () => {
         .send(badArticle)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
+  });
+  test(`There are 4 errors if article is invalid`, async () => {
+    await request(app)
+      .put(`/articles/1`)
+      .send(NEW_INVALID_ARTICLE)
+      .expect((res) => expect(res.body.error.details.length).toBe(4));
   });
   test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
 
@@ -312,7 +335,7 @@ describe(`API add comments to article`, () => {
   });
 });
 
-describe(`API returns 400 if posting comment article is without any key`, () => {
+describe(`API returns 400 if posting invalid comment article`, () => {
   let app;
   let db;
 
@@ -329,6 +352,12 @@ describe(`API returns 400 if posting comment article is without any key`, () => 
         .send(badComment)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
+  });
+  test(`There are 1 errors if comment is invalid`, async () => {
+    await request(app)
+      .post(`/articles/2/comments/`)
+      .send(NEW_INVALID_COMMENT)
+      .expect((res) => expect(res.body.error.details.length).toBe(1));
   });
   test(`article's comments count isn't changed`, () => request(app).get(`/articles/2/comments/`).expect((res) => expect(res.body.length).toBe(1)));
 
