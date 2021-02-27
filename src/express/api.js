@@ -39,6 +39,13 @@ class API {
     });
   }
 
+  updateArticle(id, data) {
+    return this._request(`/articles/${id}`, {
+      method: Methods.PUT,
+      data
+    });
+  }
+
   static getDefaultAPI() {
     const url = `${process.env.API_DOMAIN_URL}:${process.env.API_SERVICE_PORT}${process.env.API_PREFIX}`;
     return new this(url, +process.env.TIMEOUT);
