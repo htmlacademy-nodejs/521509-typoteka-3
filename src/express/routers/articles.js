@@ -4,7 +4,7 @@
  * Роутер для статей. ('/articles')
  */
 const {api, articlesRoutes, uploaderMiddleware} = require(`../utils/init-articles-router`)();
-const prepareArticleData = require(`../utils/prepareArticleData`);
+const prepareArticleData = require(`../utils/prepare-article-data`);
 const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
 /**
