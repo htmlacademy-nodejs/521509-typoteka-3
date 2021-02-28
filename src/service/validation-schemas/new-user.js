@@ -57,7 +57,7 @@ module.exports = Joi.object({
       'any.required': `Пароль является обязательным полем.`
     }),
   repeatPassword: Joi.ref(`password`),
-  image: Joi.string()
+  avatar: Joi.string()
     .regex(new RegExp(/\.(jpe?g|png)$/i))
     .optional()
     .allow(null)
