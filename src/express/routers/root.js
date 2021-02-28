@@ -10,7 +10,10 @@ const api = require(`../api`).getDefaultAPI();
 
 const mainRoutes = new Router();
 
+const Uploader = require(`../lib/uploader`);
 const {checkAndReturnPositiveNumber} = require(`../../utils`);
+
+const uploaderMiddleware = new Uploader(`img`).getMiddleware();
 
 
 /**
@@ -30,7 +33,28 @@ mainRoutes.get(`/`, async (req, res) => {
 /**
  * Обработка маршрута для страницы с регистрацией
  */
-mainRoutes.get(`/register`, (req, res) => res.render(`pages/register`));
+mainRoutes.get(`/register`, (req, res) => res.render(`pages/register`, {user: {}}));
+
+mainRoutes.post(`/register`, uploaderMiddleware.single(`avatar`), async (req, res) => {
+  const {body, file} = req;
+
+  const userData = {
+    firstName: body[`first_name`],
+    lastName: body[`last_name`],
+    email: body.email,
+    password: body.password,
+    repeatPassword: body[`password-repeat`],
+    avatar: file ? file.filename : null
+  };
+
+  try {
+    await api.addUser(userData);
+    res.redirect(`/login`);
+  } catch (e) {
+    const errors = e.response ? e.response.data.error.details.join(`\n`) : `Ошибка сервера, невозможно выполнить запрос. \n, ${e.message}`;
+    res.render(`pages/register`, {user: userData, errors});
+  }
+});
 
 
 /**
