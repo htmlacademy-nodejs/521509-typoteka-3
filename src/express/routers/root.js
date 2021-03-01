@@ -33,7 +33,7 @@ mainRoutes.get(`/`, async (req, res) => {
 /**
  * Обработка маршрута для страницы с регистрацией
  */
-mainRoutes.get(`/register`, (req, res) => res.render(`pages/register`, {user: {}}));
+mainRoutes.get(`/register`, (req, res) => res.render(`pages/register`, {user: {}, errors: {}}));
 
 mainRoutes.post(`/register`, uploaderMiddleware.single(`avatar`), async (req, res) => {
   const {body, file} = req;
@@ -51,7 +51,7 @@ mainRoutes.post(`/register`, uploaderMiddleware.single(`avatar`), async (req, re
     await api.addUser(userData);
     res.redirect(`/login`);
   } catch (e) {
-    const errors = e.response ? e.response.data.error.details.join(`\n`) : `Ошибка сервера, невозможно выполнить запрос. \n, ${e.message}`;
+    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/register`, {user: userData, errors});
   }
 });

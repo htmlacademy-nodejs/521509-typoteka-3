@@ -12,7 +12,7 @@ const {checkAndReturnPositiveNumber} = require(`../../utils`);
  */
 articlesRoutes.get(`/add`, async (req, res) => {
   const categories = await api.getCategories();
-  res.render(`pages/articles/edit-article`, {article: {}, categories, isNew: true});
+  res.render(`pages/articles/edit-article`, {article: {}, categories, errors: {}, isNew: true});
 });
 
 /**
@@ -30,7 +30,7 @@ articlesRoutes.post(`/add`, uploaderMiddleware.single(`file`), async (req, res) 
     const categories = await api.getCategories();
     // из формы категории были массивом id, а не массивом объектов с id, приводим к нужному типу.
     articleData.categories = articleData.categories.map((id) => ({id}));
-    const errors = e.response ? e.response.data.error.details.join(`\n`) : `Ошибка сервера, невозможно выполнить запрос. \n, ${e.message}`;
+    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: true});
   }
 });
@@ -50,7 +50,7 @@ articlesRoutes.get(`/edit/:id`, async (req, res) => {
   let categories;
   try {
     [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
-    res.render(`pages/articles/edit-article`, {article, categories, isNew: false});
+    res.render(`pages/articles/edit-article`, {article, categories, isNew: false, errors: {}});
   } catch (err) {
     req.log.info(`Article is not found`);
     res.redirect(`/404`);
@@ -74,7 +74,7 @@ articlesRoutes.post(`/edit/:id`, uploaderMiddleware.single(`file`), async (req, 
     const categories = await api.getCategories();
     // из формы категории были массивом id, а не массивом объектов с id, приводим к нужному типу.
     articleData.categories = articleData.categories.map((it) => ({id: it}));
-    const errors = e.response ? e.response.data.error.details.join(`\n`) : `Ошибка сервера, невозможно выполнить запрос. \n, ${e.message}`;
+    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: false});
   }
 });

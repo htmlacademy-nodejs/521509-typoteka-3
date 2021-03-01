@@ -56,7 +56,12 @@ module.exports = Joi.object({
       'string.max': `Пароль не может быть больше ${MAX_USER_PASSWORD_SYMBOLS_COUNT} символов.`,
       'any.required': `Пароль является обязательным полем.`
     }),
-  repeatPassword: Joi.ref(`password`),
+  repeatPassword: Joi.string()
+    .required()
+    .valid(Joi.ref(`password`))
+    .messages({
+      'any.only': `Пароли не совпадают`
+    }),
   avatar: Joi.string()
     .regex(new RegExp(/\.(jpe?g|png)$/i))
     .optional()
@@ -66,8 +71,5 @@ module.exports = Joi.object({
       'any.regex': `Файл картинки должен быть в формате jpg или png.`
     }),
 })
-  .with(`password`, `repeatPassword`)
-  .messages({
-    'ref.allowOnly': `Пароли не совпадают.`
-  })
+.with(`password`, `repeatPassword`)
 ;
