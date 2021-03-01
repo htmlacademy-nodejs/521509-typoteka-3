@@ -1,7 +1,5 @@
 'use strict';
 
-// const Sequelize = require(`sequelize`);
-// const Aliases = require(`../db/models/aliase`);
 const bcrypt = require(`bcrypt`);
 
 /**
@@ -64,12 +62,7 @@ class UserService {
    * @return {Boolean} - Уникальный ли email
    */
   async isEmailUnique(email) {
-    const user = await this._userModel.findOne({
-      where: {
-        email
-      },
-      raw: true
-    });
+    const user = await this._getUserByEmail(email);
     if (user) {
       throw new Error(`Email isn't unique.`);
     }
@@ -77,16 +70,42 @@ class UserService {
   }
 
   /**
-   * Проверяет пользователя по Id или email
+   * Проверяет пользователя по email и паролю
    * @async
-   * @param {Number} id - email пользователя
+   * @param {String} email - email пользователя
    * @param {String} password - email пользователя
    * @return {Object} - найденный пользователь
    */
-  async checkUser(id, password) {
-    const user = this.getOne(id);
+  async checkUser(email, password) {
+    const user = await this._getUserByEmail(email);
 
-    return await bcrypt.compare(password, user.password);
+    if (!user) {
+      throw new Error(`User with such email doesn't exist. Register first.`);
+    }
+
+    const isRightPassword = await bcrypt.compare(password, user.password);
+
+    if (!isRightPassword) {
+      throw new Error(`User with such email and password doesn't exist.`);
+    }
+
+    // возвращаем только необходимые для отрисовки страниц данные
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+      isAuthor: user.isAuthor
+    };
+  }
+
+  async _getUserByEmail(email) {
+    return await this._userModel.findOne({
+      where: {
+        email
+      },
+      raw: true
+    });
   }
 }
 
