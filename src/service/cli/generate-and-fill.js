@@ -13,9 +13,13 @@
 
 const path = require(`path`);
 
-const Logger = require(`../../lib/logger`);
+const bcrypt = require(`bcrypt`);
+
 const DB = require(`../db`);
 const refillDB = require(`../db/refill-db`);
+
+const Logger = require(`../../lib/logger`);
+const mockUsers = require(`../../../data/mock-test-data`).users;
 
 const {
   getRandomNumber,
@@ -134,12 +138,15 @@ const MAX_PAST = 3 * 30 * 24 * 60 * 60 * 1000;
  * Генерирует статью по переданным параметрам.
  *
  * @param {String[]} commentSentences - массив предложений для комментариев
+ * @param {Object[]} users - массив пользователей
  * @return {{id: String, text: String}} - объект комментария
  */
-const generateComment = (commentSentences) => {
-  return {
+const generateComment = (commentSentences, users) => {
+  const comment = {
     text: getRandomItemsInArray(commentSentences, MAX_COMMENT_LENGTH).join(` `)
   };
+  comment[`user_id`] = getRandomItemInArray(users).id;
+  return comment;
 };
 
 /**
@@ -150,19 +157,23 @@ const generateComment = (commentSentences) => {
  * @param {Object[]} categoriesObjects - массив объектов категорий
  * @param {String[]} images - массив с названиями картинок
  * @param {String[]} commentSentences - массив предложений для комментариев
- * @return {{id: String, title: String, publishedAt: String, text: String, category: String[], image: String, announce: String, comments: Object[]}} - объект статьи
+ * @param {Object[]} users - массив пользователей
+ * @return {{id: String, title: String, publishedAt: String, text: String, category: String[], image: String, announce: String, comments: Object[], user_id: Number}} - объект статьи
  */
-const generateArticle = (titles, sentences, categoriesObjects, images, commentSentences) => {
+const generateArticle = (titles, sentences, categoriesObjects, images, commentSentences, users) => {
   const isWithImage = !!getRandomNumber(0, 2);
-  return {
+  const article = {
     title: getRandomItemInArray(titles),
     publishedAt: getRandomDateInPast(MAX_PAST).toISOString(),
     announce: getRandomItemsInArray(sentences, MAX_ANNOUNCE_COUNT).join(` `),
     text: getRandomItemsInArray(sentences, MAX_TEXT_COUNT).join(` `),
     image: isWithImage ? getRandomItemInArray(images) : null,
     categories: getRandomItemsInArray(categoriesObjects).map((it) => it.id),
-    comments: Array(getRandomNumber(0, MAX_COMMENTS_COUNT)).fill({}).map(() => generateComment(commentSentences))
+    comments: Array(getRandomNumber(0, MAX_COMMENTS_COUNT)).fill({}).map(() => generateComment(commentSentences, users)),
   };
+  // самый первый пользователь автор статей
+  article[`user_id`] = users[0].id;
+  return article;
 };
 
 /**
@@ -174,10 +185,11 @@ const generateArticle = (titles, sentences, categoriesObjects, images, commentSe
  * @param {Object[]} categoriesObjects - массив объектов категорий
  * @param {String[]} images - массив с названиями картинок
  * @param {String[]} commentSentences - массив предложений для комментариев
+ * @param {Object[]} users - массив пользователей
  * @return {Object[]} - массив статей
  */
-const generateArticles = (count, titles, sentences, categoriesObjects, images, commentSentences) => {
-  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categoriesObjects, images, commentSentences));
+const generateArticles = (count, titles, sentences, categoriesObjects, images, commentSentences, users) => {
+  return Array(count).fill({}).map(() => generateArticle(titles, sentences, categoriesObjects, images, commentSentences, users));
 };
 
 
@@ -190,6 +202,21 @@ const generateArticles = (count, titles, sentences, categoriesObjects, images, c
 const readDataForGeneration = async (filePath) => {
   const absolutePath = path.join(__dirname, PATH_TO_ROOT_FOLDER, filePath);
   return await readFileToArray(absolutePath);
+};
+
+/**
+ * Хэширует пароли в переданном массиве пользователей
+ *
+ * @param {Object[]} users - массив пользователей
+ * @return {Promise<String[]>} - возвращает promise с массивом
+ */
+const hashUsersPass = async (users) => {
+  const result = [];
+  for (const user of users) {
+    user.password = await bcrypt.hash(user.password, Number.parseInt(process.env.PASSWORD_SALT_ROUNDS, 10));
+    result.push(user);
+  }
+  return result;
 };
 
 
@@ -257,12 +284,16 @@ module.exports = {
        * Запускаем генерацию статей.
        */
       const categoriesObjects = categories.map((it, index) => ({id: index + 1, title: it}));
-      const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences);
+      const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences, mockUsers);
+
+      const usersWithHashedPass = await hashUsersPass(mockUsers);
+      usersWithHashedPass[0].isAuthor = true;
+
       logger.info(`Generated ${articles.length} articles.`);
 
       logger.info(`Refill data...`);
 
-      await refillDB(db, {articles, categories});
+      await refillDB(db, {articles, categories, users: usersWithHashedPass});
 
       logger.info(`Refilled ${articles.length} articles.`);
 

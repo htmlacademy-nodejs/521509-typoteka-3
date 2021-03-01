@@ -3,10 +3,32 @@
 /**
  *  Модуль экспортирующий моковые данные для тестов.
  *  Этот файл не изменяется при генерации новых статей, что в свою очередь не ломает тесты.
- *
- * @type {{createdAt: string, comments: {id: string, text: string}[], id: string, text: string, categories: string[], title: string, announce: string}[]}
  */
 
+const MOCK_USERS = [
+  {
+    firstName: `Инокентий`,
+    lastName: `Иванов`,
+    email: `example@example.com`,
+    password: `123456`,
+    repeatPassword: `123456`
+  },
+  {
+    firstName: `Комментатор`,
+    lastName: `Коментариевич`,
+    email: `example1@example.com`,
+    password: `123456`,
+    repeatPassword: `123456`
+  },
+  {
+    firstName: `Дерзкий`,
+    lastName: `Комментатор`,
+    email: `example3@example.com`,
+    password: `123456`,
+    repeatPassword: `123456`
+  }
+
+];
 
 const MOCK_CATEGORIES = [
   `Деревья`,
@@ -93,6 +115,7 @@ const MOCK_ARTICLES = [
 ];
 
 module.exports = {
+  users: MOCK_USERS,
   articles: MOCK_ARTICLES,
   categories: MOCK_CATEGORIES
 };

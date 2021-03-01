@@ -15,29 +15,34 @@ block content
           li.popup__tab.popup__tab--log-in
             a.popup__tab-switcher.button(href='/login') Войти
         .popup__form.popup__form--active.form.form--register
-          form(action='#' method='get')
+          form(action='/register' method='POST' enctype='multipart/form-data')
             .form__field
               label
-                input(type='email' placeholder='Электронная почта' required='')
+                input(type='email' placeholder='Электронная почта' required='' name='email' value=user.email)
             .form__field
               label
-                input(type='text' placeholder='Имя' required='')
+                input(type='text' placeholder='Имя' required='' name='first_name' value=user.firstName)
             .form__field
               label
-                input(type='text' placeholder='Фамилия')
+                input(type='text' placeholder='Фамилия' required='' name='last_name' value=user.lastName)
             .form__field
               label
-                input(type='password' placeholder='Пароль' required='')
+                input(type='password' placeholder='Пароль' required='' name='password')
             .form__field
               label
-                input(type='password' placeholder='Повтор пароля' required='')
+                input(type='password' placeholder='Повтор пароля' required='' name='password-repeat')
             .form__image-loader
               a.form__avatar.avatar
                 img(src='img/icons/smile.svg' alt='аватар пользователя')
               label
-                input.visually-hidden(type='file')
+                input.visually-hidden(type='file' name='avatar')
                 | Загрузить фото профиля
             button.form__submit-btn.form__submit-btn--register.button.button--colored(type='submit') Зарегистрироваться
+
+            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
+              each error in errors
+                | #{error}
+                br
       .modal__overlay
 
   script(src='/js/main.js')
