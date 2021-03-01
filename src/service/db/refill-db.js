@@ -1,5 +1,7 @@
 'use strict';
 
+const {hashUsersPass} = require(`../../utils`);
+
 const Aliases = require(`./models/aliase`);
 
 /**
@@ -21,7 +23,9 @@ module.exports = async (db, {articles, categories, users}) => {
 
   await db.models.Category.bulkCreate(categories.map((title) => ({title})));
 
-  await db.models.User.bulkCreate(users);
+  const usersWithHashedPass = await hashUsersPass(users);
+  usersWithHashedPass[0].isAuthor = true;
+  await db.models.User.bulkCreate(usersWithHashedPass);
 
   const articleCreationPromises = articles.map(async (articleData) => {
     const article = await db.models.Article.create(articleData, {include: [Aliases.COMMENTS]});

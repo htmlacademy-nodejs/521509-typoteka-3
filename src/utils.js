@@ -7,6 +7,8 @@
 
 const fs = require(`fs`).promises;
 
+const bcrypt = require(`bcrypt`);
+
 /**
  * getRandomNumber генерирует случайное число в пределах переданных функции.
  *
@@ -143,6 +145,21 @@ const parseDate = (date) => {
   return parsedDate.toISOString();
 };
 
+/**
+ * Хэширует пароли в переданном массиве пользователей
+ *
+ * @param {Object[]} users - массив пользователей
+ * @return {Promise<String[]>} - возвращает promise с массивом
+ */
+const hashUsersPass = async (users) => {
+  const result = [];
+  for (const user of users) {
+    user.password = await bcrypt.hash(user.password, Number.parseInt(process.env.PASSWORD_SALT_ROUNDS, 10));
+    result.push(user);
+  }
+  return result;
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
@@ -152,5 +169,6 @@ module.exports = {
   readFileToArray,
   readFileInJSON,
   checkAndReturnPositiveNumber,
-  parseDate
+  parseDate,
+  hashUsersPass
 };
