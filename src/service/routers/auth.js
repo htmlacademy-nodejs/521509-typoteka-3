@@ -28,7 +28,7 @@ module.exports = (userService) => {
 
           res.status(HttpCode.OK).json(tokens);
         } catch (e) {
-          req.log.debug(`e.message`);
+          req.log.debug(e.message);
           res.status(HttpCode.BAD_REQUEST).json({
             error: {
               code: HttpCode.BAD_REQUEST,
@@ -48,7 +48,7 @@ module.exports = (userService) => {
 
           res.status(HttpCode.OK).json(tokens);
         } catch (e) {
-          req.log.debug(`e.message`);
+          req.log.debug(e.message);
           res.status(HttpCode.BAD_REQUEST).json({
             error: {
               code: HttpCode.BAD_REQUEST,
