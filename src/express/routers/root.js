@@ -11,6 +11,9 @@ const api = require(`../api`).getDefaultAPI();
 const mainRoutes = new Router();
 
 const Uploader = require(`../lib/uploader`);
+const checkUserAuthMiddleware = require(`../middlewares/check-user-auth`);
+
+
 const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
 const uploaderMiddleware = new Uploader(`img`).getMiddleware();
@@ -19,7 +22,7 @@ const uploaderMiddleware = new Uploader(`img`).getMiddleware();
 /**
  * Обработка маршрута для главной страницы
  */
-mainRoutes.get(`/`, async (req, res) => {
+mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res) => {
   /**
    * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
    */
@@ -33,9 +36,9 @@ mainRoutes.get(`/`, async (req, res) => {
 /**
  * Обработка маршрута для страницы с регистрацией
  */
-mainRoutes.get(`/register`, (req, res) => res.render(`pages/register`, {user: {}, errors: {}}));
+mainRoutes.get(`/register`, checkUserAuthMiddleware, (req, res) => res.render(`pages/register`, {user: {}, errors: {}}));
 
-mainRoutes.post(`/register`, uploaderMiddleware.single(`avatar`), async (req, res) => {
+mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuthMiddleware], async (req, res) => {
   const {body, file} = req;
 
   const userData = {
@@ -60,13 +63,25 @@ mainRoutes.post(`/register`, uploaderMiddleware.single(`avatar`), async (req, re
 /**
  * Обработка маршрута для страницы с входом
  */
-mainRoutes.get(`/login`, (req, res) => res.render(`pages/login`));
+mainRoutes.get(`/login`, checkUserAuthMiddleware, (req, res) => res.render(`pages/login`, {errors: {}, user: {}}));
 
+mainRoutes.post(`/login`, [uploaderMiddleware.none(), checkUserAuthMiddleware], async (req, res) => {
+  const userData = req.body;
+
+  try {
+    const tokens = await api.authUser(userData);
+    res.cookie(`tokens`, JSON.stringify(tokens), {httpOnly: true});
+    res.redirect(`/`);
+  } catch (e) {
+    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+    res.render(`pages/login`, {user: userData, errors});
+  }
+});
 
 /**
  * Обработка маршрута для страницы поиска
  */
-mainRoutes.get(`/search`, async (req, res) => {
+mainRoutes.get(`/search`, checkUserAuthMiddleware, async (req, res) => {
   const searchText = req.query.query || ``;
   let results = [];
   if (searchText) {

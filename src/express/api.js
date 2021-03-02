@@ -11,8 +11,9 @@ class API {
     });
   }
 
-  async _request(url, options) {
-    const response = await this._http.request({url, ...options});
+  async _request(url, options, token) {
+    const headers = token ? {authorization: `Bearer ${token}`} : {};
+    const response = await this._http.request({url, ...options, headers});
     return response.data;
   }
 
@@ -32,22 +33,36 @@ class API {
     return this._request(`/categories`, {params: {isWithCount}});
   }
 
-  createArticle(data) {
+  createArticle(data, token) {
     return this._request(`/articles`, {
+      method: Methods.POST,
+      data
+    }, token);
+  }
+
+  updateArticle(id, data, token) {
+    return this._request(`/articles/${id}`, {
+      method: Methods.PUT,
+      data
+    }, token);
+  }
+
+  addUser(data) {
+    return this._request(`/users`, {
       method: Methods.POST,
       data
     });
   }
 
-  updateArticle(id, data) {
-    return this._request(`/articles/${id}`, {
-      method: Methods.PUT,
+  authUser(data) {
+    return this._request(`/auth`, {
+      method: Methods.POST,
       data
     });
   }
 
-  addUser(data) {
-    return this._request(`/users`, {
+  refreshAuthUser(data) {
+    return this._request(`/auth/refresh`, {
       method: Methods.POST,
       data
     });
