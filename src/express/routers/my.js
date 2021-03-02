@@ -25,7 +25,7 @@ myRoutes.get(`/`,
     ],
     async (req, res) => {
       const {articles} = await api.getArticles();
-      res.render(`pages/my/articles`, {articles});
+      res.render(`pages/my/articles`, {articles, currentUser: res.locals.user});
     });
 
 
@@ -51,7 +51,7 @@ myRoutes.get(`/comments`,
       }));
     });
 
-      res.render(`pages/my/comments`, {comments});
+      res.render(`pages/my/comments`, {comments, currentUser: res.locals.user});
     });
 
 
@@ -63,7 +63,7 @@ myRoutes.get(`/categories`,
       checkUserAuthMiddleware,
       checkUserIsAuthorMiddleware
     ],
-    (req, res) => res.render(`pages/my/categories`));
+    (req, res) => res.render(`pages/my/categories`, {currentUser: res.locals.user}));
 
 
 module.exports = myRoutes;

@@ -29,14 +29,14 @@ mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res) => {
   const page = checkAndReturnPositiveNumber(req.query.page, 1);
 
   const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({page, isWithComments: true}), api.getCategories({isWithCount: true})]);
-  res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories});
+  res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, currentUser: res.locals.user});
 });
 
 
 /**
  * Обработка маршрута для страницы с регистрацией
  */
-mainRoutes.get(`/register`, checkUserAuthMiddleware, (req, res) => res.render(`pages/register`, {user: {}, errors: {}}));
+mainRoutes.get(`/register`, checkUserAuthMiddleware, (req, res) => res.render(`pages/register`, {user: {}, errors: {}, currentUser: res.locals.user}));
 
 mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuthMiddleware], async (req, res) => {
   const {body, file} = req;
@@ -55,7 +55,7 @@ mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuth
     res.redirect(`/login`);
   } catch (e) {
     const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
-    res.render(`pages/register`, {user: userData, errors});
+    res.render(`pages/register`, {user: userData, errors, currentUser: res.locals.user});
   }
 });
 
@@ -63,7 +63,7 @@ mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuth
 /**
  * Обработка маршрута для страницы с входом
  */
-mainRoutes.get(`/login`, checkUserAuthMiddleware, (req, res) => res.render(`pages/login`, {errors: {}, user: {}}));
+mainRoutes.get(`/login`, checkUserAuthMiddleware, (req, res) => res.render(`pages/login`, {errors: {}, user: {}, currentUser: res.locals.user}));
 
 mainRoutes.post(`/login`, [uploaderMiddleware.none(), checkUserAuthMiddleware], async (req, res) => {
   const userData = req.body;
@@ -74,8 +74,16 @@ mainRoutes.post(`/login`, [uploaderMiddleware.none(), checkUserAuthMiddleware], 
     res.redirect(`/`);
   } catch (e) {
     const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
-    res.render(`pages/login`, {user: userData, errors});
+    res.render(`pages/login`, {user: userData, errors, currentUser: res.locals.user});
   }
+});
+
+/**
+ * Обработка маршрута для страницы для выхода
+ */
+mainRoutes.get(`/logout`, checkUserAuthMiddleware, (req, res) => {
+  res.cookie(`tokens`, ``, {httpOnly: true});
+  res.redirect(`/`);
 });
 
 /**
@@ -91,7 +99,7 @@ mainRoutes.get(`/search`, checkUserAuthMiddleware, async (req, res) => {
       req.log.error(err.message);
     }
   }
-  res.render(`pages/search`, {searchText, results});
+  res.render(`pages/search`, {searchText, results, currentUser: res.locals.user});
 });
 
 

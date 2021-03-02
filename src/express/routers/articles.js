@@ -19,7 +19,7 @@ articlesRoutes.get(`/add`,
     ],
     async (req, res) => {
       const categories = await api.getCategories();
-      res.render(`pages/articles/edit-article`, {article: {}, categories, errors: {}, isNew: true});
+      res.render(`pages/articles/edit-article`, {article: {}, categories, errors: {}, isNew: true, currentUser: res.locals.user});
     });
 
 /**
@@ -44,7 +44,7 @@ articlesRoutes.post(`/add`,
         // из формы категории были массивом id, а не массивом объектов с id, приводим к нужному типу.
         articleData.categories = articleData.categories.map((id) => ({id}));
         const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
-        res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: true});
+        res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: true, currentUser: res.locals.user});
       }
     });
 
@@ -68,7 +68,7 @@ articlesRoutes.get(`/edit/:id`,
       let categories;
       try {
         [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
-        res.render(`pages/articles/edit-article`, {article, categories, isNew: false, errors: {}});
+        res.render(`pages/articles/edit-article`, {article, categories, isNew: false, errors: {}, currentUser: res.locals.user});
       } catch (err) {
         req.log.info(`Article is not found`);
         res.redirect(`/404`);
@@ -101,7 +101,7 @@ articlesRoutes.post(`/edit/:id`,
         articleData.id = id;
 
         const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
-        res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: false});
+        res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: false, currentUser: res.locals.user});
       }
     });
 
@@ -122,7 +122,7 @@ articlesRoutes.get(`/category/:id`, checkUserAuthMiddleware, async (req, res, ne
       api.getArticles({page, isWithComments: true, categoryId: currentCategoryId}),
       api.getCategories({isWithCount: true})
     ]);
-    res.render(`pages/articles/articles-by-category`, {articles, page, totalPages, prefix: req.originalUrl.split(`?`)[0], categories, currentCategoryId});
+    res.render(`pages/articles/articles-by-category`, {articles, page, totalPages, prefix: req.originalUrl.split(`?`)[0], categories, currentCategoryId, currentUser: res.locals.user});
   } catch (e) {
     next(e);
   }
