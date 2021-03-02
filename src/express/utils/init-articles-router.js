@@ -8,6 +8,9 @@ module.exports = () => {
   const articlesRoutes = new Router();
   const uploaderMiddleware = new Uploader(`img`).getMiddleware();
 
-  return {api, articlesRoutes, uploaderMiddleware};
+  const checkUserAuthMiddleware = require(`../middlewares/check-user-auth`);
+  const checkUserIsAuthorMiddleware = require(`../middlewares/check-author`);
+
+  return {api, articlesRoutes, uploaderMiddleware, checkUserAuthMiddleware, checkUserIsAuthorMiddleware};
 };
 
