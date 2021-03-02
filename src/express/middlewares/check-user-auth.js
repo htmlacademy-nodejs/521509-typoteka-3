@@ -12,7 +12,7 @@
  */
 const API = require(`../api`);
 
-const atob = require(`atob`);
+const {Base64} = require(`js-base64`);
 const api = API.getDefaultAPI();
 
 
@@ -22,8 +22,8 @@ module.exports = async (req, res, next) => {
     let {accessToken, refreshToken} = JSON.parse(req.cookies.tokens);
 
     // смотрим, что находится в payload в токенах
-    let payloadAccess = JSON.parse(atob(accessToken.split(`.`)[1]));
-    const payloadRefresh = JSON.parse(atob(refreshToken.split(`.`)[1]));
+    let payloadAccess = JSON.parse(Base64.decode(accessToken.split(`.`)[1]));
+    const payloadRefresh = JSON.parse(Base64.decode(refreshToken.split(`.`)[1]));
 
     // если оба токена вышли по сроку, то выбрасываем ошибку.
     if (payloadAccess.exp * 1000 < Date.now() && payloadRefresh.exp * 1000 < Date.now()) {
@@ -40,7 +40,7 @@ module.exports = async (req, res, next) => {
       res.cookie(`tokens`, JSON.stringify({accessToken, refreshToken}), {httpOnly: true});
 
       // парсим только токен access чтобы достать пользователя
-      payloadAccess = JSON.parse(atob(accessToken.split(`.`)[1]));
+      payloadAccess = JSON.parse(Base64.decode(accessToken.split(`.`)[1]));
     }
 
     // запоминаем пользователя
