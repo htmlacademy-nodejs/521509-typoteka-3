@@ -18,8 +18,8 @@ module.exports = async (req, res, next) => {
     next();
 
   } catch (err) {
-    req.log.debug(`JWT is invalid.`);
-    res.status(HttpCode.FORBIDDEN).json({error: {code: HttpCode.FORBIDDEN, message: `Auth failed, try to refresh token.`, details: err.message}});
+    req.log.debug(`JWT is invalid. ${err}`);
+    res.status(HttpCode.FORBIDDEN).json({error: {code: HttpCode.FORBIDDEN, message: `Auth failed, try to refresh token.`, details: [err.message]}});
   }
 
 };
