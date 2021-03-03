@@ -7,6 +7,7 @@ const categoriesRouter = require(`./categories`);
 const CategoryService = require(`../data-services/category`);
 
 const mockLogger = require(`../middlewares/mock-logger`);
+const JWTHelper = require(`../lib/jwt-helper`);
 
 const DB = require(`../db`);
 const refillDB = require(`../db/refill-db`);
@@ -17,6 +18,13 @@ const mockData = require(`../../../data/mock-test-data`);
 
 const NEW_CATEGORY = {
   title: `Category from JEST`,
+};
+
+const AUTHOR_FOR_TOKEN = {
+  id: 1,
+  firstName: `Инокентий`,
+  lastName: `Иванов`,
+  isAuthor: true
 };
 
 const createAPI = async () => {
@@ -65,7 +73,10 @@ describe(`API creates category if data is valid`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).post(`/categories`).send(NEW_CATEGORY);
+    response = await request(app)
+      .post(`/categories`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
+      .send(NEW_CATEGORY);
   });
 
   test(`Status Code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
@@ -86,7 +97,10 @@ describe(`API changes categories after PUT request`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).put(`/categories/1`).send(NEW_CATEGORY);
+    response = await request(app)
+      .put(`/categories/1`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
+      .send(NEW_CATEGORY);
   });
 
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
@@ -108,7 +122,10 @@ describe(`API delete category after request`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).delete(`/categories/3`);
+    response = await request(app)
+      .delete(`/categories/3`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
+    ;
   });
 
   test(`Status Code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));

@@ -8,6 +8,8 @@ const {Router} = require(`express`);
 
 const getValidatorMiddleware = require(`../middlewares/validator`);
 const getIdCheckerMiddleware = require(`../middlewares/id-checker`);
+const checkJWTMiddleware = require(`../middlewares/check-jwt`);
+const isAuthorMiddleware = require(`../middlewares/check-author`);
 
 const categoryValidationSchema = require(`../validation-schemas/category`);
 
@@ -30,7 +32,11 @@ module.exports = (categoryService) => {
   });
 
   router.post(`/`,
-      getValidatorMiddleware(categoryValidationSchema, `Category`),
+      [
+        getValidatorMiddleware(categoryValidationSchema, `Category`),
+        checkJWTMiddleware,
+        isAuthorMiddleware
+      ],
       async (req, res, next) => {
         try {
           // Валидация будет добавлена в следующем модуле
@@ -45,7 +51,9 @@ module.exports = (categoryService) => {
   router.put(`/:categoryId`,
       [
         getIdCheckerMiddleware(`categoryId`),
-        getValidatorMiddleware(categoryValidationSchema, `Category`)
+        getValidatorMiddleware(categoryValidationSchema, `Category`),
+        checkJWTMiddleware,
+        isAuthorMiddleware
       ],
       async (req, res, next) => {
         try {
@@ -59,7 +67,11 @@ module.exports = (categoryService) => {
       });
 
   router.delete(`/:categoryId`,
-      getIdCheckerMiddleware(`categoryId`),
+      [
+        getIdCheckerMiddleware(`categoryId`),
+        checkJWTMiddleware,
+        isAuthorMiddleware
+      ],
       async (req, res, next) => {
         try {
           const categoryId = req.params[`categoryId`];

@@ -4,6 +4,7 @@
  */
 const path = require(`path`);
 
+const cookieParser = require(`cookie-parser`);
 const express = require(`express`);
 require(`dotenv`).config();
 
@@ -53,6 +54,7 @@ const logger = new Logger(`front-server`).getLogger();
  */
 app.set(`views`, path.resolve(__dirname, PATH_TO_TEMPLATES_DIR));
 app.set(`view engine`, `pug`);
+app.use(cookieParser());
 
 app.use(express.urlencoded({
   extended: true

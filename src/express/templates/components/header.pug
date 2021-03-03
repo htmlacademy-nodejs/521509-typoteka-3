@@ -2,10 +2,34 @@ header.header
   a.header__logo.logo(href='/')
     img.logo__image(src='/img/icons/logo-image-only.svg' alt='логотип Типотека')
     span.logo__name Типотека
-  nav.header__nav
-    ul.header__nav-list
-      li.header__list-item
-        a.header__registration(href='/register') Регистрация
-      li.header__list-item
-        a.header__enter(href='/login') Вход с паролем
+  if currentUser.isAuthor
+    a.button.button--colored.header__button-new(href='/articles/add') Новая запись
+    .header__dropdown
+      a.button.button--burger.header__burger(href='#') Открыть меню
+      ul.navigation.header__navigation
+        li.navigation__item
+          a(href='/my') Публикации
+        li.navigation__item
+          a(href='/my/comments') Комментарии
+        li.navigation__item
+          a(href='/my/categories') Категории
+        li.navigation__item
+          a(href='/logout') Выйти
+  else if currentUser.id
+    nav.header__nav
+      ul.header__nav-list
+        li.header__list-item
+          p #{currentUser.firstName} #{currentUser.lastName}
+        li.header__list-item
+          a.header__exit(href='/logout') Выйти
+    div.header__avatar.avatar
+      if currentUser.avatar
+        img(src=`img/${currentUser.avatar}` alt='аватар пользователя')
+  else
+    nav.header__nav
+      ul.header__nav-list
+        li.header__list-item
+          a.header__registration(href='/register') Регистрация
+        li.header__list-item
+          a.header__enter(href='/login') Вход с паролем
   a.header__search.button.button--search(href='/search' aria-label='поиск по сайту')

@@ -16,6 +16,7 @@ const {HttpCode} = require(`../../consts`);
 
 const mockData = require(`../../../data/mock-test-data`);
 
+const JWTHelper = require(`../lib/jwt-helper`);
 
 const NEW_ARTICLE = {
   title: `Article form JEST, it can be fantastic`,
@@ -38,6 +39,21 @@ const NEW_COMMENT = {
 const NEW_INVALID_COMMENT = {
   text: `Too short`,
 };
+
+const AUTHOR_FOR_TOKEN = {
+  id: 1,
+  firstName: `Инокентий`,
+  lastName: `Иванов`,
+  isAuthor: true
+};
+
+const READER_FOR_TOKEN = {
+  id: 1,
+  firstName: `Инокентий`,
+  lastName: `Иванов`,
+  isAuthor: false
+};
+
 
 const createAPI = async () => {
   const db = new DB().getDB();
@@ -103,7 +119,10 @@ describe(`API creates an article if data is valid`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).post(`/articles`).send(NEW_ARTICLE);
+    response = await request(app)
+      .post(`/articles`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
+      .send(NEW_ARTICLE);
   });
 
   test(`Status Code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
@@ -113,6 +132,27 @@ describe(`API creates an article if data is valid`, () => {
     expect(response.body.publishedAt).toBe(NEW_ARTICLE.publishedAt);
   });
   test(`Articles count is changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.articles.length).toBe(6)));
+
+  afterAll(async () => {
+    await db.close();
+  });
+});
+
+describe(`API doesn't create an article if user isn't author`, () => {
+  let app;
+  let db;
+  let response;
+
+  beforeAll(async () => {
+    ({app, db} = await createAPI());
+    response = await request(app)
+      .post(`/articles`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(READER_FOR_TOKEN).accessToken}`)
+      .send(NEW_ARTICLE);
+  });
+
+  test(`Status Code 403`, () => expect(response.statusCode).toBe(HttpCode.FORBIDDEN));
+  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.articles.length).toBe(5)));
 
   afterAll(async () => {
     await db.close();
@@ -134,6 +174,7 @@ describe(`API returns 400 if posting article is invalid`, () => {
       await request(app)
         .post(`/articles`)
         .send(badArticle)
+        .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
   });
@@ -141,6 +182,7 @@ describe(`API returns 400 if posting article is invalid`, () => {
     await request(app)
         .post(`/articles`)
         .send(NEW_INVALID_ARTICLE)
+        .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
         .expect((res) => expect(res.body.error.details.length).toBe(4));
   });
   test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
@@ -157,7 +199,10 @@ describe(`API changes article after PUT request`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).put(`/articles/1`).send(NEW_ARTICLE);
+    response = await request(app)
+      .put(`/articles/1`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
+      .send(NEW_ARTICLE);
   });
 
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
@@ -174,6 +219,27 @@ describe(`API changes article after PUT request`, () => {
   });
 });
 
+describe(`API doesn't change article after PUT request if user is not author`, () => {
+  let app;
+  let db;
+  let response;
+
+  beforeAll(async () => {
+    ({app, db} = await createAPI());
+    response = await request(app)
+      .put(`/articles/1`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(READER_FOR_TOKEN).accessToken}`)
+      .send(NEW_ARTICLE);
+  });
+
+  test(`Status Code 403`, () => expect(response.statusCode).toBe(HttpCode.FORBIDDEN));
+
+  afterAll(async () => {
+    await db.close();
+  });
+});
+
+
 describe(`API returns 404 on not existing article`, () => {
   let app;
   let db;
@@ -181,7 +247,10 @@ describe(`API returns 404 on not existing article`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).put(`/articles/21221`).send(NEW_ARTICLE);
+    response = await request(app)
+      .put(`/articles/21221`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
+      .send(NEW_ARTICLE);
   });
 
   test(`Status Code 404`, () => expect(response.statusCode).toBe(HttpCode.NOT_FOUND));
@@ -207,6 +276,7 @@ describe(`API returns 400 on updating on invalid article`, () => {
       delete badArticle[key];
       await request(app)
         .put(`/articles/1`)
+        .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
         .send(badArticle)
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
@@ -214,6 +284,7 @@ describe(`API returns 400 on updating on invalid article`, () => {
   test(`There are 4 errors if article is invalid`, async () => {
     await request(app)
       .put(`/articles/1`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
       .send(NEW_INVALID_ARTICLE)
       .expect((res) => expect(res.body.error.details.length).toBe(4));
   });
@@ -231,12 +302,34 @@ describe(`API delete article after request`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).delete(`/articles/3`);
+    response = await request(app)
+      .delete(`/articles/3`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`);
   });
 
   test(`Status Code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));
   test(`Article is really deleted`, () => request(app).get(`/articles/3`).expect((res) => expect(res.statusCode).toBe(HttpCode.NOT_FOUND)));
   test(`Articles count is changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(4)));
+
+  afterAll(async () => {
+    await db.close();
+  });
+});
+
+describe(`API doesn't delete article after request if user is not author`, () => {
+  let app;
+  let db;
+  let response;
+
+  beforeAll(async () => {
+    ({app, db} = await createAPI());
+    response = await request(app)
+      .delete(`/articles/3`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(READER_FOR_TOKEN).accessToken}`);
+  });
+
+  test(`Status Code 403`, () => expect(response.statusCode).toBe(HttpCode.FORBIDDEN));
+  test(`Articles count isn't changed`, () => request(app).get(`/articles`).expect((res) => expect(res.body.count).toBe(5)));
 
   afterAll(async () => {
     await db.close();
@@ -269,7 +362,9 @@ describe(`API delete comment`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).delete(`/articles/2/comments/3`);
+    response = await request(app)
+      .delete(`/articles/2/comments/3`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`);
   });
 
   test(`Status Code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));
@@ -289,6 +384,25 @@ describe(`API delete comment`, () => {
   });
 });
 
+describe(`API doen't delete comment if user is not author`, () => {
+  let app;
+  let db;
+  let response;
+
+  beforeAll(async () => {
+    ({app, db} = await createAPI());
+    response = await request(app)
+      .delete(`/articles/2/comments/3`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(READER_FOR_TOKEN).accessToken}`);
+  });
+
+  test(`Status Code 403`, () => expect(response.statusCode).toBe(HttpCode.FORBIDDEN));
+
+  afterAll(async () => {
+    await db.close();
+  });
+});
+
 describe(`API delete comment doesn't exist`, () => {
   let app;
   let db;
@@ -296,7 +410,9 @@ describe(`API delete comment doesn't exist`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).delete(`/articles/2/comments/113`);
+    response = await request(app)
+      .delete(`/articles/2/comments/113`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`);
   });
 
   test(`Status Code 404`, () => expect(response.statusCode).toBe(HttpCode.NOT_FOUND));
@@ -314,7 +430,10 @@ describe(`API add comments to article`, () => {
 
   beforeAll(async () => {
     ({app, db} = await createAPI());
-    response = await request(app).post(`/articles/2/comments/`).send(NEW_COMMENT);
+    response = await request(app)
+      .post(`/articles/2/comments/`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(READER_FOR_TOKEN).accessToken}`)
+      .send(NEW_COMMENT);
   });
 
   test(`Status Code 201`, () => expect(response.statusCode).toBe(HttpCode.CREATED));
@@ -356,6 +475,7 @@ describe(`API returns 400 if posting invalid comment article`, () => {
   test(`There are 1 errors if comment is invalid`, async () => {
     await request(app)
       .post(`/articles/2/comments/`)
+      .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(READER_FOR_TOKEN).accessToken}`)
       .send(NEW_INVALID_COMMENT)
       .expect((res) => expect(res.body.error.details.length).toBe(1));
   });

@@ -6,6 +6,7 @@ const getArticlesRouter = require(`./articles`);
 const getCategoriesRouter = require(`./categories`);
 const getSearchRouter = require(`./search`);
 const getUsersRouter = require(`./users`);
+const getAuthRouter = require(`./auth`);
 
 const {
   ArticleService,
@@ -26,6 +27,7 @@ module.exports = async (db) => {
   indexRouter.use(`/categories`, getCategoriesRouter(new CategoryService(db)));
   indexRouter.use(`/search`, getSearchRouter(new SearchService(db)));
   indexRouter.use(`/users`, getUsersRouter(new UserService(db)));
+  indexRouter.use(`/auth`, getAuthRouter(new UserService(db)));
 
   return indexRouter;
 };

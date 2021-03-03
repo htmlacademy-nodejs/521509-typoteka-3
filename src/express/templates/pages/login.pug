@@ -15,14 +15,20 @@ block content
           li.popup__tab.popup__tab--log-in.popup__tab--active
             a.popup__tab-switcher.button Войти
         .popup__form.popup__form--active.form.form--register
-          form(action='#' method='get')
+          form(action='/login' method='post' enctype='multipart/form-data')
             .form__field
               label
-                input(type='email' placeholder='Электронная почта' required='')
+                input(type='email' placeholder='Электронная почта' required='' name='email' value=user.email)
             .form__field
               label
-                input(type='password' placeholder='Пароль' required='')
+                input(type='password' placeholder='Пароль' required='' name='password')
             button.form__submit-btn.form__submit-btn--log-in.button.button--colored(type='submit') Войти
+
+            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
+              each error in errors
+                | #{error}
+                br
+
       .modal__overlay
 
   script(src='js/main.js')

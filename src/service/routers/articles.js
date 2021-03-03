@@ -6,6 +6,8 @@ const getArticleExistsMiddleware = require(`../middlewares/article-exists`);
 const getCommentExistsMiddleWare = require(`../middlewares/comment-exists`);
 const getValidatorMiddleware = require(`../middlewares/validator`);
 const getIdCheckerMiddleware = require(`../middlewares/id-checker`);
+const checkJWTMiddleware = require(`../middlewares/check-jwt`);
+const isAuthorMiddleware = require(`../middlewares/check-author`);
 
 const articleValidationSchema = require(`../validation-schemas/article`);
 const commentValidationSchema = require(`../validation-schemas/comment`);
@@ -52,10 +54,15 @@ module.exports = (articleService, commentService) => {
 
 
   router.post(`/`,
-      getValidatorMiddleware(articleValidationSchema, `Article`),
+      [
+        getValidatorMiddleware(articleValidationSchema, `Article`),
+        checkJWTMiddleware,
+        isAuthorMiddleware
+      ],
       async (req, res, next) => {
         try {
           let newArticle = req.body;
+          newArticle[`user_id`] = res.locals.user.id;
           newArticle = await articleService.add(newArticle);
 
           res.status(HttpCode.CREATED).json(newArticle);
@@ -70,11 +77,14 @@ module.exports = (articleService, commentService) => {
       [
         getIdCheckerMiddleware(`articleId`),
         getValidatorMiddleware(articleValidationSchema, `Article`),
-        getArticleExistsMiddleware(articleService),
+        checkJWTMiddleware,
+        isAuthorMiddleware,
+        getArticleExistsMiddleware(articleService)
       ],
       async (req, res, next) => {
         try {
           let updatedArticle = req.body;
+          updatedArticle[`user_id`] = res.locals.user.id;
           updatedArticle = await articleService.update(req.params[`articleId`], updatedArticle);
 
           res.status(HttpCode.OK).json(updatedArticle);
@@ -85,7 +95,12 @@ module.exports = (articleService, commentService) => {
 
 
   router.delete(`/:articleId`,
-      [getIdCheckerMiddleware(`articleId`), getArticleExistsMiddleware(articleService)],
+      [
+        getIdCheckerMiddleware(`articleId`),
+        checkJWTMiddleware,
+        isAuthorMiddleware,
+        getArticleExistsMiddleware(articleService)
+      ],
       async (req, res, next) => {
         try {
           await articleService.delete(req.params[`articleId`]);
@@ -114,10 +129,12 @@ module.exports = (articleService, commentService) => {
       [
         getIdCheckerMiddleware(`articleId`),
         getValidatorMiddleware(commentValidationSchema, `Comment`),
+        checkJWTMiddleware,
         getArticleExistsMiddleware(articleService)
       ], async (req, res, next) => {
         try {
           let newComment = req.body;
+          newComment[`user_id`] = res.locals.user.id;
           newComment = await commentService.add(req.params[`articleId`], newComment);
 
           res.status(HttpCode.CREATED).json(newComment);
@@ -130,6 +147,8 @@ module.exports = (articleService, commentService) => {
   router.delete(`/:articleId/comments/:commentId`,
       [
         getIdCheckerMiddleware(`articleId`, `commentId`),
+        checkJWTMiddleware,
+        isAuthorMiddleware,
         getArticleExistsMiddleware(articleService),
         getCommentExistsMiddleWare(commentService)
       ], async (req, res, next) => {

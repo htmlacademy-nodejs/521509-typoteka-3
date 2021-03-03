@@ -13,8 +13,6 @@
 
 const path = require(`path`);
 
-const bcrypt = require(`bcrypt`);
-
 const DB = require(`../db`);
 const refillDB = require(`../db/refill-db`);
 
@@ -204,22 +202,6 @@ const readDataForGeneration = async (filePath) => {
   return await readFileToArray(absolutePath);
 };
 
-/**
- * Хэширует пароли в переданном массиве пользователей
- *
- * @param {Object[]} users - массив пользователей
- * @return {Promise<String[]>} - возвращает promise с массивом
- */
-const hashUsersPass = async (users) => {
-  const result = [];
-  for (const user of users) {
-    user.password = await bcrypt.hash(user.password, Number.parseInt(process.env.PASSWORD_SALT_ROUNDS, 10));
-    result.push(user);
-  }
-  return result;
-};
-
-
 module.exports = {
   name: `--generate`,
 
@@ -286,14 +268,11 @@ module.exports = {
       const categoriesObjects = categories.map((it, index) => ({id: index + 1, title: it}));
       const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences, mockUsers);
 
-      const usersWithHashedPass = await hashUsersPass(mockUsers);
-      usersWithHashedPass[0].isAuthor = true;
-
       logger.info(`Generated ${articles.length} articles.`);
 
       logger.info(`Refill data...`);
 
-      await refillDB(db, {articles, categories, users: usersWithHashedPass});
+      await refillDB(db, {articles, categories, users: mockUsers});
 
       logger.info(`Refilled ${articles.length} articles.`);
 
