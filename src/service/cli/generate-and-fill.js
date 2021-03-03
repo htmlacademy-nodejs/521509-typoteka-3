@@ -268,9 +268,6 @@ module.exports = {
       const categoriesObjects = categories.map((it, index) => ({id: index + 1, title: it}));
       const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences, mockUsers);
 
-      // const usersWithHashedPass = await hashUsersPass(mockUsers);
-      // usersWithHashedPass[0].isAuthor = true;
-
       logger.info(`Generated ${articles.length} articles.`);
 
       logger.info(`Refill data...`);
