@@ -67,7 +67,7 @@ class ArticleService {
       order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
     }
 
-    if (isForAdmin) {
+    if (!isForAdmin) {
       where = {
         publishedAt: {
           [Op.lt]: new Date(Date.now())
