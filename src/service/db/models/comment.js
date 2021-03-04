@@ -15,10 +15,8 @@ module.exports = (db) => {
     modelName: `Comment`,
     tableName: `comments`,
     timestamps: true,
-    paranoid: true,
     createdAt: `created_at`,
-    updatedAt: `updated_at`,
-    deletedAt: `deleted_at`
+    updatedAt: `updated_at`
   });
 
   return Comment;

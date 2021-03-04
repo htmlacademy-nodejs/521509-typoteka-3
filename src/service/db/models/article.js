@@ -33,10 +33,8 @@ module.exports = (db) => {
     modelName: `Article`,
     tableName: `articles`,
     timestamps: true,
-    paranoid: true,
     createdAt: `created_at`,
-    updatedAt: `updated_at`,
-    deletedAt: `deleted_at`
+    updatedAt: `updated_at`
   });
 
   return Article;

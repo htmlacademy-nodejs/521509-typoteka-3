@@ -10,10 +10,8 @@ module.exports = (db) => {
         modelName: `ArticleCategory`,
         tableName: `articles_categories`,
         timestamps: true,
-        paranoid: true,
         createdAt: `created_at`,
-        updatedAt: `updated_at`,
-        deletedAt: `deleted_at`
+        updatedAt: `updated_at`
       }
   );
   return ArticleCategory;
