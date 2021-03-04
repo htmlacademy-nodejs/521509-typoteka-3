@@ -68,7 +68,7 @@ module.exports = async (req, res, next) => {
 
     // запоминаем пользователя
     res.locals.user = payloadAccess.data;
-    res.locals.accessToken = tokens.accessToken;
+    res.locals.accessToken = newTokens ? tokens.accessToken : newTokens.accessToken;
   } catch (e) {
     // если что-то крешнулось, то считаем пользователя не авторизованным.
     req.log.debug(e);
