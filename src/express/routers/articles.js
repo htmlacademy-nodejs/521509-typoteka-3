@@ -58,7 +58,7 @@ articlesRoutes.post(`/add`,
  */
 articlesRoutes.get(`/:id`, checkUserAuthMiddleware, async (req, res, next) => {
   try {
-    const [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
+    const [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories({isWithCount: true})]);
 
     res.render(`pages/articles/article`, {article, categories, currentUser: res.locals.user, errors: []});
   } catch (e) {

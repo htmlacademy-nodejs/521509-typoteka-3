@@ -7,6 +7,7 @@
 const {Router} = require(`express`);
 
 const getValidatorMiddleware = require(`../middlewares/validator`);
+const getCheckUninuqueCategoryMiddleware = require(`../middlewares/check-unique-category`);
 const getIdCheckerMiddleware = require(`../middlewares/id-checker`);
 const checkJWTMiddleware = require(`../middlewares/check-jwt`);
 const isAuthorMiddleware = require(`../middlewares/check-author`);
@@ -23,7 +24,8 @@ module.exports = (categoryService) => {
    */
   router.get(`/`, async (req, res, next) => {
     try {
-      const {isWithCount} = req.query;
+      let {isWithCount} = req.query;
+      isWithCount = isWithCount === `true`;
       const categories = await categoryService.getAll(isWithCount);
       res.status(HttpCode.OK).json(categories);
     } catch (e) {
@@ -34,6 +36,7 @@ module.exports = (categoryService) => {
   router.post(`/`,
       [
         getValidatorMiddleware(categoryValidationSchema, `Category`),
+        getCheckUninuqueCategoryMiddleware(categoryService),
         checkJWTMiddleware,
         isAuthorMiddleware
       ],
@@ -72,13 +75,13 @@ module.exports = (categoryService) => {
         checkJWTMiddleware,
         isAuthorMiddleware
       ],
-      async (req, res, next) => {
+      async (req, res) => {
         try {
           const categoryId = req.params[`categoryId`];
           await categoryService.delete(categoryId);
           res.status(HttpCode.DELETED).send();
         } catch (e) {
-          next(e);
+          res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `Can't delete category.`, details: [e.message]}});
         }
       });
 

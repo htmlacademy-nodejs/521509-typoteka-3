@@ -79,7 +79,88 @@ myRoutes.get(`/categories`,
       checkUserAuthMiddleware,
       checkUserIsAuthorMiddleware
     ],
-    (req, res) => res.render(`pages/my/categories`, {currentUser: res.locals.user}));
+    async (req, res, next) => {
+      try {
+        const categories = await api.getCategories();
+        res.render(`pages/my/categories`, {categories, currentUser: res.locals.user, errors: []});
+      } catch (e) {
+        next(e);
+      }
+    });
+
+/**
+ * Обработка маршрута для админской страницы с категориями
+ */
+myRoutes.post(`/categories`,
+    [
+      checkUserAuthMiddleware,
+      checkUserIsAuthorMiddleware
+    ],
+    async (req, res) => {
+      const categoryData = req.body;
+      try {
+        await api.addCategory(categoryData, res.locals.accessToken);
+        res.redirect(`/my/categories`);
+      } catch (e) {
+        const categories = await api.getCategories();
+        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        res.render(`pages/my/categories`, {
+          categories,
+          newCategory: categoryData ? categoryData.title : ``,
+          currentUser: res.locals.user,
+          errors
+        });
+      }
+    });
+
+/**
+ * Обработка маршрута для админской страницы с категориями
+ */
+myRoutes.post(`/categories/:id/update`,
+    [
+      checkUserAuthMiddleware,
+      checkUserIsAuthorMiddleware
+    ],
+    async (req, res) => {
+      const id = req.params.id;
+      const categoryData = req.body;
+      try {
+        await api.updateCategory(id, categoryData, res.locals.accessToken);
+        res.redirect(`/my/categories`);
+      } catch (e) {
+        const categories = await api.getCategories();
+        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        res.render(`pages/my/categories`, {
+          categories,
+          currentUser: res.locals.user,
+          errors
+        });
+      }
+    });
+
+/**
+ * Обработка маршрута для админской страницы с категориями
+ */
+myRoutes.post(`/categories/:id/delete`,
+    [
+      checkUserAuthMiddleware,
+      checkUserIsAuthorMiddleware
+    ],
+    async (req, res) => {
+      const id = req.params.id;
+      try {
+        await api.deleteCategory(id, res.locals.accessToken);
+        res.redirect(`/my/categories`);
+      } catch (e) {
+        const categories = await api.getCategories();
+        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        res.render(`pages/my/categories`, {
+          categories,
+          currentUser: res.locals.user,
+          errors
+        });
+      }
+    });
 
 
 module.exports = myRoutes;

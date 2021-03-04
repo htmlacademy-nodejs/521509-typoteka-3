@@ -72,11 +72,31 @@ class API {
     }, token);
   }
 
+  addCategory(data, token) {
+    return this._request(`/categories`, {
+      method: Methods.POST,
+      data
+    }, token);
+  }
+
   addUser(data) {
     return this._request(`/users`, {
       method: Methods.POST,
       data
     });
+  }
+
+  updateCategory(id, data, token) {
+    return this._request(`/categories/${id}`, {
+      method: Methods.PUT,
+      data
+    }, token);
+  }
+
+  deleteCategory(id, token) {
+    return this._request(`/categories/${id}`, {
+      method: Methods.DELETE
+    }, token);
   }
 
   authUser(data) {
