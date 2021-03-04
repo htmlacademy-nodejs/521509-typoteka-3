@@ -1,7 +1,7 @@
 'use strict';
 
 const Aliases = require(`../db/models/aliase`);
-const {Op} = require(`sequelize`);
+const Sequelize = require(`sequelize`);
 
 /**
  * Сервис для работы cо статьями
@@ -11,8 +11,10 @@ class ArticleService {
    * @param {Sequelize} db - экземпляр sequelize подключенный к базе данных
    */
   constructor(db) {
+    this._db = db;
     this._articleModel = db.models.Article;
     this._categoryModel = db.models.Category;
+    this._commentModel = db.models.Comment;
     this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE;
   }
 
@@ -70,7 +72,7 @@ class ArticleService {
     if (!isForAdmin) {
       where = {
         publishedAt: {
-          [Op.lt]: new Date(Date.now())
+          [Sequelize.Op.lt]: new Date(Date.now())
         }
       };
     }
@@ -84,6 +86,34 @@ class ArticleService {
       offset: (currentPage - 1) * (this._articlesPerPage)
     });
     return {count, totalPages: this._getTotalPages(count), articles: rows};
+  }
+
+  /**
+   * Отдача самых обсуждаемых статей.
+   *
+   * @async
+   * @return {Object[]}
+   */
+  async getMostDiscussed() {
+    const [results] = await this._db.query(
+        `SELECT
+                articles.id,
+                articles.announce,
+                comments_count.count as "commentsCount"
+              FROM articles
+              INNER JOIN (
+                SELECT
+                  article_id,
+                  COUNT(article_id)
+                FROM comments
+                GROUP BY article_id
+                )AS comments_count ON comments_count.article_id = articles.id
+              ORDER BY comments_count.count DESC
+              LIMIT ${process.env.ARTICLES_MOST_DISCUSSED_COUNT}
+              ;`
+    );
+
+    return results;
   }
 
   /**
@@ -105,7 +135,7 @@ class ArticleService {
       distinct: true,
       where: {
         publishedAt: {
-          [Op.lt]: new Date(Date.now())
+          [Sequelize.Op.lt]: new Date(Date.now())
         }
       },
       include: [{

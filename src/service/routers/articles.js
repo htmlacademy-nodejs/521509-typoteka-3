@@ -65,6 +65,17 @@ module.exports = (articleService, commentService) => {
         }
       });
 
+  router.get(`/most-discussed/`,
+      async (req, res, next) => {
+        try {
+          let result = await articleService.getMostDiscussed();
+
+          res.status(HttpCode.OK).json(result);
+        } catch (e) {
+          next(e);
+        }
+      });
+
   router.get(`/:articleId`,
       [getIdCheckerMiddleware(`articleId`), getArticleExistsMiddleware(articleService)],
       (req, res) => {

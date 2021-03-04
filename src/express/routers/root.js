@@ -29,11 +29,11 @@ mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res, next) => {
      */
     const page = checkAndReturnPositiveNumber(req.query.page, 1);
 
-    const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({
+    const [{totalPages, articles}, categories, mostDiscussedArticles] = await Promise.all([api.getArticles({
       page,
       isWithComments: true
-    }), api.getCategories({isWithCount: true})]);
-    res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, currentUser: res.locals.user});
+    }), api.getCategories({isWithCount: true}), api.getMostDiscussedArticles()]);
+    res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, mostDiscussedArticles, currentUser: res.locals.user});
   } catch (e) {
     next(e);
   }
