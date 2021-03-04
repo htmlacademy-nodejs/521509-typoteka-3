@@ -65,6 +65,13 @@ class API {
     }, token);
   }
 
+  addComment(articleId, data, token) {
+    return this._request(`/articles/${articleId}/comments`, {
+      method: Methods.POST,
+      data
+    }, token);
+  }
+
   addUser(data) {
     return this._request(`/users`, {
       method: Methods.POST,

@@ -56,7 +56,15 @@ articlesRoutes.post(`/add`,
 /**
  * Обработка маршрута для статьи
  */
-articlesRoutes.get(`/:id`, checkUserAuthMiddleware, (req, res) => res.render(`pages/articles/article`));
+articlesRoutes.get(`/:id`, checkUserAuthMiddleware, async (req, res, next) => {
+  try {
+    const [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
+
+    res.render(`pages/articles/article`, {article, categories, currentUser: res.locals.user, errors: []});
+  } catch (e) {
+    next(e);
+  }
+});
 
 
 /**
@@ -129,6 +137,28 @@ articlesRoutes.post(`/delete/:id`,
         next(e);
       }
     });
+
+/**
+ * Обработка маршрута для добавления комментария
+ */
+articlesRoutes.post(`/:id/comments`, checkUserAuthMiddleware, async (req, res) => {
+  const articleId = req.params[`id`];
+  const commentData = req.body;
+  try {
+    await api.addComment(articleId, commentData, res.locals.accessToken);
+    res.redirect(`/articles/${articleId}`);
+  } catch (e) {
+    const [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
+    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+    res.render(`pages/articles/article`, {
+      article,
+      categories,
+      newComment: commentData ? commentData.text : ``,
+      currentUser: res.locals.user,
+      errors
+    });
+  }
+});
 
 
 /**

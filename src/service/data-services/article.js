@@ -13,6 +13,7 @@ class ArticleService {
   constructor(db) {
     this._db = db;
     this._articleModel = db.models.Article;
+    this._userModel = db.models.User;
     this._categoryModel = db.models.Category;
     this._commentModel = db.models.Comment;
     this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE;
@@ -179,9 +180,19 @@ class ArticleService {
   async getOne(id) {
     const article = await this._articleModel.findByPk(id, {
       order: [[Aliases.COMMENTS, `created_at`, `DESC`]],
-      include: [Aliases.CATEGORIES, Aliases.COMMENTS]
+      include: [Aliases.CATEGORIES, {
+        model: this._commentModel,
+        as: Aliases.COMMENTS,
+        include: [{
+          model: this._userModel,
+          as: Aliases.USERS,
+          attributes: [`firstName`, `lastName`, `avatar`],
+          required: true
+        }]
+      }]
     });
 
+    console.log(article);
     return article.get();
   }
 
