@@ -59,7 +59,7 @@ module.exports = async (req, res, next) => {
     // получаем токены из кук
     let tokens = JSON.parse(req.cookies.tokens);
 
-    const {payloadAccess, newTokens} = checkOrRefreshTokens(tokens);
+    const {payloadAccess, newTokens} = await checkOrRefreshTokens(tokens);
 
     // если токены обновились, то обновляем их в куках
     if (newTokens) {
