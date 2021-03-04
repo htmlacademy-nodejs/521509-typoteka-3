@@ -26,7 +26,17 @@ class API {
   }
 
   getLastComments() {
-    return this._request(`/articles/last-comments`);
+    return this._request(`/articles/comments/last`);
+  }
+
+  getAllComments(token) {
+    return this._request(`/articles/comments/`, {}, token);
+  }
+
+  deleteComment(articleId, commentId, token) {
+    return this._request(`/articles/${articleId}/comments/${commentId}`, {
+      method: Methods.DELETE
+    }, token);
   }
 
   getArticlesForAuthor({page = 1, isWithComments = false} = {}, token) {

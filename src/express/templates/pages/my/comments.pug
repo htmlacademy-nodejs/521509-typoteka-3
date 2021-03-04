@@ -4,19 +4,27 @@ block content
   main.main-page.main-page--padding
     section.main-page__publication.publication
       h1.publication__title Комментарии
+      p.form__error-message(style="white-space: pre-wrap; padding: 0 40px")
+        each error in errors
+          | #{error}
+          br
       ul.publication__list
         each comment in comments
           li.publication__list-item
             .publication__header
-              img.publication__list-image(src='/img/avatar-small-2.png' width='20' height='20' alt='Аватар пользователя')
-              b.publication__list-name Александр Петров
-              time.publication__item-time(datetime='2019-03-21T20:33') 21.03.2019, 20:33
-            a.publication__item-text(href=`/articles/${comment.articleId}`)
-              | #{comment.articleTitle}
+              img.publication__list-image(src=`/img/${comment.users.avatar ? comment.users.avatar : 'icons/smile.svg'}` width='20' height='20' alt='Аватар пользователя')
+              b.publication__list-name
+               | #{comment.users.firstName + ' ' + comment.users.lastName}
+              time.publication__item-time(datetime=comment[`created_at`])
+                | #{new Date(comment[`created_at`]).toLocaleDateString('ru-RU')}
+                | #{new Date(comment[`created_at`]).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}
+            a.publication__item-text(href=`/articles/${comment[`article_id`]}`)
+              | #{comment.articles.title}
             p.publication__text-strong
               | #{comment.text}
-            button.publication__button.button.button--close-item(type='button')
-              span.visually-hidden Закрыть строку списка
+            form(action=`/my/articles/${comment[`article_id`]}/comments/${comment.id}/delete` method='POST')
+              button.publication__button.button.button--close-item(type='submit')
+                span.visually-hidden Закрыть строку списка
         else
           p У вас нет комментариев.
 

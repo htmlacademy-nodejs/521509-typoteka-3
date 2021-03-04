@@ -59,12 +59,13 @@ class CommentService {
    * @param {Boolean} onlyLast - все ли комментарии или только последние
    * @return {Object[]} - массив комментариев
    */
-  async getLast(onlyLast = true) {
+  async getLast({onlyLast = true}) {
     const limit = onlyLast ? process.env.LAST_COMMENTS_COUNT : null;
     const comments = await this._commentModel.findAll({
       order: [[`created_at`, `DESC`]],
       include: [
-        Aliases.USERS
+        Aliases.USERS,
+        Aliases.ARTICLES
       ],
       limit
     });

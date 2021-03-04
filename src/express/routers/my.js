@@ -51,22 +51,30 @@ myRoutes.get(`/comments`,
     ],
     async (req, res, next) => {
       try {
-        const {articles} = await api.getArticles();
+        const comments = await api.getAllComments(res.locals.accessToken);
 
-        // TEMPORARY отдаются не комментарии по объявлению пользователя, а просто комментарии трех последних статей.
-        const comments = [];
-        articles.slice(0, 3)
-    .forEach((article) => {
-      article.comments.forEach((comment) => comments.push({
-        articleTitle: article.title,
-        articleId: article.id,
-        ...comment
-      }));
-    });
-
-        res.render(`pages/my/comments`, {comments, currentUser: res.locals.user});
+        res.render(`pages/my/comments`, {comments, currentUser: res.locals.user, errors: []});
       } catch (e) {
         next(e);
+      }
+    });
+
+/**
+ * Обработка маршрута для админской страницы с комментариями
+ */
+myRoutes.post(`/articles/:articleId/comments/:commentId/delete`,
+    [
+      checkUserAuthMiddleware,
+      checkUserIsAuthorMiddleware
+    ],
+    async (req, res) => {
+      try {
+        await api.deleteComment(req.params.articleId, req.params.commentId, res.locals.accessToken);
+        res.redirect(`/my/comments`);
+      } catch (e) {
+        const comments = await api.getAllComments(res.locals.accessToken);
+        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        res.render(`pages/my/comments`, {comments, currentUser: res.locals.user, errors});
       }
     });
 

@@ -76,16 +76,32 @@ module.exports = (articleService, commentService) => {
         }
       });
 
-  router.get(`/last-comments/`,
+  router.get(`/comments/`,
+      [
+        checkJWTMiddleware,
+        isAuthorMiddleware,
+      ],
       async (req, res, next) => {
         try {
-          let result = await commentService.getLast();
+          let result = await commentService.getLast({onlyLast: false});
 
           res.status(HttpCode.OK).json(result);
         } catch (e) {
           next(e);
         }
       });
+
+  router.get(`/comments/last`,
+      async (req, res, next) => {
+        try {
+          let result = await commentService.getLast({onlyLast: true});
+
+          res.status(HttpCode.OK).json(result);
+        } catch (e) {
+          next(e);
+        }
+      });
+
 
   router.get(`/:articleId`,
       [getIdCheckerMiddleware(`articleId`), getArticleExistsMiddleware(articleService)],
