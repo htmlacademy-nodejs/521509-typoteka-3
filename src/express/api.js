@@ -25,6 +25,10 @@ class API {
     return this._request(`/articles/most-discussed`);
   }
 
+  getLastComments() {
+    return this._request(`/articles/last-comments`);
+  }
+
   getArticlesForAuthor({page = 1, isWithComments = false} = {}, token) {
     return this._request(`/articles/author`, {params: {page, isWithComments}}, token);
   }

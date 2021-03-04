@@ -64,7 +64,7 @@ module.exports = (db) => {
    * один ко многим, у пользователя много комментариев, а комментарий к одному только пользователю.
    */
   User.hasMany(Comment, {as: Alias.COMMENTS, foreignKey: `user_id`});
-  Comment.belongsTo(Article, {as: Alias.USERS, foreignKey: `user_id`});
+  Comment.belongsTo(User, {as: Alias.USERS, foreignKey: `user_id`});
 
 
   return {

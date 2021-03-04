@@ -76,6 +76,17 @@ module.exports = (articleService, commentService) => {
         }
       });
 
+  router.get(`/last-comments/`,
+      async (req, res, next) => {
+        try {
+          let result = await commentService.getLast();
+
+          res.status(HttpCode.OK).json(result);
+        } catch (e) {
+          next(e);
+        }
+      });
+
   router.get(`/:articleId`,
       [getIdCheckerMiddleware(`articleId`), getArticleExistsMiddleware(articleService)],
       (req, res) => {
