@@ -17,9 +17,13 @@ articlesRoutes.get(`/add`,
       checkUserAuthMiddleware,
       checkUserIsAuthorMiddleware
     ],
-    async (req, res) => {
-      const categories = await api.getCategories();
-      res.render(`pages/articles/edit-article`, {article: {}, categories, errors: {}, isNew: true, currentUser: res.locals.user});
+    async (req, res, next) => {
+      try {
+        const categories = await api.getCategories();
+        res.render(`pages/articles/edit-article`, {article: {}, categories, errors: {}, isNew: true, currentUser: res.locals.user});
+      } catch (e) {
+        next(e);
+      }
     });
 
 /**
@@ -33,10 +37,10 @@ articlesRoutes.post(`/add`,
     ],
     async (req, res) => {
       const {body, file} = req;
-
-      const articleData = prepareArticleData(body, file);
+      let articleData = {};
 
       try {
+        articleData = prepareArticleData(body, file);
         await api.createArticle(articleData, res.locals.accessToken);
         res.redirect(`/my`);
       } catch (e) {
@@ -88,10 +92,12 @@ articlesRoutes.post(`/edit/:id`,
       const {id} = req.params;
       const {body, file} = req;
 
-      const articleData = prepareArticleData(body, file);
-      delete articleData.id;
+      let articleData;
 
       try {
+        articleData = prepareArticleData(body, file);
+        delete articleData.id;
+
         await api.updateArticle(id, articleData, res.locals.accessToken);
         res.redirect(`/my`);
       } catch (e) {

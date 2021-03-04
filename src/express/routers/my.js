@@ -13,6 +13,8 @@ const api = require(`../api`).getDefaultAPI();
 const checkUserAuthMiddleware = require(`../middlewares/check-user-auth`);
 const checkUserIsAuthorMiddleware = require(`../middlewares/check-author`);
 
+const {checkAndReturnPositiveNumber} = require(`../../utils`);
+
 const myRoutes = new Router();
 
 /**
@@ -23,9 +25,18 @@ myRoutes.get(`/`,
       checkUserAuthMiddleware,
       checkUserIsAuthorMiddleware
     ],
-    async (req, res) => {
-      const {articles} = await api.getArticles();
-      res.render(`pages/my/articles`, {articles, currentUser: res.locals.user});
+    async (req, res, next) => {
+      try {
+        /**
+         * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+         */
+        const page = checkAndReturnPositiveNumber(req.query.page, 1);
+
+        const {articles, totalPages} = await api.getArticlesForAuthor({page});
+        res.render(`pages/my/articles`, {articles, totalPages, currentUser: res.locals.user});
+      } catch (e) {
+        next(e);
+      }
     });
 
 
@@ -37,12 +48,13 @@ myRoutes.get(`/comments`,
       checkUserAuthMiddleware,
       checkUserIsAuthorMiddleware
     ],
-    async (req, res) => {
-      const {articles} = await api.getArticles();
+    async (req, res, next) => {
+      try {
+        const {articles} = await api.getArticles();
 
-      // TEMPORARY отдаются не комментарии по объявлению пользователя, а просто комментарии трех последних статей.
-      const comments = [];
-      articles.slice(0, 3)
+        // TEMPORARY отдаются не комментарии по объявлению пользователя, а просто комментарии трех последних статей.
+        const comments = [];
+        articles.slice(0, 3)
     .forEach((article) => {
       article.comments.forEach((comment) => comments.push({
         articleTitle: article.title,
@@ -51,7 +63,10 @@ myRoutes.get(`/comments`,
       }));
     });
 
-      res.render(`pages/my/comments`, {comments, currentUser: res.locals.user});
+        res.render(`pages/my/comments`, {comments, currentUser: res.locals.user});
+      } catch (e) {
+        next(e);
+      }
     });
 
 

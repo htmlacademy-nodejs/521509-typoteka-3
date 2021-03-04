@@ -22,14 +22,21 @@ const uploaderMiddleware = new Uploader(`img`).getMiddleware();
 /**
  * Обработка маршрута для главной страницы
  */
-mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res) => {
-  /**
-   * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
-   */
-  const page = checkAndReturnPositiveNumber(req.query.page, 1);
+mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res, next) => {
+  try {
+    /**
+     * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+     */
+    const page = checkAndReturnPositiveNumber(req.query.page, 1);
 
-  const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({page, isWithComments: true}), api.getCategories({isWithCount: true})]);
-  res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, currentUser: res.locals.user});
+    const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({
+      page,
+      isWithComments: true
+    }), api.getCategories({isWithCount: true})]);
+    res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, currentUser: res.locals.user});
+  } catch (e) {
+    next(e);
+  }
 });
 
 
@@ -41,16 +48,18 @@ mainRoutes.get(`/register`, checkUserAuthMiddleware, (req, res) => res.render(`p
 mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuthMiddleware], async (req, res) => {
   const {body, file} = req;
 
-  const userData = {
-    firstName: body[`first_name`],
-    lastName: body[`last_name`],
-    email: body.email,
-    password: body.password,
-    repeatPassword: body[`password-repeat`],
-    avatar: file ? file.filename : null
-  };
+  let userData = {};
 
   try {
+    userData = {
+      firstName: body[`first_name`],
+      lastName: body[`last_name`],
+      email: body.email,
+      password: body.password,
+      repeatPassword: body[`password-repeat`],
+      avatar: file ? file.filename : null
+    };
+
     await api.addUser(userData);
     res.redirect(`/login`);
   } catch (e) {
