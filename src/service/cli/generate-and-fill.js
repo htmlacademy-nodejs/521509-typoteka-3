@@ -143,7 +143,7 @@ const generateComment = (commentSentences, users) => {
   const comment = {
     text: getRandomItemsInArray(commentSentences, MAX_COMMENT_LENGTH).join(` `)
   };
-  comment[`user_id`] = getRandomItemInArray(users).id;
+  comment[`user_id`] = getRandomNumber(1, users.length);
   return comment;
 };
 
