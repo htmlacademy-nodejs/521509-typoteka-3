@@ -51,6 +51,12 @@ class API {
     }, token);
   }
 
+  deleteArticle(id, token) {
+    return this._request(`/articles/${id}`, {
+      method: Methods.DELETE
+    }, token);
+  }
+
   addUser(data) {
     return this._request(`/users`, {
       method: Methods.POST,

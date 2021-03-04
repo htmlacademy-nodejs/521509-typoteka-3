@@ -111,6 +111,25 @@ articlesRoutes.post(`/edit/:id`,
       }
     });
 
+/**
+ * Удаление статьи
+ */
+articlesRoutes.post(`/delete/:id`,
+    [
+      checkUserAuthMiddleware,
+      checkUserIsAuthorMiddleware,
+    ],
+    async (req, res, next) => {
+      const {id} = req.params;
+
+      try {
+        await api.deleteArticle(id, res.locals.accessToken);
+        res.redirect(`/my`);
+      } catch (e) {
+        next(e);
+      }
+    });
+
 
 /**
  * Обработка маршрута для категории

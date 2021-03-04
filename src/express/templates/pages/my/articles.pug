@@ -7,10 +7,11 @@ block content
       ul.notes__list
         each article in articles
           li.notes__list-item
-            time.notes__item-time(datetime=article.publishedAt) #{article.publishedAt}
+            time.notes__item-time(datetime=article.publishedAt) #{new Date(article.publishedAt).toLocaleDateString('ru-RU')}
             a.notes__item-text(href=`/articles/edit/${article.id}`) #{article.title}
-            button.notes__button.button.button--close-item(type='button')
-              span.visually-hidden Закрыть строку списка
+            form(action=`/articles/delete/${article.id}` method='POST')
+              button.notes__button.button.button--close-item(type='submit')
+                span.visually-hidden Закрыть строку списка
 
     if totalPages > 1
       +pagination
