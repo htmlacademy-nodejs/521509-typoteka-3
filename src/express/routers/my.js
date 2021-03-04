@@ -32,8 +32,9 @@ myRoutes.get(`/`,
          */
         const page = checkAndReturnPositiveNumber(req.query.page, 1);
 
-        const {articles, totalPages} = await api.getArticlesForAuthor({page});
-        res.render(`pages/my/articles`, {articles, totalPages, currentUser: res.locals.user});
+        const {articles, totalPages} = await api.getArticlesForAuthor({page}, res.locals.accessToken);
+
+        res.render(`pages/my/articles`, {articles, page, prefix: req.baseUrl, totalPages, currentUser: res.locals.user});
       } catch (e) {
         next(e);
       }

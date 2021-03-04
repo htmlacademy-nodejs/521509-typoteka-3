@@ -21,6 +21,10 @@ class API {
     return this._request(`/articles`, {params: {page, isWithComments, categoryId}});
   }
 
+  getArticlesForAuthor({page = 1, isWithComments = false} = {}, token) {
+    return this._request(`/articles/author`, {params: {page, isWithComments}}, token);
+  }
+
   getArticle(id) {
     return this._request(`/articles/${id}`);
   }

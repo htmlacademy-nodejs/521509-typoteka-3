@@ -25,8 +25,8 @@ module.exports = (articleService, commentService) => {
           const {isWithComments, page, categoryId} = req.query;
 
           /**
-       * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
-       */
+           * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+           */
           const currentPage = checkAndReturnPositiveNumber(page, 1);
 
           let result;
@@ -43,6 +43,27 @@ module.exports = (articleService, commentService) => {
         }
       });
 
+  router.get(`/author/`,
+      [
+        checkJWTMiddleware,
+        isAuthorMiddleware
+      ],
+      async (req, res, next) => {
+        try {
+          const {isWithComments, page} = req.query;
+
+          /**
+         * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+         */
+          const currentPage = checkAndReturnPositiveNumber(page, 1);
+
+          let result = await articleService.getAll({isWithComments, currentPage, isForAdmin: true});
+
+          res.status(HttpCode.OK).json(result);
+        } catch (e) {
+          next(e);
+        }
+      });
 
   router.get(`/:articleId`,
       [getIdCheckerMiddleware(`articleId`), getArticleExistsMiddleware(articleService)],
@@ -160,6 +181,7 @@ module.exports = (articleService, commentService) => {
           next(e);
         }
       });
+
 
   return router;
 };

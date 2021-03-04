@@ -11,3 +11,6 @@ block content
             a.notes__item-text(href=`/articles/edit/${article.id}`) #{article.title}
             button.notes__button.button.button--close-item(type='button')
               span.visually-hidden Закрыть строку списка
+
+    if totalPages > 1
+      +pagination

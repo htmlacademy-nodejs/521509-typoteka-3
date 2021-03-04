@@ -1,6 +1,7 @@
 'use strict';
 
 const Aliases = require(`../db/models/aliase`);
+const {Op} = require(`sequelize`);
 
 /**
  * Сервис для работы cо статьями
@@ -53,18 +54,31 @@ class ArticleService {
    * @async
    * @param {Boolean} isWithComments - нужны ли комментарии
    * @param {Number} currentPage - запрашиваемая страница
+   * @param {Boolean} isForAdmin - для администратора ли запрос (отдаст ещё не опубликованные)
    * @return {Object[]}
    */
-  async getAll({isWithComments, currentPage}) {
+  async getAll({isWithComments, currentPage, isForAdmin}) {
     const include = [Aliases.CATEGORIES];
     const order = [[`published_at`, `DESC`]];
+    let where = null;
+
     if (isWithComments) {
       include.push(Aliases.COMMENTS);
       order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
     }
+
+    if (isForAdmin) {
+      where = {
+        publishedAt: {
+          [Op.lt]: new Date(Date.now())
+        }
+      };
+    }
+
     const {count, rows} = await this._articleModel.findAndCountAll({
       include,
       order,
+      where,
       distinct: true,
       limit: this._articlesPerPage,
       offset: (currentPage - 1) * (this._articlesPerPage)
@@ -89,6 +103,11 @@ class ArticleService {
       limit: this._articlesPerPage,
       offset: (this._articlesPerPage * (currentPage - 1)),
       distinct: true,
+      where: {
+        publishedAt: {
+          [Op.lt]: new Date(Date.now())
+        }
+      },
       include: [{
         attributes: [],
         model: this._categoryModel,
