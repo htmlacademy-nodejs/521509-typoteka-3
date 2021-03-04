@@ -53,7 +53,7 @@ GRANT ALL PRIVILEGES ON DATABASE "typoteka_test" TO "typoteka_test_user";
 
 8. Выполняем все необходимые миграции.
 ```
-npm run migrate
+npm run migrate:all
 ```
 
 Наполняем тестовыми данными. <b>Это операция сотрет данные, если он были добавлены</b>
