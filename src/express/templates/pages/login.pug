@@ -5,7 +5,7 @@ block content
     h1.visually-hidden Регистрация пользователя
     section.modal
       .popup.popup--registration
-        a.popup__button.button.button--popup-close(href='/' aria-label='Закрыть окно')
+        a.popup__button.button.button--popup-close(class='js-back-button' href='/' aria-label='Закрыть окно')
           | Закрыть
           | окно
         h2.visually-hidden Форма регистрации
@@ -32,4 +32,5 @@ block content
 
       .modal__overlay
 
-  script(src='js/main.js')
+  script(src='/js/main.js')
+  script(src='/js/back-button.js')

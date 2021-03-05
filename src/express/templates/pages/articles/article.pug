@@ -8,7 +8,7 @@ block content
         h2.visually-hidden Основное содержание
         .post__wrapper
           .post__head
-            a.post__backwards.button.button--backwards(href='#') Назад
+            a.post__backwards.button.button--backwards(href='/' class='js-back-button') Назад
             time.post__date(datetime='article.publishedAt') #{new Date(article.publishedAt).toLocaleDateString('ru-RU')}
             h2.post__title.title.title--main #{article.title}
             if (article.image)
@@ -69,3 +69,4 @@ block content
                   | Чтобы присоединиться к переписке нужно зарегистрироваться
 
   script(src='/js/main.js')
+  script(src='/js/back-button.js')
