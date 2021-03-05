@@ -138,6 +138,10 @@ const checkAndReturnPositiveNumber = (x, negativeAnswer = null) => {
  */
 const parseDate = (date) => {
   let parsedDate = new Date();
+  /**
+   * В ТЗ в разных местах, то есть время публикации, то его нет. В базе таймштамп, потому ставим тут время 0:0:0
+   */
+  parsedDate.setHours(0, 0, 0, 0);
   if (date) {
     const arr = date.split(`.`);
     parsedDate.setFullYear(arr[2], (arr[1] - 1), arr[0]);
