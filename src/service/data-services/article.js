@@ -192,7 +192,6 @@ class ArticleService {
       }]
     });
 
-    console.log(article);
     return article.get();
   }
 

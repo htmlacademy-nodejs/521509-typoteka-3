@@ -51,11 +51,11 @@ describe(`API returns category list`, () => {
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
 
-  test(`Returns list of 5 categories`, () => expect(response.body.length).toBe(5));
+  test(`Returns list of 6 categories`, () => expect(response.body.length).toBe(6));
 
-  test(`Categories names are IT, Деревья, За жизнь, Без рамки, Разное, IT`,
+  test(`Categories names are IT, Деревья, За жизнь, Без рамки, Разное, IT, Empty`,
       () => expect(response.body.map((it) => it.title)).toEqual(
-          expect.arrayContaining([`Деревья`, `За жизнь`, `Без рамки`, `Разное`, `IT`])
+          expect.arrayContaining([`Деревья`, `За жизнь`, `Без рамки`, `Разное`, `IT`, `Empty`])
       )
   );
 
@@ -83,7 +83,7 @@ describe(`API creates category if data is valid`, () => {
   test(`Return article that created`, () => {
     expect(response.body.title).toBe(NEW_CATEGORY.title);
   });
-  test(`Categories count is changed`, () => request(app).get(`/categories`).expect((res) => expect(res.body.length).toBe(6)));
+  test(`Categories count is changed`, () => request(app).get(`/categories`).expect((res) => expect(res.body.length).toBe(7)));
 
   afterAll(async () => {
     await db.close();
@@ -106,9 +106,9 @@ describe(`API changes categories after PUT request`, () => {
   test(`Status Code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`Return category that updated`, () => expect(response.body.title).toEqual(NEW_CATEGORY.title));
   test(`Category is really changed`, () => request(app).get(`/categories/`).expect((res) => {
-    expect(res.body[4].title).toBe(NEW_CATEGORY.title);
+    expect(res.body[5].title).toBe(NEW_CATEGORY.title);
   }));
-  test(`Categories count isn't changed`, () => request(app).get(`/categories`).expect((res) => expect(res.body.length).toBe(5)));
+  test(`Categories count isn't changed`, () => request(app).get(`/categories`).expect((res) => expect(res.body.length).toBe(6)));
 
   afterAll(async () => {
     await db.close();
@@ -123,14 +123,14 @@ describe(`API delete category after request`, () => {
   beforeAll(async () => {
     ({app, db} = await createAPI());
     response = await request(app)
-      .delete(`/categories/3`)
+      .delete(`/categories/6`)
       .set(`Authorization`, `Bearer ${JWTHelper.generateTokens(AUTHOR_FOR_TOKEN).accessToken}`)
     ;
   });
 
   test(`Status Code 204`, () => expect(response.statusCode).toBe(HttpCode.DELETED));
-  test(`Category is really deleted`, () => request(app).get(`/categories/3`).expect((res) => expect(res.statusCode).toBe(HttpCode.NOT_FOUND)));
-  test(`Category count is changed`, () => request(app).get(`/categories`).expect((res) => expect(res.body.length).toBe(4)));
+  test(`Category is really deleted`, () => request(app).get(`/categories/6`).expect((res) => expect(res.statusCode).toBe(HttpCode.NOT_FOUND)));
+  test(`Category count is changed`, () => request(app).get(`/categories`).expect((res) => expect(res.body.length).toBe(5)));
 
   afterAll(async () => {
     await db.close();

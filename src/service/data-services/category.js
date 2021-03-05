@@ -62,7 +62,6 @@ class CategoryService {
         title
       }
     });
-    console.log(category);
     if (category) {
       throw new Error(`Category is not unique`);
     }

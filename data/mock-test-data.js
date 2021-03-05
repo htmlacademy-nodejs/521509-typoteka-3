@@ -36,6 +36,7 @@ const MOCK_CATEGORIES = [
   `Без рамки`,
   `Разное`,
   `IT`,
+  `Empty`
 ];
 
 const MOCK_ARTICLES = [
