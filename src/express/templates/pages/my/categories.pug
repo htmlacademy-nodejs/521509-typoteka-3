@@ -4,10 +4,11 @@ block content
   main.main-page.main-page--padding
     section.main-page__category.category
       h1.category__title Категории
-      p.form__error-message(style="white-space: pre-wrap; padding: 0 40px")
-        each error in errors
-          | #{error}
-          br
+      if errors && errors.length
+        p.form__error-message(style="white-space: pre-wrap; padding: 0 40px")
+          each error in errors
+            | #{error}
+            br
       .category__add-form
         form(action='/my/categories' method='POST')
           input#add-form-add-category(type='text' placeholder='Новая категория' name="title" value=newCategory)

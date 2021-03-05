@@ -31,6 +31,14 @@ block content
             .form__field
               label
                 input(type='password' placeholder='Повтор пароля' required='' name='password-repeat')
+
+            if errors && errors.length
+              .form__validation-error
+                p.form__error-message При регистрации произошли ошибки:
+                  ul.form__errors
+                    each error in errors
+                      li.form__error #{error}
+
             .form__image-loader
               a.form__avatar.avatar
                 img(src='img/icons/smile.svg' alt='аватар пользователя')
@@ -39,10 +47,6 @@ block content
                 | Загрузить фото профиля
             button.form__submit-btn.form__submit-btn--register.button.button--colored(type='submit') Зарегистрироваться
 
-            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
-              each error in errors
-                | #{error}
-                br
       .modal__overlay
 
   script(src='/js/main.js')

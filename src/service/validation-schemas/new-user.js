@@ -22,18 +22,22 @@ const MAX_USER_PASSWORD_SYMBOLS_COUNT = 35;
 module.exports = Joi.object({
   firstName: Joi.string()
     .max(MAX_USER_FIRST_NAME_SYMBOLS_COUNT)
+    .regex(new RegExp(`^[\u0401\u0451\u0410-\u044fa-zA-Z]+$`))
     .required()
     .messages({
       'string.base': `Имя пользователя должно быть типом "String"`,
       'string.max': `Имя пользователя не может быть больше ${MAX_USER_FIRST_NAME_SYMBOLS_COUNT} символов.`,
+      'string.pattern.base': `Имя пользователя не может содержать что-то, кроме символов на кириллице и латинице.`,
       'any.required': `Имя пользователя является обязательным полем.`
     }),
   lastName: Joi.string()
     .max(MAX_USER_LAST_NAME_SYMBOLS_COUNT)
+    .regex(new RegExp(`^[\u0401\u0451\u0410-\u044fa-zA-Z]+$`))
     .required()
     .messages({
       'string.base': `Фамилия пользователя должна быть типом "String"`,
       'string.max': `Фамилия пользователя не может быть больше ${MAX_USER_LAST_NAME_SYMBOLS_COUNT} символов.`,
+      'string.pattern.base': `Фамилия пользователя не может содержать что-то, кроме символов на кириллице и латинице.`,
       'any.required': `Фамилия пользователя является обязательным полем.`
     }),
   email: Joi.string()
@@ -68,7 +72,7 @@ module.exports = Joi.object({
     .allow(null)
     .messages({
       'string.base': `Название файла картинки должен быть типом "String"`,
-      'any.regex': `Файл картинки должен быть в формате jpg или png.`
+      'string.pattern.base': `Файл картинки должен быть в формате jpg или png.`
     }),
 })
 .with(`password`, `repeatPassword`)

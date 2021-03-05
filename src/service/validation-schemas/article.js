@@ -54,7 +54,7 @@ module.exports = Joi.object({
     .allow(null)
     .messages({
       'string.base': `Название файла картинки должен быть типом "String"`,
-      'any.regex': `Файл картинки должен быть в формате jpg или png.`
+      'string.pattern.base': `Файл картинки должен быть в формате jpg или png.`
     }),
   categories: Joi.array()
     .items(Joi.number().positive().message(`Id категории должны быть положительными числами.`))

@@ -58,10 +58,11 @@ block content
                   label
                     textarea(rows='5' placeholder='Полный текст публикации' name='text')
                       | #{article.text}
-          p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
-            each error in errors
-              | #{error}
-              br
+          if errors && errors.length
+            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
+              each error in errors
+                | #{error}
+                br
 
   script(src='/js/vendor.js')
   script(src='/js/main.js')

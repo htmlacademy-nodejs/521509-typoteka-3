@@ -4,10 +4,11 @@ block content
   main.main-page.main-page--padding
     section.main-page__publication.publication
       h1.publication__title Комментарии
-      p.form__error-message(style="white-space: pre-wrap; padding: 0 40px")
-        each error in errors
-          | #{error}
-          br
+      if errors && errors.length
+        p.form__error-message(style="white-space: pre-wrap; padding: 0 40px")
+          each error in errors
+            | #{error}
+            br
       ul.publication__list
         each comment in comments
           li.publication__list-item

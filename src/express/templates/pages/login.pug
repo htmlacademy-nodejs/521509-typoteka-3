@@ -24,10 +24,11 @@ block content
                 input(type='password' placeholder='Пароль' required='' name='password')
             button.form__submit-btn.form__submit-btn--log-in.button.button--colored(type='submit') Войти
 
-            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
-              each error in errors
-                | #{error}
-                br
+            if errors && errors.length
+              p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
+                each error in errors
+                  | #{error}
+                  br
 
       .modal__overlay
 
