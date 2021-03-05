@@ -41,9 +41,9 @@ block content
 
             .form__image-loader
               a.form__avatar.avatar
-                img(src='img/icons/smile.svg' alt='аватар пользователя')
+                img(src='img/icons/smile.svg' width=50 height=50 alt='аватар пользователя' class='js-preview-avatar' style="height: 50px; object-fit: cover; border-radius: 50%;")
               label
-                input.visually-hidden(type='file' name='avatar')
+                input.visually-hidden(type='file' name='avatar' class='js-input-avatar')
                 | Загрузить фото профиля
             button.form__submit-btn.form__submit-btn--register.button.button--colored(type='submit') Зарегистрироваться
 
@@ -51,3 +51,4 @@ block content
 
   script(src='/js/main.js')
   script(src='/js/back-button.js')
+  script(src='/js/avatar-preview.js')
