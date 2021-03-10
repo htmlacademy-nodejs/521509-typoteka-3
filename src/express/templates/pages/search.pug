@@ -3,18 +3,20 @@ extends ../layouts/default.pug
 block content
   main
     section.search-page
-      .search-page__wrapper
+      .search-page__wrapper(class=((searchText && !results.articles.length) ? `search-page__wrapper--empty` : ``))
         h1 Поиск
         .search.search-page__form
           form(action='/search' method='get')
             label
               input(type='query' name=`query` placeholder='Что ищем?' value=searchText)
             button.search__button.button.button--transparent(type='submit') Найти
-          .search__result
-            each result in results
-              time.search__date(datetime=result.publishedAt) #{result.publishedAt}
-              a.search__link(href=`/articles/${result.id}`)
-                | #{result.title}
-            else
-              if searchText
-                p.search-page__empty Ничего не нашлось
+          if results.articles && results.articles.length
+            .search__result
+              each article in results.articles
+                .search__result
+                  time.search__date(datetime=article.publishedAt) #{new Date(article.publishedAt).toLocaleDateString('ru-RU')}
+                  a.search__link(href=`/articles/${article.id}`)
+                    | #{article.title}
+
+        if searchText && results.articles && !results.articles.length
+            p.search-page__empty Ничего не нашлось

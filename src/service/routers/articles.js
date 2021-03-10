@@ -25,8 +25,8 @@ module.exports = (articleService, commentService) => {
           const {isWithComments, page, categoryId} = req.query;
 
           /**
-       * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
-       */
+           * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+           */
           const currentPage = checkAndReturnPositiveNumber(page, 1);
 
           let result;
@@ -38,8 +38,67 @@ module.exports = (articleService, commentService) => {
           }
 
           res.status(HttpCode.OK).json(result);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
+        }
+      });
+
+  router.get(`/author/`,
+      [
+        checkJWTMiddleware,
+        isAuthorMiddleware
+      ],
+      async (req, res, next) => {
+        try {
+          const {isWithComments, page} = req.query;
+
+          /**
+         * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+         */
+          const currentPage = checkAndReturnPositiveNumber(page, 1);
+
+          let result = await articleService.getAll({isWithComments, currentPage, isForAdmin: true});
+
+          res.status(HttpCode.OK).json(result);
+        } catch (error) {
+          next(error);
+        }
+      });
+
+  router.get(`/most-discussed/`,
+      async (req, res, next) => {
+        try {
+          let result = await articleService.getMostDiscussed();
+
+          res.status(HttpCode.OK).json(result);
+        } catch (error) {
+          next(error);
+        }
+      });
+
+  router.get(`/comments/`,
+      [
+        checkJWTMiddleware,
+        isAuthorMiddleware,
+      ],
+      async (req, res, next) => {
+        try {
+          let result = await commentService.getLast({onlyLast: false});
+
+          res.status(HttpCode.OK).json(result);
+        } catch (error) {
+          next(error);
+        }
+      });
+
+  router.get(`/comments/last`,
+      async (req, res, next) => {
+        try {
+          let result = await commentService.getLast({onlyLast: true});
+
+          res.status(HttpCode.OK).json(result);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -66,8 +125,8 @@ module.exports = (articleService, commentService) => {
           newArticle = await articleService.add(newArticle);
 
           res.status(HttpCode.CREATED).json(newArticle);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
 
       });
@@ -88,8 +147,8 @@ module.exports = (articleService, commentService) => {
           updatedArticle = await articleService.update(req.params[`articleId`], updatedArticle);
 
           res.status(HttpCode.OK).json(updatedArticle);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -106,8 +165,8 @@ module.exports = (articleService, commentService) => {
           await articleService.delete(req.params[`articleId`]);
 
           res.status(HttpCode.DELETED).send();
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -119,8 +178,8 @@ module.exports = (articleService, commentService) => {
           const comments = await commentService.getAll(req.params[`articleId`]);
 
           res.status(HttpCode.OK).json(comments);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -138,8 +197,8 @@ module.exports = (articleService, commentService) => {
           newComment = await commentService.add(req.params[`articleId`], newComment);
 
           res.status(HttpCode.CREATED).json(newComment);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -156,10 +215,11 @@ module.exports = (articleService, commentService) => {
           await commentService.delete(req.params[`commentId`]);
 
           res.status(HttpCode.DELETED).send();
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
+
 
   return router;
 };

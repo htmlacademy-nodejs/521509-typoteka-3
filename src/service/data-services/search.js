@@ -29,6 +29,7 @@ class SearchService {
         }
       },
       include: [Aliases.CATEGORIES],
+      order: [[`published_at`, `DESC`]],
       distinct: true
     });
     return {count, articles: rows};

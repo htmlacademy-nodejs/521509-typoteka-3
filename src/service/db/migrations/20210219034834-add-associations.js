@@ -14,6 +14,7 @@ module.exports = {
           references: {
             model: `articles`, // странное название в sequelize, на самом деле тут не модель, а имя таблицы.
             key: `id`,
+            allowNull: false
           },
           onUpdate: `CASCADE`,
           onDelete: `CASCADE`
@@ -63,12 +64,7 @@ module.exports = {
         type: Sequelize.DATE,
         field: `updated_at`,
         defaultValue: Sequelize.fn(`now`)
-      },
-      deletedAt: {
-        defaultValue: null,
-        type: Sequelize.DATE,
-        field: `deleted_at`
-      },
+      }
     });
   },
 

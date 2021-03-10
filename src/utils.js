@@ -6,6 +6,7 @@
  */
 
 const fs = require(`fs`).promises;
+const fsSync = require(`fs`);
 
 const bcrypt = require(`bcrypt`);
 
@@ -138,6 +139,10 @@ const checkAndReturnPositiveNumber = (x, negativeAnswer = null) => {
  */
 const parseDate = (date) => {
   let parsedDate = new Date();
+  /**
+   * В ТЗ в разных местах, то есть время публикации, то его нет. В базе таймштамп, потому ставим тут время 0:0:0
+   */
+  parsedDate.setHours(0, 0, 0, 0);
   if (date) {
     const arr = date.split(`.`);
     parsedDate.setFullYear(arr[2], (arr[1] - 1), arr[0]);
@@ -160,6 +165,17 @@ const hashUsersPass = async (users) => {
   return result;
 };
 
+/**
+ * Проверяет существует ли директория и создает её, если её нет.
+ *
+ * @param {string} dirPath - абсолютный путь до директории
+ */
+const createDirIfNotExists = (dirPath) => {
+  if (!fsSync.existsSync(dirPath)) {
+    fsSync.mkdirSync(dirPath);
+  }
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
@@ -170,5 +186,6 @@ module.exports = {
   readFileInJSON,
   checkAndReturnPositiveNumber,
   parseDate,
-  hashUsersPass
+  hashUsersPass,
+  createDirIfNotExists
 };

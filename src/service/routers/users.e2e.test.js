@@ -17,8 +17,8 @@ const {HttpCode} = require(`../../consts`);
 const mockData = require(`../../../data/mock-test-data`);
 
 const NEW_USER = {
-  firstName: `Jest First Name`,
-  lastName: `Jest Last Name`,
+  firstName: `JestFirstName`,
+  lastName: `JestLastName`,
   email: `jest@example.com`,
   password: `123456`,
   repeatPassword: `123456`
@@ -96,11 +96,11 @@ describe(`API returns 400 if user data is invalid`, () => {
         .expect((res) => expect(res.statusCode).toBe(HttpCode.BAD_REQUEST));
     }
   });
-  test(`There are 3 errors if user is invalid`, async () => {
+  test(`There are 5 errors if user is invalid`, async () => {
     await request(app)
       .post(`/users`)
       .send(NEW_INVALID_USER)
-      .expect((res) => expect(res.body.error.details.length).toBe(3));
+      .expect((res) => expect(res.body.error.details.length).toBe(5));
   });
 
   afterAll(async () => {

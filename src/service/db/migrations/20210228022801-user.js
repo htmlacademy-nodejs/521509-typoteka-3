@@ -64,6 +64,7 @@ module.exports = {
           references: {
             model: `users`, // странное название в sequelize, на самом деле тут не модель, а имя таблицы.
             key: `id`,
+            allowNull: false
           },
           onUpdate: `CASCADE`,
           onDelete: `CASCADE`
@@ -81,6 +82,7 @@ module.exports = {
           references: {
             model: `users`, // странное название в sequelize, на самом деле тут не модель, а имя таблицы.
             key: `id`,
+            allowNull: false
           },
           onUpdate: `CASCADE`,
           onDelete: `CASCADE`

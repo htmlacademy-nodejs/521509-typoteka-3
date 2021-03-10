@@ -1,4 +1,6 @@
 'use strict';
+const Aliases = require(`../db/models/aliase`);
+const {DEFAULT_LAST_COMMENTS_COUNT} = require(`../../consts`);
 
 /**
  * Сервис для работы с комментариями к статье
@@ -9,6 +11,8 @@ class CommentService {
    */
   constructor(db) {
     this._commentModel = db.models.Comment;
+    this._articleModel = db.models.Article;
+    this._lastCommentsCount = process.env.LAST_COMMENTS_COUNT || DEFAULT_LAST_COMMENTS_COUNT;
   }
 
   /**
@@ -49,6 +53,26 @@ class CommentService {
         },
       raw: true
     });
+  }
+
+  /**
+   * Возвращает самые последние комментарии
+   * @async
+   * @param {Boolean} onlyLast - все ли комментарии или только последние
+   * @return {Object[]} - массив комментариев
+   */
+  async getLast({onlyLast = true}) {
+    const limit = onlyLast ? this._lastCommentsCount : null;
+    const comments = await this._commentModel.findAll({
+      order: [[`created_at`, `DESC`]],
+      include: [
+        Aliases.USERS,
+        Aliases.ARTICLES
+      ],
+      limit
+    });
+
+    return comments.map((comment) => comment.get());
   }
 
   /**

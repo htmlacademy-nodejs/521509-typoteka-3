@@ -1,6 +1,9 @@
 'use strict';
 
 const Aliases = require(`../db/models/aliase`);
+const Sequelize = require(`sequelize`);
+
+const {DEFAULT_ARTICLES_COUNT_PER_PAGE, DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT} = require(`../../consts`);
 
 /**
  * Сервис для работы cо статьями
@@ -10,9 +13,13 @@ class ArticleService {
    * @param {Sequelize} db - экземпляр sequelize подключенный к базе данных
    */
   constructor(db) {
+    this._db = db;
     this._articleModel = db.models.Article;
+    this._userModel = db.models.User;
     this._categoryModel = db.models.Category;
-    this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE;
+    this._commentModel = db.models.Comment;
+    this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE || DEFAULT_ARTICLES_COUNT_PER_PAGE;
+    this._articlesMostDiscussedCount = +process.env.ARTICLES_MOST_DISCUSSED_COUNT || DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT;
   }
 
   _getTotalPages(count) {
@@ -53,23 +60,64 @@ class ArticleService {
    * @async
    * @param {Boolean} isWithComments - нужны ли комментарии
    * @param {Number} currentPage - запрашиваемая страница
+   * @param {Boolean} isForAdmin - для администратора ли запрос (отдаст ещё не опубликованные)
    * @return {Object[]}
    */
-  async getAll({isWithComments, currentPage}) {
+  async getAll({isWithComments = false, currentPage = 1, isForAdmin = false} = {}) {
     const include = [Aliases.CATEGORIES];
     const order = [[`published_at`, `DESC`]];
+    let where = {};
+
     if (isWithComments) {
       include.push(Aliases.COMMENTS);
       order.push([Aliases.COMMENTS, `created_at`, `DESC`]);
     }
+
+    if (!isForAdmin) {
+      where = {
+        publishedAt: {
+          [Sequelize.Op.lt]: new Date(Date.now())
+        }
+      };
+    }
+
     const {count, rows} = await this._articleModel.findAndCountAll({
       include,
       order,
+      where,
       distinct: true,
       limit: this._articlesPerPage,
       offset: (currentPage - 1) * (this._articlesPerPage)
     });
     return {count, totalPages: this._getTotalPages(count), articles: rows};
+  }
+
+  /**
+   * Отдача самых обсуждаемых статей.
+   *
+   * @async
+   * @return {Object[]}
+   */
+  async getMostDiscussed() {
+    const [results] = await this._db.query(
+        `SELECT
+                articles.id,
+                articles.announce,
+                comments_count.count as "commentsCount"
+              FROM articles
+              INNER JOIN (
+                SELECT
+                  article_id,
+                  COUNT(article_id)
+                FROM comments
+                GROUP BY article_id
+                )AS comments_count ON comments_count.article_id = articles.id
+              ORDER BY comments_count.count DESC
+              LIMIT ${this._articlesMostDiscussedCount}
+              ;`
+    );
+
+    return results;
   }
 
   /**
@@ -89,6 +137,11 @@ class ArticleService {
       limit: this._articlesPerPage,
       offset: (this._articlesPerPage * (currentPage - 1)),
       distinct: true,
+      where: {
+        publishedAt: {
+          [Sequelize.Op.lt]: new Date(Date.now())
+        }
+      },
       include: [{
         attributes: [],
         model: this._categoryModel,
@@ -124,13 +177,22 @@ class ArticleService {
   /**
    * Отдает статью по Id
    * @async
-   * @param {String} id - id статьи
+   * @param {Number} id - id статьи
    * @return {Object} - найденная статья
    */
   async getOne(id) {
     const article = await this._articleModel.findByPk(id, {
       order: [[Aliases.COMMENTS, `created_at`, `DESC`]],
-      include: [Aliases.CATEGORIES, Aliases.COMMENTS]
+      include: [Aliases.CATEGORIES, {
+        model: this._commentModel,
+        as: Aliases.COMMENTS,
+        include: [{
+          model: this._userModel,
+          as: Aliases.USERS,
+          attributes: [`firstName`, `lastName`, `avatar`],
+          required: true
+        }]
+      }]
     });
 
     return article.get();

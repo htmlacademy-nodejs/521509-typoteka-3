@@ -41,13 +41,33 @@ class CategoryService {
         include: [{
           model: this._articleCategoryModel,
           as: Aliases.ARTICLES_CATEGORIES,
-          attributes: []
+          attributes: [],
+          required: true
         }]
       });
       return result.map((it)=> it.get());
     }
     return await this._categoryModel.findAll({raw: true});
   }
+
+  /**
+   * Проверяем уникальный ли заголовок для категории.
+   * @async
+   * @param {String} title - заголовок категории
+   * @return {Boolean} - вернет true, если категория уникальна, если нет - ошибку
+   */
+  async isTitleUnique(title) {
+    const category = await this._categoryModel.findOne({
+      where: {
+        title
+      }
+    });
+    if (category) {
+      throw new Error(`Category is not unique`);
+    }
+    return true;
+  }
+
 
   /**
    * Добавление комментария к статье
@@ -66,6 +86,30 @@ class CategoryService {
    * @param {Number} categoryId - id категории
    */
   async delete(categoryId) {
+    const category = await this._categoryModel.findByPk(categoryId, {
+      attributes: [
+        `id`,
+        [
+          Sequelize.fn(
+              `COUNT`,
+              `*`
+          ),
+          `count`
+        ]
+      ],
+      group: [Sequelize.col(`Category.id`)],
+      include: [{
+        model: this._articleCategoryModel,
+        as: Aliases.ARTICLES_CATEGORIES,
+        attributes: [],
+        required: true
+      }]
+    });
+
+    if (category) {
+      throw new Error(`Can not delete category with articles.`);
+    }
+
     const deletedRows = await this._categoryModel.destroy({where: {'id': categoryId}});
     return !!deletedRows;
   }

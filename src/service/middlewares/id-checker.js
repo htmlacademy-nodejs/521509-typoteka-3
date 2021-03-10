@@ -17,14 +17,14 @@ module.exports = (...idFields) => async (req, res, next) => {
     await Promise.all(ids.map((id) => idValidationSchema.validateAsync(id)));
     req.log.debug(`Id(s) are valid.`);
     next();
-  } catch (e) {
+  } catch (error) {
     res.status(HttpCode.BAD_REQUEST).json({
       error: {
         code: HttpCode.BAD_REQUEST,
         message: `Id is invalid`,
-        details: e.details.map((it) => it.message)
+        details: error.details.map((it) => it.message)
       }
     });
-    req.log.debug(`Id(s) are invalid.`);
+    req.log.debug(`Id(s) are invalid. ${error.message}`);
   }
 };

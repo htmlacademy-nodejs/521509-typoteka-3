@@ -31,9 +31,9 @@ module.exports = async (req, res, next) => {
     res.locals.user = await JWTHelper.verifyToken(accessToken);
     req.log.debug(`JWT is valid.`);
     next();
-  } catch (err) {
-    req.log.debug(`JWT is invalid. ${err}`);
-    res.status(HttpCode.FORBIDDEN).json({error: {code: HttpCode.FORBIDDEN, message: `Auth failed.`, details: [err.message]}});
+  } catch (error) {
+    req.log.debug(`JWT is invalid. ${error}`);
+    res.status(HttpCode.FORBIDDEN).json({error: {code: HttpCode.FORBIDDEN, message: `Auth failed.`, details: [error.message]}});
   }
 
 };

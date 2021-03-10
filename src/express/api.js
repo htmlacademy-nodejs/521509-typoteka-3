@@ -21,6 +21,28 @@ class API {
     return this._request(`/articles`, {params: {page, isWithComments, categoryId}});
   }
 
+  getMostDiscussedArticles() {
+    return this._request(`/articles/most-discussed`);
+  }
+
+  getLastComments() {
+    return this._request(`/articles/comments/last`);
+  }
+
+  getAllComments(token) {
+    return this._request(`/articles/comments/`, {}, token);
+  }
+
+  deleteComment(articleId, commentId, token) {
+    return this._request(`/articles/${articleId}/comments/${commentId}`, {
+      method: Methods.DELETE
+    }, token);
+  }
+
+  getArticlesForAuthor({page = 1, isWithComments = false} = {}, token) {
+    return this._request(`/articles/author`, {params: {page, isWithComments}}, token);
+  }
+
   getArticle(id) {
     return this._request(`/articles/${id}`);
   }
@@ -47,11 +69,44 @@ class API {
     }, token);
   }
 
+  deleteArticle(id, token) {
+    return this._request(`/articles/${id}`, {
+      method: Methods.DELETE
+    }, token);
+  }
+
+  addComment(articleId, data, token) {
+    return this._request(`/articles/${articleId}/comments`, {
+      method: Methods.POST,
+      data
+    }, token);
+  }
+
+  addCategory(data, token) {
+    return this._request(`/categories`, {
+      method: Methods.POST,
+      data
+    }, token);
+  }
+
   addUser(data) {
     return this._request(`/users`, {
       method: Methods.POST,
       data
     });
+  }
+
+  updateCategory(id, data, token) {
+    return this._request(`/categories/${id}`, {
+      method: Methods.PUT,
+      data
+    }, token);
+  }
+
+  deleteCategory(id, token) {
+    return this._request(`/categories/${id}`, {
+      method: Methods.DELETE
+    }, token);
   }
 
   authUser(data) {

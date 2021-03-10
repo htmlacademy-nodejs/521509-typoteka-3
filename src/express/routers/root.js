@@ -22,14 +22,26 @@ const uploaderMiddleware = new Uploader(`img`).getMiddleware();
 /**
  * Обработка маршрута для главной страницы
  */
-mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res) => {
-  /**
-   * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
-   */
-  const page = checkAndReturnPositiveNumber(req.query.page, 1);
+mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res, next) => {
+  try {
+    /**
+     * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+     */
+    const page = checkAndReturnPositiveNumber(req.query.page, 1);
 
-  const [{totalPages, articles}, categories] = await Promise.all([api.getArticles({page, isWithComments: true}), api.getCategories({isWithCount: true})]);
-  res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, currentUser: res.locals.user});
+    const [{totalPages, articles}, categories, mostDiscussedArticles, lastComments] = await Promise.all([
+      api.getArticles({
+        page,
+        isWithComments: true
+      }),
+      api.getCategories({isWithCount: true}),
+      api.getMostDiscussedArticles(),
+      api.getLastComments()
+    ]);
+    res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, mostDiscussedArticles, lastComments, currentUser: res.locals.user});
+  } catch (error) {
+    next(error);
+  }
 });
 
 
@@ -41,20 +53,22 @@ mainRoutes.get(`/register`, checkUserAuthMiddleware, (req, res) => res.render(`p
 mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuthMiddleware], async (req, res) => {
   const {body, file} = req;
 
-  const userData = {
-    firstName: body[`first_name`],
-    lastName: body[`last_name`],
-    email: body.email,
-    password: body.password,
-    repeatPassword: body[`password-repeat`],
-    avatar: file ? file.filename : null
-  };
+  let userData = {};
 
   try {
+    userData = {
+      firstName: body[`first_name`],
+      lastName: body[`last_name`],
+      email: body.email,
+      password: body.password,
+      repeatPassword: body[`password-repeat`],
+      avatar: file ? file.filename : null
+    };
+
     await api.addUser(userData);
     res.redirect(`/login`);
-  } catch (e) {
-    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+  } catch (error) {
+    const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/register`, {user: userData, errors, currentUser: res.locals.user});
   }
 });
@@ -72,8 +86,8 @@ mainRoutes.post(`/login`, [uploaderMiddleware.none(), checkUserAuthMiddleware], 
     const tokens = await api.authUser(userData);
     res.cookie(`tokens`, JSON.stringify(tokens), {httpOnly: true});
     res.redirect(`/`);
-  } catch (e) {
-    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+  } catch (error) {
+    const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/login`, {user: userData, errors, currentUser: res.locals.user});
   }
 });

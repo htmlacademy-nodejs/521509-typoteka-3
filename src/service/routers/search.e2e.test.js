@@ -46,7 +46,7 @@ describe(`Search API returns articles based on search query`, () => {
     expect(response.body.count).toBe(1);
     expect(response.body.articles.length).toBe(1);
   });
-  test(`Article has correct id`, () => expect(response.body.articles[0].id).toBe(1));
+  test(`Article has correct title`, () => expect(response.body.articles[0].title).toBe(`Обзор новейшего смартфона`));
 });
 
 describe(`Search API returns empty array if nothing found`, () => {

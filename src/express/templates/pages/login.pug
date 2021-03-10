@@ -5,7 +5,7 @@ block content
     h1.visually-hidden Регистрация пользователя
     section.modal
       .popup.popup--registration
-        a.popup__button.button.button--popup-close(href='/' aria-label='Закрыть окно')
+        a.popup__button.button.button--popup-close(class='js-back-button' href='/' aria-label='Закрыть окно')
           | Закрыть
           | окно
         h2.visually-hidden Форма регистрации
@@ -24,11 +24,13 @@ block content
                 input(type='password' placeholder='Пароль' required='' name='password')
             button.form__submit-btn.form__submit-btn--log-in.button.button--colored(type='submit') Войти
 
-            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
-              each error in errors
-                | #{error}
-                br
+            if errors && errors.length
+              p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
+                each error in errors
+                  | #{error}
+                  br
 
       .modal__overlay
 
-  script(src='js/main.js')
+  script(src='/js/main.js')
+  script(src='/js/back-button.js')

@@ -53,21 +53,24 @@ GRANT ALL PRIVILEGES ON DATABASE "typoteka_test" TO "typoteka_test_user";
 
 8. Выполняем все необходимые миграции.
 ```
-npm run migrate
+npm run migrate:all
 ```
 
-Наполняем тестовыми данными. <b>Это операция сотрет данные, если он были добавлены</b>
+9. При необходимости наполняем тестовыми данными. <b>Это операция сотрет данные, если он были добавлены</b>.
+Можно менять количество добавляемых статей последним параметром.
 ```
-psql -U typoteka_user -W -h localhost -d typoteka  -a -f fill-db.sql
+node ./src/service/service.js --generate 20
 ```
+
+10. Запускаем тесты.
+```
+npm run test
+```
+
 ### Старт приложения
-3. Запускаем API сервис
+11. Запускаем API сервис
 ```
 npm run start
-```
-4. В соседнем терминале запускаем фронт сервис
-```
-npm run start-front-server
 ```
 
 ##Схема БД

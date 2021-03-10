@@ -6,6 +6,7 @@ const pino = require(`pino`);
 const expressPinoLogger = require(`express-pino-logger`);
 
 const {Env} = require(`../consts`);
+const {createDirIfNotExists} = require(`../utils`);
 
 const DEFAULT_LOG_NAME = `base-logger`;
 
@@ -15,6 +16,7 @@ class Logger {
       case Env.PRODUCTION:
         this._level = process.env.LOG_LEVEL || `info`;
         this._isPrettyPrintEnabled = false;
+        createDirIfNotExists(path.resolve(process.env.LOG_FOLDER));
         this._logsDestination = pino.destination(path.join(process.env.LOG_FOLDER, `${name}.log`));
         break;
       case Env.TESTING:
@@ -28,11 +30,13 @@ class Logger {
         this._logsDestination = process.stdout;
         break;
     }
+
     this._logger = pino({
       name,
       level: this._level,
       prettyPrint: this._isPrettyPrintEnabled
     }, this._logsDestination);
+
     this._loggerMiddleware = null;
   }
 

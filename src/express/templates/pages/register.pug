@@ -5,7 +5,7 @@ block content
     h1.visually-hidden Регистрация пользователя
     section.modal
       .popup.popup--registration
-        a.popup__button.button.button--popup-close(href='/' aria-label='Закрыть окно')
+        a.popup__button.button.button--popup-close(class='js-back-button' href='/' aria-label='Закрыть окно')
           | Закрыть
           | окно
         h2.visually-hidden Форма регистрации
@@ -31,18 +31,24 @@ block content
             .form__field
               label
                 input(type='password' placeholder='Повтор пароля' required='' name='password-repeat')
+
+            if errors && errors.length
+              .form__validation-error
+                p.form__error-message При регистрации произошли ошибки:
+                  ul.form__errors
+                    each error in errors
+                      li.form__error #{error}
+
             .form__image-loader
               a.form__avatar.avatar
-                img(src='img/icons/smile.svg' alt='аватар пользователя')
+                img(src='img/icons/smile.svg' width=50 height=50 alt='аватар пользователя' class='js-preview-avatar' style="height: 50px; object-fit: cover; border-radius: 50%;")
               label
-                input.visually-hidden(type='file' name='avatar')
+                input.visually-hidden(type='file' name='avatar' class='js-input-avatar')
                 | Загрузить фото профиля
             button.form__submit-btn.form__submit-btn--register.button.button--colored(type='submit') Зарегистрироваться
 
-            p.form__error-message(style="white-space: pre-wrap; margin-top: 20px;")
-              each error in errors
-                | #{error}
-                br
       .modal__overlay
 
   script(src='/js/main.js')
+  script(src='/js/back-button.js')
+  script(src='/js/avatar-preview.js')

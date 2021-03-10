@@ -59,7 +59,7 @@ module.exports = async (req, res, next) => {
     // получаем токены из кук
     let tokens = JSON.parse(req.cookies.tokens);
 
-    const {payloadAccess, newTokens} = checkOrRefreshTokens(tokens);
+    const {payloadAccess, newTokens} = await checkOrRefreshTokens(tokens);
 
     // если токены обновились, то обновляем их в куках
     if (newTokens) {
@@ -68,10 +68,10 @@ module.exports = async (req, res, next) => {
 
     // запоминаем пользователя
     res.locals.user = payloadAccess.data;
-    res.locals.accessToken = tokens.accessToken;
-  } catch (e) {
+    res.locals.accessToken = newTokens ? newTokens.accessToken : tokens.accessToken;
+  } catch (error) {
     // если что-то крешнулось, то считаем пользователя не авторизованным.
-    req.log.debug(e);
+    req.log.debug(error);
     res.locals.user = {};
   }
 

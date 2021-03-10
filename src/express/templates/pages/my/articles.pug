@@ -4,10 +4,17 @@ block content
   main.main-page.main-page--padding
     section.main-page__notes.notes
       h1.notes__title Мои записи
-      ul.notes__list
-        each article in articles
-          li.notes__list-item
-            time.notes__item-time(datetime=article.publishedAt) #{article.publishedAt}
-            a.notes__item-text(href=`/articles/edit/${article.id}`) #{article.title}
-            button.notes__button.button.button--close-item(type='button')
-              span.visually-hidden Закрыть строку списка
+      if articles.length
+        ul.notes__list
+          each article in articles
+            li.notes__list-item
+              time.notes__item-time(datetime=article.publishedAt) #{new Date(article.publishedAt).toLocaleDateString('ru-RU')}
+              a.notes__item-text(href=`/articles/edit/${article.id}`) #{article.title}
+              form(action=`/articles/delete/${article.id}` method='POST')
+                button.notes__button.button.button--close-item(type='submit')
+                  span.visually-hidden Закрыть строку списка
+      else
+        p У вас нет публикаций.
+
+    if totalPages > 1
+      +pagination

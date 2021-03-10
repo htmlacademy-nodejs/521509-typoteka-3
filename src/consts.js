@@ -34,12 +34,13 @@ const HttpCode = {
 };
 
 /**
- * Длина id
+ * Длина id закачиваемых файлов
  *
  * @const
  * @type {Number}
+ * @default 10
  */
-const ID_LENGTH = 4;
+const ID_LENGTH = 10;
 
 /**
  * Команда по умолчанию при запуске программы
@@ -82,6 +83,33 @@ const Methods = {
   DELETE: `DELETE`
 };
 
+/**
+ * Количество статей на странице по умолчанию
+ *
+ * @type {number}
+ * @const
+ * @default 8
+ */
+const DEFAULT_ARTICLES_COUNT_PER_PAGE = 8;
+
+/**
+ * Количество самых обсуждаемых статей на главной по умолчанию
+ *
+ * @type {number}
+ * @const
+ * @default 4
+ */
+const DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT = 4;
+
+/**
+ * Количество последних комментариев на главной по умолчанию
+ *
+ * @type {number}
+ * @const
+ * @default 4
+ */
+const DEFAULT_LAST_COMMENTS_COUNT = 4;
+
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -90,5 +118,8 @@ module.exports = {
   ExitCodes,
   USER_ARGV_INDEX,
   Env,
-  Methods
+  Methods,
+  DEFAULT_ARTICLES_COUNT_PER_PAGE,
+  DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT,
+  DEFAULT_LAST_COMMENTS_COUNT
 };
