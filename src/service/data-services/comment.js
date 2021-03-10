@@ -1,5 +1,6 @@
 'use strict';
 const Aliases = require(`../db/models/aliase`);
+const {DEFAULT_LAST_COMMENTS_COUNT} = require(`../../consts`);
 
 /**
  * Сервис для работы с комментариями к статье
@@ -11,6 +12,7 @@ class CommentService {
   constructor(db) {
     this._commentModel = db.models.Comment;
     this._articleModel = db.models.Article;
+    this._lastCommentsCount = process.env.LAST_COMMENTS_COUNT || DEFAULT_LAST_COMMENTS_COUNT;
   }
 
   /**
@@ -60,7 +62,7 @@ class CommentService {
    * @return {Object[]} - массив комментариев
    */
   async getLast({onlyLast = true}) {
-    const limit = onlyLast ? process.env.LAST_COMMENTS_COUNT : null;
+    const limit = onlyLast ? this._lastCommentsCount : null;
     const comments = await this._commentModel.findAll({
       order: [[`created_at`, `DESC`]],
       include: [

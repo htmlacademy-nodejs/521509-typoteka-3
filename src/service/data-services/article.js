@@ -3,6 +3,8 @@
 const Aliases = require(`../db/models/aliase`);
 const Sequelize = require(`sequelize`);
 
+const {DEFAULT_ARTICLES_COUNT_PER_PAGE, DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT} = require(`../../consts`);
+
 /**
  * Сервис для работы cо статьями
  */
@@ -16,7 +18,8 @@ class ArticleService {
     this._userModel = db.models.User;
     this._categoryModel = db.models.Category;
     this._commentModel = db.models.Comment;
-    this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE;
+    this._articlesPerPage = +process.env.ARTICLES_COUNT_PER_PAGE || DEFAULT_ARTICLES_COUNT_PER_PAGE;
+    this._articlesMostDiscussedCount = +process.env.ARTICLES_MOST_DISCUSSED_COUNT || DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT;
   }
 
   _getTotalPages(count) {
@@ -110,7 +113,7 @@ class ArticleService {
                 GROUP BY article_id
                 )AS comments_count ON comments_count.article_id = articles.id
               ORDER BY comments_count.count DESC
-              LIMIT ${process.env.ARTICLES_MOST_DISCUSSED_COUNT}
+              LIMIT ${this._articlesMostDiscussedCount}
               ;`
     );
 
