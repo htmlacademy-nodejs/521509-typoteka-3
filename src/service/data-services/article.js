@@ -60,7 +60,7 @@ class ArticleService {
    * @param {Boolean} isForAdmin - для администратора ли запрос (отдаст ещё не опубликованные)
    * @return {Object[]}
    */
-  async getAll({isWithComments, currentPage, isForAdmin}) {
+  async getAll({isWithComments = false, currentPage = 1, isForAdmin = false} = {}) {
     const include = [Aliases.CATEGORIES];
     const order = [[`published_at`, `DESC`]];
     let where = null;
@@ -174,7 +174,7 @@ class ArticleService {
   /**
    * Отдает статью по Id
    * @async
-   * @param {String} id - id статьи
+   * @param {Number} id - id статьи
    * @return {Object} - найденная статья
    */
   async getOne(id) {
