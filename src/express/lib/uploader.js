@@ -6,19 +6,17 @@ const path = require(`path`);
 const multer = require(`multer`);
 const {nanoid} = require(`nanoid`);
 
-/**
- * Папка для загрузки
- * @type {string}
- */
-const UPLOAD_DIR = `../../../upload/`;
+const {ID_LENGTH} = require(`../../consts`);
+const {createDirIfNotExists} = require(`../../utils`);
 
 class Uploader {
   constructor(folderName) {
-    this._uploadDirAbsolute = path.resolve(__dirname, UPLOAD_DIR, folderName);
+    createDirIfNotExists(path.resolve(process.env.UPLOAD_FOLDER));
+    this._uploadDirAbsolute = path.resolve(process.env.UPLOAD_FOLDER, folderName);
     this._storage = multer.diskStorage({
       destination: this._uploadDirAbsolute,
       filename: (req, file, cb) => {
-        const uniqueName = nanoid(10);
+        const uniqueName = nanoid(ID_LENGTH);
         const extension = file.originalname.split(`.`).pop();
         cb(null, `${uniqueName}.${extension}`);
       }

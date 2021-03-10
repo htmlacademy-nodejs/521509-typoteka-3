@@ -6,6 +6,7 @@
  */
 
 const fs = require(`fs`).promises;
+const fsSync = require(`fs`);
 
 const bcrypt = require(`bcrypt`);
 
@@ -164,6 +165,17 @@ const hashUsersPass = async (users) => {
   return result;
 };
 
+/**
+ * Проверяет существует ли директория и создает её, если её нет.
+ *
+ * @param {string} dirPath - абсолютный путь до директории
+ */
+const createDirIfNotExists = (dirPath) => {
+  if (!fsSync.existsSync(dirPath)) {
+    fsSync.mkdirSync(dirPath);
+  }
+};
+
 module.exports = {
   getRandomNumber,
   getRandomItemInArray,
@@ -174,5 +186,6 @@ module.exports = {
   readFileInJSON,
   checkAndReturnPositiveNumber,
   parseDate,
-  hashUsersPass
+  hashUsersPass,
+  createDirIfNotExists
 };

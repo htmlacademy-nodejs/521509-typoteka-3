@@ -34,12 +34,13 @@ const HttpCode = {
 };
 
 /**
- * Длина id
+ * Длина id закачиваемых файлов
  *
  * @const
  * @type {Number}
+ * @default 10
  */
-const ID_LENGTH = 4;
+const ID_LENGTH = 10;
 
 /**
  * Команда по умолчанию при запуске программы
