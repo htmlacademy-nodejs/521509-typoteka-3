@@ -66,7 +66,7 @@ class ArticleService {
   async getAll({isWithComments = false, currentPage = 1, isForAdmin = false} = {}) {
     const include = [Aliases.CATEGORIES];
     const order = [[`published_at`, `DESC`]];
-    let where = null;
+    let where = {};
 
     if (isWithComments) {
       include.push(Aliases.COMMENTS);
