@@ -38,17 +38,20 @@ block content
                       | Обзор
                   button.button.button--transparent Удалить
 
-                each category in categories
-                  .new-publication__checkbox.new-publication__checkbox--auto
-                    input(
-                      id=`category-${category.id}`
-                      type='checkbox'
-                      name='categories[]'
-                      value=category.id
-                      checked=(article.categories && article.categories.some(it => it.id === category.id)))
-                    label(for=`category-${category.id}`) #{category.title}
+                if categories.length
+                  each category in categories
+                    .new-publication__checkbox.new-publication__checkbox--auto
+                      input(
+                        id=`category-${category.id}`
+                        type='checkbox'
+                        name='categories[]'
+                        value=category.id
+                        checked=(article.categories && article.categories.some(it => it.id === category.id)))
+                      label(for=`category-${category.id}`) #{category.title}
+                else
+                  p У вас нет категорий. Добавьте категории&nbsp;
+                    a(href="/my/categories" style="text-decoration: underline;") тут.
 
-                a.new-publication__form-link.button.button--transparent(href='#') Добавить категорию
               .form__wrapper.form__wrapper--text
                 .form__field.form__field--publication-text
                   label

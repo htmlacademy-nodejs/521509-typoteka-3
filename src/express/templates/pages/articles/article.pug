@@ -20,7 +20,7 @@ block content
                       sup #{categories.find(it => it.id === category.id).count}
           if (article.image)
             .post__picture
-              img(src='/img/sea-fullsize@1x.jpg' alt='пейзаж море, скалы, пляж')
+              img(src=`/img/${article.image}` alt=article.title style="width: 100%")
           .post__text
             p #{article.announce}
             p #{article.text}

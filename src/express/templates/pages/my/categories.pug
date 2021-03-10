@@ -16,13 +16,17 @@ block content
             span.visually-hidden Добавить категорию
           button.category__button.button.button--category(type='submit') Добавить
 
-      ul.category__list
-        each category in categories
-          li.category__list-item
-            form(action=`/my/categories/${category.id}/update` method='POST')
-              input(id=`modify-form-category-${category.id}` type='text' name='title' value=category.title)
-              label(for='modify-form-category-${category.id}')
-                span.visually-hidden Редактировать категорию
-              button.category__button.button.button--category(type='submit') Сохранить
-            form(action=`/my/categories/${category.id}/delete` method='POST' style="width: auto;")
-              button.category__button.button.button--category(type='submit') Удалить
+      if categories.length
+        ul.category__list
+          each category in categories
+            li.category__list-item
+              form(action=`/my/categories/${category.id}/update` method='POST')
+                input(id=`modify-form-category-${category.id}` type='text' name='title' value=category.title)
+                label(for='modify-form-category-${category.id}')
+                  span.visually-hidden Редактировать категорию
+                button.category__button.button.button--category(type='submit') Сохранить
+              form(action=`/my/categories/${category.id}/delete` method='POST' style="width: auto;")
+                button.category__button.button.button--category(type='submit') Удалить
+
+      else
+        p(style="padding: 40px") У вас нет категорий.
