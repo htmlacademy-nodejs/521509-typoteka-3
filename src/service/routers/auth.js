@@ -27,8 +27,8 @@ module.exports = (userService) => {
 
 
           res.status(HttpCode.OK).json(tokens);
-        } catch (e) {
-          req.log.debug(e.message);
+        } catch (error) {
+          req.log.debug(error.message);
           res.status(HttpCode.BAD_REQUEST).json({
             error: {
               code: HttpCode.BAD_REQUEST,
@@ -47,13 +47,13 @@ module.exports = (userService) => {
           const tokens = await JWTHelper.refreshAccessToken(refreshToken);
 
           res.status(HttpCode.OK).json(tokens);
-        } catch (e) {
-          req.log.debug(e.message);
+        } catch (error) {
+          req.log.debug(error.message);
           res.status(HttpCode.BAD_REQUEST).json({
             error: {
               code: HttpCode.BAD_REQUEST,
               message: `Invalid refresh token.`,
-              details: e.message
+              details: error.message
             }
           });
         }

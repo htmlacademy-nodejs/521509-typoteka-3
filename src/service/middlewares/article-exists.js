@@ -16,9 +16,9 @@ module.exports = (articleService) => async (req, res, next) => {
     req.log.debug(`Article exists.`);
     next();
 
-  } catch (err) {
+  } catch (error) {
     req.log.debug(`Article doesn't exist...`);
-    res.status(HttpCode.NOT_FOUND).json({error: {code: HttpCode.NOT_FOUND, message: `Article doesn't exist`, details: err.message}});
+    res.status(HttpCode.NOT_FOUND).json({error: {code: HttpCode.NOT_FOUND, message: `Article doesn't exist`, details: error.message}});
   }
 
 };

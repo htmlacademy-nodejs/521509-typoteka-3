@@ -13,8 +13,8 @@ module.exports = (categoryService) => async (req, res, next) => {
     req.log.debug(`Title is unique.`);
     next();
 
-  } catch (err) {
-    req.log.debug(`Title is not unique. ${err}`);
+  } catch (error) {
+    req.log.debug(`Title is not unique. ${error}`);
     res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `Category with such title exists`, details: [`Категория с таким названием существует.`]}});
   }
 

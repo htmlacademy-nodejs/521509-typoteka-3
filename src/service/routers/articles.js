@@ -38,8 +38,8 @@ module.exports = (articleService, commentService) => {
           }
 
           res.status(HttpCode.OK).json(result);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -60,8 +60,8 @@ module.exports = (articleService, commentService) => {
           let result = await articleService.getAll({isWithComments, currentPage, isForAdmin: true});
 
           res.status(HttpCode.OK).json(result);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -71,8 +71,8 @@ module.exports = (articleService, commentService) => {
           let result = await articleService.getMostDiscussed();
 
           res.status(HttpCode.OK).json(result);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -86,8 +86,8 @@ module.exports = (articleService, commentService) => {
           let result = await commentService.getLast({onlyLast: false});
 
           res.status(HttpCode.OK).json(result);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -97,8 +97,8 @@ module.exports = (articleService, commentService) => {
           let result = await commentService.getLast({onlyLast: true});
 
           res.status(HttpCode.OK).json(result);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -125,8 +125,8 @@ module.exports = (articleService, commentService) => {
           newArticle = await articleService.add(newArticle);
 
           res.status(HttpCode.CREATED).json(newArticle);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
 
       });
@@ -147,8 +147,8 @@ module.exports = (articleService, commentService) => {
           updatedArticle = await articleService.update(req.params[`articleId`], updatedArticle);
 
           res.status(HttpCode.OK).json(updatedArticle);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -165,8 +165,8 @@ module.exports = (articleService, commentService) => {
           await articleService.delete(req.params[`articleId`]);
 
           res.status(HttpCode.DELETED).send();
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -178,8 +178,8 @@ module.exports = (articleService, commentService) => {
           const comments = await commentService.getAll(req.params[`articleId`]);
 
           res.status(HttpCode.OK).json(comments);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -197,8 +197,8 @@ module.exports = (articleService, commentService) => {
           newComment = await commentService.add(req.params[`articleId`], newComment);
 
           res.status(HttpCode.CREATED).json(newComment);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -215,8 +215,8 @@ module.exports = (articleService, commentService) => {
           await commentService.delete(req.params[`commentId`]);
 
           res.status(HttpCode.DELETED).send();
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 

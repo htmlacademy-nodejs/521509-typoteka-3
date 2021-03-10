@@ -28,8 +28,8 @@ module.exports = (categoryService) => {
       isWithCount = isWithCount === `true`;
       const categories = await categoryService.getAll(isWithCount);
       res.status(HttpCode.OK).json(categories);
-    } catch (e) {
-      next(e);
+    } catch (error) {
+      next(error);
     }
   });
 
@@ -46,8 +46,8 @@ module.exports = (categoryService) => {
           const categoryData = req.body;
           const categories = await categoryService.add(categoryData);
           res.status(HttpCode.CREATED).json(categories);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -64,8 +64,8 @@ module.exports = (categoryService) => {
           const categoryId = req.params[`categoryId`];
           const categories = await categoryService.update(categoryId, categoryData);
           res.status(HttpCode.OK).json(categories);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 
@@ -80,8 +80,8 @@ module.exports = (categoryService) => {
           const categoryId = req.params[`categoryId`];
           await categoryService.delete(categoryId);
           res.status(HttpCode.DELETED).send();
-        } catch (e) {
-          res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `Can't delete category.`, details: [e.message]}});
+        } catch (error) {
+          res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `Can't delete category.`, details: [error.message]}});
         }
       });
 

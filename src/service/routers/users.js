@@ -24,8 +24,8 @@ module.exports = (userService) => {
           const newUser = await userService.add(userData);
 
           res.status(HttpCode.CREATED).json(newUser);
-        } catch (e) {
-          next(e);
+        } catch (error) {
+          next(error);
         }
       });
 

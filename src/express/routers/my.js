@@ -35,8 +35,8 @@ myRoutes.get(`/`,
         const {articles, totalPages} = await api.getArticlesForAuthor({page}, res.locals.accessToken);
 
         res.render(`pages/my/articles`, {articles, page, prefix: req.baseUrl, totalPages, currentUser: res.locals.user});
-      } catch (e) {
-        next(e);
+      } catch (error) {
+        next(error);
       }
     });
 
@@ -54,8 +54,8 @@ myRoutes.get(`/comments`,
         const comments = await api.getAllComments(res.locals.accessToken);
 
         res.render(`pages/my/comments`, {comments, currentUser: res.locals.user, errors: []});
-      } catch (e) {
-        next(e);
+      } catch (error) {
+        next(error);
       }
     });
 
@@ -71,9 +71,9 @@ myRoutes.post(`/articles/:articleId/comments/:commentId/delete`,
       try {
         await api.deleteComment(req.params.articleId, req.params.commentId, res.locals.accessToken);
         res.redirect(`/my/comments`);
-      } catch (e) {
+      } catch (error) {
         const comments = await api.getAllComments(res.locals.accessToken);
-        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
         res.render(`pages/my/comments`, {comments, currentUser: res.locals.user, errors});
       }
     });
@@ -91,8 +91,8 @@ myRoutes.get(`/categories`,
       try {
         const categories = await api.getCategories();
         res.render(`pages/my/categories`, {categories, currentUser: res.locals.user, errors: []});
-      } catch (e) {
-        next(e);
+      } catch (error) {
+        next(error);
       }
     });
 
@@ -109,9 +109,9 @@ myRoutes.post(`/categories`,
       try {
         await api.addCategory(categoryData, res.locals.accessToken);
         res.redirect(`/my/categories`);
-      } catch (e) {
+      } catch (error) {
         const categories = await api.getCategories();
-        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
         res.render(`pages/my/categories`, {
           categories,
           newCategory: categoryData ? categoryData.title : ``,
@@ -135,9 +135,9 @@ myRoutes.post(`/categories/:id/update`,
       try {
         await api.updateCategory(id, categoryData, res.locals.accessToken);
         res.redirect(`/my/categories`);
-      } catch (e) {
+      } catch (error) {
         const categories = await api.getCategories();
-        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
         res.render(`pages/my/categories`, {
           categories,
           currentUser: res.locals.user,
@@ -159,9 +159,9 @@ myRoutes.post(`/categories/:id/delete`,
       try {
         await api.deleteCategory(id, res.locals.accessToken);
         res.redirect(`/my/categories`);
-      } catch (e) {
+      } catch (error) {
         const categories = await api.getCategories();
-        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
         res.render(`pages/my/categories`, {
           categories,
           currentUser: res.locals.user,

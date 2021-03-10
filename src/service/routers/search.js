@@ -20,8 +20,8 @@ module.exports = (searchService) => {
       const searchResults = await searchService.searchByTitle(query);
 
       res.status(HttpCode.OK).json(searchResults);
-    } catch (e) {
-      next(e);
+    } catch (error) {
+      next(error);
     }
   });
 

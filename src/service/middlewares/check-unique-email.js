@@ -15,8 +15,8 @@ module.exports = (userService) => async (req, res, next) => {
     req.log.debug(`Email is unique.`);
     next();
 
-  } catch (err) {
-    req.log.debug(`Email is not unique.`);
+  } catch (error) {
+    req.log.debug(`Email is not unique. ${error.message}`);
     res.status(HttpCode.BAD_REQUEST).json({error: {code: HttpCode.BAD_REQUEST, message: `User with such email exists.`, details: [`Пользователь с таким e-mail уже существует, попробуйте войти.`]}});
   }
 

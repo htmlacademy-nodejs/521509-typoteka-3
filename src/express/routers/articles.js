@@ -21,8 +21,8 @@ articlesRoutes.get(`/add`,
       try {
         const categories = await api.getCategories();
         res.render(`pages/articles/edit-article`, {article: {}, categories, errors: {}, isNew: true, currentUser: res.locals.user});
-      } catch (e) {
-        next(e);
+      } catch (error) {
+        next(error);
       }
     });
 
@@ -43,11 +43,11 @@ articlesRoutes.post(`/add`,
         articleData = prepareArticleData(body, file);
         await api.createArticle(articleData, res.locals.accessToken);
         res.redirect(`/my`);
-      } catch (e) {
+      } catch (error) {
         const categories = await api.getCategories();
         // из формы категории были массивом id, а не массивом объектов с id, приводим к нужному типу.
         articleData.categories = articleData.categories.map((id) => ({id}));
-        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
         res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: true, currentUser: res.locals.user});
       }
     });
@@ -61,8 +61,8 @@ articlesRoutes.get(`/:id`, checkUserAuthMiddleware, async (req, res, next) => {
     const [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories({isWithCount: true})]);
 
     res.render(`pages/articles/article`, {article, categories, currentUser: res.locals.user, errors: []});
-  } catch (e) {
-    next(e);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -81,8 +81,8 @@ articlesRoutes.get(`/edit/:id`,
       try {
         [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
         res.render(`pages/articles/edit-article`, {article, categories, isNew: false, errors: {}, currentUser: res.locals.user});
-      } catch (err) {
-        req.log.info(`Article is not found`);
+      } catch (error) {
+        req.log.info(`Article is not found. Details: ${error}`);
         res.redirect(`/404`);
       }
     });
@@ -108,13 +108,13 @@ articlesRoutes.post(`/edit/:id`,
 
         await api.updateArticle(id, articleData, res.locals.accessToken);
         res.redirect(`/my`);
-      } catch (e) {
+      } catch (error) {
         const categories = await api.getCategories();
         // из формы категории были массивом id, а не массивом объектов с id, приводим к нужному типу.
         articleData.categories = articleData.categories.map((it) => ({id: it}));
         articleData.id = id;
 
-        const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+        const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
         res.render(`pages/articles/edit-article`, {article: articleData, categories, errors, isNew: false, currentUser: res.locals.user});
       }
     });
@@ -133,8 +133,8 @@ articlesRoutes.post(`/delete/:id`,
       try {
         await api.deleteArticle(id, res.locals.accessToken);
         res.redirect(`/my`);
-      } catch (e) {
-        next(e);
+      } catch (error) {
+        next(error);
       }
     });
 
@@ -147,9 +147,9 @@ articlesRoutes.post(`/:id/comments`, checkUserAuthMiddleware, async (req, res) =
   try {
     await api.addComment(articleId, commentData, res.locals.accessToken);
     res.redirect(`/articles/${articleId}`);
-  } catch (e) {
+  } catch (error) {
     const [article, categories] = await Promise.all([api.getArticle(req.params[`id`]), api.getCategories()]);
-    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+    const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/articles/article`, {
       article,
       categories,
@@ -178,8 +178,8 @@ articlesRoutes.get(`/category/:id`, checkUserAuthMiddleware, async (req, res, ne
       api.getCategories({isWithCount: true})
     ]);
     res.render(`pages/articles/articles-by-category`, {articles, page, totalPages, prefix: req.originalUrl.split(`?`)[0], categories, currentCategoryId, currentUser: res.locals.user});
-  } catch (e) {
-    next(e);
+  } catch (error) {
+    next(error);
   }
 });
 

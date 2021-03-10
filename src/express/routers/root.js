@@ -39,8 +39,8 @@ mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res, next) => {
       api.getLastComments()
     ]);
     res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, mostDiscussedArticles, lastComments, currentUser: res.locals.user});
-  } catch (e) {
-    next(e);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -67,8 +67,8 @@ mainRoutes.post(`/register`, [uploaderMiddleware.single(`avatar`), checkUserAuth
 
     await api.addUser(userData);
     res.redirect(`/login`);
-  } catch (e) {
-    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+  } catch (error) {
+    const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/register`, {user: userData, errors, currentUser: res.locals.user});
   }
 });
@@ -86,8 +86,8 @@ mainRoutes.post(`/login`, [uploaderMiddleware.none(), checkUserAuthMiddleware], 
     const tokens = await api.authUser(userData);
     res.cookie(`tokens`, JSON.stringify(tokens), {httpOnly: true});
     res.redirect(`/`);
-  } catch (e) {
-    const errors = e.response ? e.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
+  } catch (error) {
+    const errors = error.response ? error.response.data.error.details : [`Внутренняя ошибка сервера, выполните запрос позже./Internal Server Error`];
     res.render(`pages/login`, {user: userData, errors, currentUser: res.locals.user});
   }
 });
