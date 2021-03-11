@@ -110,6 +110,15 @@ const DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT = 4;
  */
 const DEFAULT_LAST_COMMENTS_COUNT = 4;
 
+/**
+ * Количество статей, выдаваемых пользователю по поиску по умолчанию
+ *
+ * @type {number}
+ * @const
+ * @default 8
+ */
+const DEFAULT_SEARCH_RESULTS_PER_PAGE = 8;
+
 
 module.exports = {
   DEFAULT_COMMAND,
@@ -121,5 +130,6 @@ module.exports = {
   Methods,
   DEFAULT_ARTICLES_COUNT_PER_PAGE,
   DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT,
-  DEFAULT_LAST_COMMENTS_COUNT
+  DEFAULT_LAST_COMMENTS_COUNT,
+  DEFAULT_SEARCH_RESULTS_PER_PAGE
 };

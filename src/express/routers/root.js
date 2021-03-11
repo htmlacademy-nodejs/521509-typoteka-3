@@ -103,17 +103,26 @@ mainRoutes.get(`/logout`, checkUserAuthMiddleware, (req, res) => {
 /**
  * Обработка маршрута для страницы поиска
  */
-mainRoutes.get(`/search`, checkUserAuthMiddleware, async (req, res) => {
+mainRoutes.get(`/search`, checkUserAuthMiddleware, async (req, res, next) => {
   const searchText = req.query.query || ``;
-  let results = [];
+  let articles = [];
+  let page = 1;
+  let totalPages = 1;
+
   if (searchText) {
     try {
-      results = await api.search(searchText);
-    } catch (err) {
-      req.log.error(err.message);
+      /**
+       * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+       */
+      page = checkAndReturnPositiveNumber(req.query.page, 1);
+
+      ({articles, totalPages} = await api.search({searchText, page}));
+    } catch (error) {
+      req.log.error(error.message);
+      next(error);
     }
   }
-  res.render(`pages/search`, {searchText, results, currentUser: res.locals.user});
+  res.render(`pages/search`, {searchText, articles, currentUser: res.locals.user, page, prefix: `${req.baseUrl}?query=${searchText}`, totalPages});
 });
 
 

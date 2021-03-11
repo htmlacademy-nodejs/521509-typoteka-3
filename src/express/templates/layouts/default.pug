@@ -31,15 +31,17 @@ html(lang='ru')
           }
           let i = start - 1
 
+          const concatSymbol = (prefix.indexOf(`?`) <0) ? `?` : `&`
+
         .preview__toggle-wrapper
           ul.preview__pagination.pagination
             li
-              a.pagination__button.button.button--backwards(class=(page === 1 ? `button--disabled` : ``) href=`${prefix}?page=${page - 1}` aria-label='Страница назад') Назад
+              a.pagination__button.button.button--backwards(class=(page === 1 ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page - 1}` aria-label='Страница назад') Назад
             while i++ < end
               li.pagination__item(class = (i === page ? `pagination__item--active`: ``) )
-                a(href=`${prefix}?page=${i}`) #{i}
+                a(href=`${prefix}${concatSymbol}page=${i}`) #{i}
             li
-              a.pagination__button.button.button--forward(class=(page === totalPages ? `button--disabled` : ``) href=`${prefix}?page=${page + 1}` aria-label='Страница вперед') Вперед
+              a.pagination__button.button.button--forward(class=(page === totalPages ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page + 1}` aria-label='Страница вперед') Вперед
 
 
       include ../components/header.pug
