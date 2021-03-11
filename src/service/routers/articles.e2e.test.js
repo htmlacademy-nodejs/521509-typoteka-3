@@ -17,6 +17,7 @@ const {HttpCode} = require(`../../consts`);
 const mockData = require(`../../../data/mock-test-data`);
 
 const JWTHelper = require(`../lib/jwt-helper`);
+const WebSocket = require(`../lib/web-socket`);
 
 const NEW_ARTICLE = {
   title: `Article form JEST, it can be fantastic`,
@@ -66,7 +67,7 @@ const createAPI = async () => {
   const articleService = new ArticleService(db);
   const commentService = new CommentService(db);
 
-  app.use(`/articles`, articleRouter(new ArticleService(db), new CommentService(db)));
+  app.use(`/articles`, articleRouter(articleService, commentService, WebSocket.getSocketsForTests()));
   return {app, db, articleService, commentService};
 };
 

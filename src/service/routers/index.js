@@ -17,13 +17,13 @@ const {
 } = require(`../data-services/`);
 
 
-module.exports = async (db) => {
+module.exports = async (db, webSocket) => {
   const indexRouter = new Router();
 
   /**
    * Подключаем роутеры, передаем им сервисы
    */
-  indexRouter.use(`/articles`, getArticlesRouter(new ArticleService(db), new CommentService(db)));
+  indexRouter.use(`/articles`, getArticlesRouter(new ArticleService(db), new CommentService(db), webSocket));
   indexRouter.use(`/categories`, getCategoriesRouter(new CategoryService(db)));
   indexRouter.use(`/search`, getSearchRouter(new SearchService(db)));
   indexRouter.use(`/users`, getUsersRouter(new UserService(db)));

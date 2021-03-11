@@ -15,9 +15,16 @@ const commentValidationSchema = require(`../validation-schemas/comment`);
 const {HttpCode} = require(`../../consts`);
 const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
-module.exports = (articleService, commentService) => {
+module.exports = (articleService, commentService, webSocket) => {
   const router = new Router();
 
+  const emitCommentsUpdate = async () => {
+    const mostDiscussedArticles = await articleService.getMostDiscussed();
+    const lastComments = await commentService.getLast({onlyLast: true});
+
+    webSocket.emit(`commentsUpdated`, lastComments);
+    webSocket.emit(`mostDiscussedArticlesUpdated`, mostDiscussedArticles);
+  };
 
   router.get(`/`,
       async (req, res, next) => {
@@ -197,6 +204,8 @@ module.exports = (articleService, commentService) => {
           newComment = await commentService.add(req.params[`articleId`], newComment);
 
           res.status(HttpCode.CREATED).json(newComment);
+
+          await emitCommentsUpdate();
         } catch (error) {
           next(error);
         }
@@ -215,6 +224,8 @@ module.exports = (articleService, commentService) => {
           await commentService.delete(req.params[`commentId`]);
 
           res.status(HttpCode.DELETED).send();
+
+          await emitCommentsUpdate();
         } catch (error) {
           next(error);
         }
