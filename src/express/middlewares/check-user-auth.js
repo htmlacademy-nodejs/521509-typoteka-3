@@ -30,6 +30,8 @@ const checkOrRefreshTokens = async (tokens) => {
     throw new Error(`There aren't any tokens in cookies.`);
   }
 
+  tokens = JSON.parse(tokens);
+
   // смотрим, что находится в payload в токенах
   let payloadAccess = getPayloadFromToken(tokens.accessToken);
   const payloadRefresh = getPayloadFromToken(tokens.refreshToken);
@@ -57,7 +59,7 @@ const checkOrRefreshTokens = async (tokens) => {
 module.exports = async (req, res, next) => {
   try {
     // получаем токены из кук
-    let tokens = JSON.parse(req.cookies.tokens);
+    let tokens = req.cookies.tokens;
 
     const {payloadAccess, newTokens} = await checkOrRefreshTokens(tokens);
 
@@ -71,7 +73,7 @@ module.exports = async (req, res, next) => {
     res.locals.accessToken = newTokens ? newTokens.accessToken : tokens.accessToken;
   } catch (error) {
     // если что-то крешнулось, то считаем пользователя не авторизованным.
-    req.log.debug(error);
+    req.log.debug(`User is not authenticated, see the reason: ${error}`);
     res.locals.user = {};
   }
 
