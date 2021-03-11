@@ -170,7 +170,6 @@ const generateArticle = (titles, sentences, categoriesObjects, images, commentSe
     comments: Array(getRandomNumber(0, MAX_COMMENTS_COUNT)).fill({}).map(() => generateComment(commentSentences, users)),
   };
   // самый первый пользователь автор статей
-  console.log(users);
   article[`user_id`] = users[0].id;
   return article;
 };
