@@ -266,7 +266,8 @@ module.exports = {
        * Запускаем генерацию статей.
        */
       const categoriesObjects = categories.map((it, index) => ({id: index + 1, title: it}));
-      const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences, mockUsers);
+      const usersObjects = mockUsers.map((it, index) => ({id: index + 1, ...it}));
+      const articles = generateArticles(countNumber, titles, sentences, categoriesObjects, images, commentsSentences, usersObjects);
 
       logger.info(`Generated ${articles.length} articles.`);
 

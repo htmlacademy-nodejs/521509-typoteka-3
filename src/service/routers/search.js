@@ -3,13 +3,14 @@
 const {Router} = require(`express`);
 
 const {HttpCode} = require(`../../consts`);
+const {checkAndReturnPositiveNumber} = require(`../../utils`);
 
 module.exports = (searchService) => {
   const router = new Router();
 
   router.get(`/`, async (req, res, next) => {
     try {
-      const {query = ``} = req.query;
+      const {query = ``, page} = req.query;
 
       if (!query) {
         req.log.debug(`Search query string is empty.`);
@@ -17,7 +18,12 @@ module.exports = (searchService) => {
         return;
       }
 
-      const searchResults = await searchService.searchByTitle(query);
+      /**
+       * Пытаемся понять, была ли передана страница, если нет, то возвращаем первую страницу по умолчанию
+       */
+      const currentPage = checkAndReturnPositiveNumber(page, 1);
+
+      const searchResults = await searchService.searchByTitle({searchText: query, currentPage});
 
       res.status(HttpCode.OK).json(searchResults);
     } catch (error) {

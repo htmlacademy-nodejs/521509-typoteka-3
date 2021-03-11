@@ -13,7 +13,7 @@ block content
     else
       include ../components/categories.pug
 
-      .main-page__section-flex(class=(!lastComments.length) ? 'main-page__section-flex--short': '')
+      .main-page__section-flex(class=(!lastComments.length) ? 'main-page__section-flex--short': '').hide-on-update
         section.main-page__hot.hot
           h2.hot__name
             | Самое обсуждаемое
@@ -41,6 +41,7 @@ block content
                   | #{(comment.text.length < 100) ? comment.text : (comment.text.slice(0,100) + `...`)}
             else
               p.last__empty Здесь пока ничего нет...
+      .vue-section
 
       section.main-page__list.preview
         include ../components/articles-preview
@@ -48,3 +49,6 @@ block content
       if totalPages > 1
        +pagination
 
+  script(src=`/js/socket-io.min.js`)
+  script(src=`/js/vue.min.js`)
+  script(src=`/js/data-updater.js`)

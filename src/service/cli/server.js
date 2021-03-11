@@ -6,6 +6,8 @@
  *  @module src/service/cli/server
  */
 
+const http = require(`http`);
+
 const express = require(`express`);
 require(`dotenv`).config();
 
@@ -16,6 +18,7 @@ const resourceNotFoundMiddleWare = require(`../middlewares/resource-not-found`);
 const internalServerErrorMiddleWare = require(`../middlewares/internal-server-error`);
 
 const Logger = require(`../../lib/logger`);
+const WebSocket = require(`../lib/web-socket`);
 
 const {ExitCodes} = require(`../../consts`);
 
@@ -59,6 +62,12 @@ module.exports = {
     app.use(express.json());
 
     /**
+     * Так как помимо экспресса будет ещё и socket.io подключаем http и поднимаем сокет
+     */
+    const server = http.createServer(app);
+    const webSocket = new WebSocket(server);
+
+    /**
      * Используем express-pino-logger для более подробного логирования запросов.
      * К каждому сообщению будет добавлена информация о запросе, в том числе id, чтобы проследить полный путь.
      */
@@ -67,7 +76,7 @@ module.exports = {
     /**
      * Подключаем роутеры
      */
-    app.use(process.env.API_PREFIX, await getIndexRouter(db));
+    app.use(process.env.API_PREFIX, await getIndexRouter(db, webSocket));
 
     /**
      * Подключаем middleware для обработки ошибок
@@ -75,14 +84,13 @@ module.exports = {
     app.use(resourceNotFoundMiddleWare);
     app.use(internalServerErrorMiddleWare);
 
-    app.listen(portNumber, (err) => {
-      if (err) {
-        logger.error(`Error on server starting on port: ${portNumber} \n ${err}`);
-        process.exit(ExitCodes.FAIL);
-        return;
-      }
-
+    server.listen(portNumber, () => {
       logger.info(`Server is started on port: ${portNumber}`);
+    });
+
+    server.on(`error`, (error) => {
+      logger.error(`Error on server starting on port: ${portNumber} \n ${error}`);
+      process.exit(ExitCodes.FAIL);
     });
   }
 };

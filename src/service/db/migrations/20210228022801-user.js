@@ -63,11 +63,11 @@ module.exports = {
           type: Sequelize.INTEGER,
           references: {
             model: `users`, // странное название в sequelize, на самом деле тут не модель, а имя таблицы.
-            key: `id`,
-            allowNull: false
+            key: `id`
           },
           onUpdate: `CASCADE`,
-          onDelete: `CASCADE`
+          onDelete: `CASCADE`,
+          allowNull: false
         }
     );
 
@@ -81,11 +81,11 @@ module.exports = {
           type: Sequelize.INTEGER,
           references: {
             model: `users`, // странное название в sequelize, на самом деле тут не модель, а имя таблицы.
-            key: `id`,
-            allowNull: false
+            key: `id`
           },
           onUpdate: `CASCADE`,
-          onDelete: `CASCADE`
+          onDelete: `CASCADE`,
+          allowNull: false
         }
     );
   },

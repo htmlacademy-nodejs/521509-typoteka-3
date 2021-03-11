@@ -9,6 +9,13 @@ html(lang='ru')
     link(rel='preload' href='/fonts/Inter-Medium.woff2' as='font' crossorigin='anonymous')
     link(rel='preload' href='/fonts/SFProDisplay-Regular.woff2' as='font' crossorigin='anonymous')
     link(rel='stylesheet' href='/css/style.min.css')
+    link(rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png')
+    link(rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png')
+    link(rel='icon' type='image/png' sizes='16x16' href='/favicon-16x16.png')
+    link(rel='manifest' href='/site.webmanifest')
+    link(rel='mask-icon' href='/safari-pinned-tab.svg' color='#5bbad5')
+    meta(name='msapplication-TileColor' content='#da532c')
+    meta(name='theme-color' content='#ffffff')
   body
     .wrapper
 
@@ -31,15 +38,17 @@ html(lang='ru')
           }
           let i = start - 1
 
+          const concatSymbol = (prefix.indexOf(`?`) <0) ? `?` : `&`
+
         .preview__toggle-wrapper
           ul.preview__pagination.pagination
             li
-              a.pagination__button.button.button--backwards(class=(page === 1 ? `button--disabled` : ``) href=`${prefix}?page=${page - 1}` aria-label='Страница назад') Назад
+              a.pagination__button.button.button--backwards(class=(page === 1 ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page - 1}` aria-label='Страница назад') Назад
             while i++ < end
               li.pagination__item(class = (i === page ? `pagination__item--active`: ``) )
-                a(href=`${prefix}?page=${i}`) #{i}
+                a(href=`${prefix}${concatSymbol}page=${i}`) #{i}
             li
-              a.pagination__button.button.button--forward(class=(page === totalPages ? `button--disabled` : ``) href=`${prefix}?page=${page + 1}` aria-label='Страница вперед') Вперед
+              a.pagination__button.button.button--forward(class=(page === totalPages ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page + 1}` aria-label='Страница вперед') Вперед
 
 
       include ../components/header.pug

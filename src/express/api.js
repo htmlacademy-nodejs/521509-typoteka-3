@@ -47,8 +47,8 @@ class API {
     return this._request(`/articles/${id}`);
   }
 
-  search(query) {
-    return this._request(`/search`, {params: {query}});
+  search({searchText, page = 1}) {
+    return this._request(`/search`, {params: {query: searchText, page}});
   }
 
   getCategories({isWithCount = false} = {}) {

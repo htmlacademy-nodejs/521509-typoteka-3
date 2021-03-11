@@ -14,10 +14,10 @@ module.exports = {
           references: {
             model: `articles`, // странное название в sequelize, на самом деле тут не модель, а имя таблицы.
             key: `id`,
-            allowNull: false
           },
           onUpdate: `CASCADE`,
-          onDelete: `CASCADE`
+          onDelete: `CASCADE`,
+          allowNull: false
         }
     );
     /**
