@@ -61,6 +61,16 @@ npm run migrate:all
 ```
 node ./src/service/service.js --generate 20
 ```
+Если данные были сгенерированы таким образом, то вот доступы для автора и читателя:
+```
+Автор
+email: example@example.com
+password: 123456
+
+Читатель
+email: example1@example.com
+password: 123456
+```
 
 10. Запускаем тесты.
 ```
