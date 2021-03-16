@@ -34,7 +34,7 @@ block content
           ul.last__list
             each comment in lastComments
               li.last__list-item
-                img.last__list-image(src=`/img/${comment.users.avatar ? comment.users.avatar : 'icons/smile.svg'}` width='20' height='20' alt='Аватар пользователя')
+                img.last__list-image(src=`/img/${comment.users.avatar ? comment.users.avatar : 'icons/smile.svg'}` width='20' height='20' alt='Аватар пользователя' style="width: 20px;height: 20px; object-fit: cover; border-radius: 50%;")
                 b.last__list-name
                   | #{comment.users.firstName + ' ' + comment.users.lastName}
                 a.last__list-link(href=`/articles/${comment[`article_id`]}`)

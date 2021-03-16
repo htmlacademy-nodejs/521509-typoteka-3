@@ -36,6 +36,7 @@ new Vue({
                 :src="getUserAvatarURL(comment.users.avatar)"
                 width="20" height="20"
                 alt="Аватар пользователя"
+                style="width: 50px;height: 50px; object-fit: cover; border-radius: 50%;"
                >
               <b class="last__list-name">{{ comment.users.firstName }} {{ comment.users.lastName }}</b>
               <a

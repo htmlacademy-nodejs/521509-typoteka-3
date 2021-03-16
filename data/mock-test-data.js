@@ -11,14 +11,16 @@ const MOCK_USERS = [
     lastName: `Иванов`,
     email: `example@example.com`,
     password: `123456`,
-    repeatPassword: `123456`
+    repeatPassword: `123456`,
+    avatar: `avatar-1.png`
   },
   {
     firstName: `Комментатор`,
     lastName: `Коментариевич`,
     email: `example1@example.com`,
     password: `123456`,
-    repeatPassword: `123456`
+    repeatPassword: `123456`,
+    avatar: `avatar-2.png`
   },
   {
     firstName: `Дерзкий`,
