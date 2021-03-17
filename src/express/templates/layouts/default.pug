@@ -50,6 +50,11 @@ html(lang='ru')
             li
               a.pagination__button.button.button--forward(class=(page === totalPages ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page + 1}` aria-label='Страница вперед') Вперед
 
+      mixin cutText(text)
+        if (text.length < 100)
+          | #{text}
+        else
+          | #{text.slice(0,100)}&#8230;
 
       include ../components/header.pug
 
