@@ -45,8 +45,12 @@ html(lang='ru')
             li
               a.pagination__button.button.button--backwards(class=(page === 1 ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page - 1}` aria-label='Страница назад') Назад
             while i++ < end
-              li.pagination__item(class = (i === page ? `pagination__item--active`: ``) )
-                a(href=`${prefix}${concatSymbol}page=${i}`) #{i}
+              if i === page
+                li.pagination__item(class ='pagination__item--active')
+                  a(style = 'cursor: default') #{i}
+              else
+                li.pagination__item
+                  a(href= `${prefix}${concatSymbol}page=${i}`) #{i}
             li
               a.pagination__button.button.button--forward(class=(page === totalPages ? `button--disabled` : ``) href=`${prefix}${concatSymbol}page=${page + 1}` aria-label='Страница вперед') Вперед
 

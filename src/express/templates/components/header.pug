@@ -1,7 +1,13 @@
 header.header
-  a.header__logo.logo(href='/')
-    img.logo__image(src='/img/icons/logo-image-only.svg' alt='логотип Типотека')
-    span.logo__name Типотека
+  if isIndexPage
+    a.header__logo.logo(style="cursor: default;")
+      img.logo__image(src='/img/icons/logo-image-only.svg' alt='логотип Типотека')
+      span.logo__name Типотека
+  else
+    a.header__logo.logo(href='/')
+      img.logo__image(src='/img/icons/logo-image-only.svg' alt='логотип Типотека')
+      span.logo__name Типотека
+  </a>
   if currentUser.isAuthor
     a.button.button--colored.header__button-new(href='/articles/add') Новая запись
     .header__dropdown
