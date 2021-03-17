@@ -206,14 +206,15 @@ class ArticleService {
    * @return {Object} - обновленная статья
    */
   async update(id, articleData) {
-    const updatedOffer = await this._articleModel.update(articleData, {
+    const updatedArticle = await this._articleModel.update(articleData, {
       where: {id},
       returning: true,
       plain: true
     });
 
-    // Это только в постгресе работает.
-    return updatedOffer[1].get();
+    updatedArticle[1].setCategories(articleData.categories);
+
+    return updatedArticle[1].get();
   }
 }
 

@@ -47,7 +47,7 @@ block content
                         name='categories[]'
                         value=category.id
                         checked=(article.categories && article.categories.some(it => it.id === category.id)))
-                      label(for=`category-${category.id}`) #{category.title}
+                      label(for=`category-${category.id}` style="display:flex;") #{category.title}
                 else
                   p У вас нет категорий. Добавьте категории&nbsp;
                     a(href="/my/categories" style="text-decoration: underline;") тут.
