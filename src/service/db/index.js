@@ -41,31 +41,6 @@ class DataBase {
   }
 
   /**
-   * Проверяем, что нам всего хватает для подключения, если нет, кидаем ошибку.
-   * @return {Boolean}
-   */
-  _checkEnv() {
-    let someThingNotDefined;
-
-    if (process.env.NODE_ENV === Env.TESTING) {
-      someThingNotDefined = [DB_TEST_HOST, DB_TEST_PORT, DB_TEST_NAME, DB_TEST_USER, DB_TEST_PASSWORD, DB_POOL_MAX_CONNECTIONS, DB_POOL_MIN_CONNECTIONS, DB_POOL_ACQUIRE, DB_POOL_IDLE, DB_TEST_DIALECT].some((it) => it === undefined);
-    } else {
-      someThingNotDefined = [DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_POOL_MAX_CONNECTIONS, DB_POOL_MIN_CONNECTIONS, DB_POOL_ACQUIRE, DB_POOL_IDLE, DB_DIALECT].some((it) => it === undefined);
-    }
-
-    if (someThingNotDefined) {
-      throw new Error(`Not all environment's variables are found. See .env.example.`);
-    }
-
-    return someThingNotDefined;
-  }
-
-  _defineModels() {
-    defineModels(this._db);
-  }
-
-
-  /**
    * Функция отдает экземпляр Sequelize
    * @return {sequelize.Sequelize}
    */
@@ -115,6 +90,31 @@ class DataBase {
     }
     return this._db;
   }
+
+  /**
+   * Проверяем, что нам всего хватает для подключения, если нет, кидаем ошибку.
+   * @return {Boolean}
+   */
+  _checkEnv() {
+    let someThingNotDefined;
+
+    if (process.env.NODE_ENV === Env.TESTING) {
+      someThingNotDefined = [DB_TEST_HOST, DB_TEST_PORT, DB_TEST_NAME, DB_TEST_USER, DB_TEST_PASSWORD, DB_POOL_MAX_CONNECTIONS, DB_POOL_MIN_CONNECTIONS, DB_POOL_ACQUIRE, DB_POOL_IDLE, DB_TEST_DIALECT].some((it) => it === undefined);
+    } else {
+      someThingNotDefined = [DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD, DB_POOL_MAX_CONNECTIONS, DB_POOL_MIN_CONNECTIONS, DB_POOL_ACQUIRE, DB_POOL_IDLE, DB_DIALECT].some((it) => it === undefined);
+    }
+
+    if (someThingNotDefined) {
+      throw new Error(`Not all environment's variables are found. See .env.example.`);
+    }
+
+    return someThingNotDefined;
+  }
+
+  _defineModels() {
+    defineModels(this._db);
+  }
+
 }
 
 module.exports = DataBase;

@@ -16,6 +16,14 @@ class WebSocket {
     this._init();
   }
 
+  emit(eventName, param) {
+    try {
+      this._socket.emit(eventName, param);
+    } catch (error) {
+      this._logger.error(`Something wrong with socket.io, see info: ${error}`);
+    }
+  }
+
   _init() {
     this._socket.on(`connection`, (client) => {
       const {address: ip} = client.handshake;
@@ -26,14 +34,6 @@ class WebSocket {
         this._logger.info(`Клиент отключён: ${ip}`);
       });
     });
-  }
-
-  emit(eventName, param) {
-    try {
-      this._socket.emit(eventName, param);
-    } catch (error) {
-      this._logger.error(`Something wrong with socket.io, see info: ${error}`);
-    }
   }
 
   static getSocketsForTests() {

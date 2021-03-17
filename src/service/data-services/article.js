@@ -22,10 +22,6 @@ class ArticleService {
     this._articlesMostDiscussedCount = +process.env.ARTICLES_MOST_DISCUSSED_COUNT || DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT;
   }
 
-  _getTotalPages(count) {
-    return Math.ceil(count / (this._articlesPerPage));
-  }
-
   /**
    * Добавление новой статьи
    * @async
@@ -215,6 +211,10 @@ class ArticleService {
     updatedArticle[1].setCategories(articleData.categories);
 
     return updatedArticle[1].get();
+  }
+
+  _getTotalPages(count) {
+    return Math.ceil(count / (this._articlesPerPage));
   }
 }
 

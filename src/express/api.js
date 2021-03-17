@@ -11,12 +11,9 @@ class API {
     });
   }
 
-  async _request(url, options, token) {
-    const headers = token ? {authorization: `Bearer ${token}`} : {};
-    const response = await this._http.request({url, ...options, headers});
-    return response.data;
-  }
-
+  /*
+    Методы для работы с публикациями
+   */
   getArticles({page = 1, isWithComments = false, categoryId = null} = {}) {
     return this._request(`/articles`, {params: {page, isWithComments, categoryId}});
   }
@@ -25,34 +22,12 @@ class API {
     return this._request(`/articles/most-discussed`);
   }
 
-  getLastComments() {
-    return this._request(`/articles/comments/last`);
-  }
-
-  getAllComments(token) {
-    return this._request(`/articles/comments/`, {}, token);
-  }
-
-  deleteComment(articleId, commentId, token) {
-    return this._request(`/articles/${articleId}/comments/${commentId}`, {
-      method: Methods.DELETE
-    }, token);
-  }
-
   getArticlesForAuthor({page = 1, isWithComments = false} = {}, token) {
     return this._request(`/articles/author`, {params: {page, isWithComments}}, token);
   }
 
   getArticle(id) {
     return this._request(`/articles/${id}`);
-  }
-
-  search({searchText, page = 1}) {
-    return this._request(`/search`, {params: {query: searchText, page}});
-  }
-
-  getCategories({isWithCount = false} = {}) {
-    return this._request(`/categories`, {params: {isWithCount}});
   }
 
   createArticle(data, token) {
@@ -75,6 +50,17 @@ class API {
     }, token);
   }
 
+  /*
+    Методы для работы с комментариями
+   */
+  getLastComments() {
+    return this._request(`/articles/comments/last`);
+  }
+
+  getAllComments(token) {
+    return this._request(`/articles/comments/`, {}, token);
+  }
+
   addComment(articleId, data, token) {
     return this._request(`/articles/${articleId}/comments`, {
       method: Methods.POST,
@@ -82,18 +68,32 @@ class API {
     }, token);
   }
 
+
+  deleteComment(articleId, commentId, token) {
+    return this._request(`/articles/${articleId}/comments/${commentId}`, {
+      method: Methods.DELETE
+    }, token);
+  }
+
+  /*
+    Методы для работы поиска
+   */
+  search({searchText, page = 1}) {
+    return this._request(`/search`, {params: {query: searchText, page}});
+  }
+
+  /*
+    Методы для работы с категориями
+   */
+  getCategories({isWithCount = false} = {}) {
+    return this._request(`/categories`, {params: {isWithCount}});
+  }
+
   addCategory(data, token) {
     return this._request(`/categories`, {
       method: Methods.POST,
       data
     }, token);
-  }
-
-  addUser(data) {
-    return this._request(`/users`, {
-      method: Methods.POST,
-      data
-    });
   }
 
   updateCategory(id, data, token) {
@@ -109,6 +109,19 @@ class API {
     }, token);
   }
 
+  /*
+    Методы для работы с пользователем
+   */
+  addUser(data) {
+    return this._request(`/users`, {
+      method: Methods.POST,
+      data
+    });
+  }
+
+  /*
+    Методы для работы с авторизации
+   */
   authUser(data) {
     return this._request(`/auth`, {
       method: Methods.POST,
@@ -121,6 +134,12 @@ class API {
       method: Methods.POST,
       data
     });
+  }
+
+  async _request(url, options, token) {
+    const headers = token ? {authorization: `Bearer ${token}`} : {};
+    const response = await this._http.request({url, ...options, headers});
+    return response.data;
   }
 
   static getDefaultAPI() {
