@@ -38,7 +38,17 @@ mainRoutes.get(`/`, checkUserAuthMiddleware, async (req, res, next) => {
       api.getMostDiscussedArticles(),
       api.getLastComments()
     ]);
-    res.render(`pages/main`, {articles, page, totalPages, prefix: req.path, categories, mostDiscussedArticles, lastComments, currentUser: res.locals.user});
+    res.render(`pages/main`, {
+      articles,
+      page,
+      totalPages,
+      prefix: req.path,
+      categories,
+      mostDiscussedArticles,
+      lastComments,
+      currentUser: res.locals.user,
+      isIndexPage: true
+    });
   } catch (error) {
     next(error);
   }

@@ -22,10 +22,6 @@ class ArticleService {
     this._articlesMostDiscussedCount = +process.env.ARTICLES_MOST_DISCUSSED_COUNT || DEFAULT_ARTICLES_MOST_DISCUSSED_COUNT;
   }
 
-  _getTotalPages(count) {
-    return Math.ceil(count / (this._articlesPerPage));
-  }
-
   /**
    * Добавление новой статьи
    * @async
@@ -206,14 +202,19 @@ class ArticleService {
    * @return {Object} - обновленная статья
    */
   async update(id, articleData) {
-    const updatedOffer = await this._articleModel.update(articleData, {
+    const updatedArticle = await this._articleModel.update(articleData, {
       where: {id},
       returning: true,
       plain: true
     });
 
-    // Это только в постгресе работает.
-    return updatedOffer[1].get();
+    updatedArticle[1].setCategories(articleData.categories);
+
+    return updatedArticle[1].get();
+  }
+
+  _getTotalPages(count) {
+    return Math.ceil(count / (this._articlesPerPage));
   }
 }
 

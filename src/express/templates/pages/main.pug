@@ -22,10 +22,10 @@ block content
             each article in mostDiscussedArticles
               li.hot__list-item
                 a.hot__list-link(href=`/articles/${article.id}`)
-                  | #{(article.announce.length < 100) ? article.announce : (article.announce.slice(0,100) + `...`)}
+                  + cutText(article.announce)
                   sup.hot__link-sup #{article.commentsCount}
             else
-              p.hot__empty Здесь пока ничего нет...
+              p.hot__empty Здесь пока ничего нет&hellip;
 
         section.main-page__last.last
           h2.last__name
@@ -34,13 +34,13 @@ block content
           ul.last__list
             each comment in lastComments
               li.last__list-item
-                img.last__list-image(src=`/img/${comment.users.avatar ? comment.users.avatar : 'icons/smile.svg'}` width='20' height='20' alt='Аватар пользователя')
+                img.last__list-image(src=`/img/${comment.users.avatar ? comment.users.avatar : 'icons/smile.svg'}` width='20' height='20' alt='Аватар пользователя' style="width: 20px;height: 20px; object-fit: cover; border-radius: 50%;")
                 b.last__list-name
                   | #{comment.users.firstName + ' ' + comment.users.lastName}
                 a.last__list-link(href=`/articles/${comment[`article_id`]}`)
-                  | #{(comment.text.length < 100) ? comment.text : (comment.text.slice(0,100) + `...`)}
+                  + cutText(comment.text)
             else
-              p.last__empty Здесь пока ничего нет...
+              p.last__empty Здесь пока ничего нет&hellip;
       .vue-section
 
       section.main-page__list.preview
